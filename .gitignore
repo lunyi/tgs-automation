@@ -1,0 +1,7 @@
+/*.exe
+/cmd/cdnctl/cdnctl.exe
+/client.exe
+/internal/cdnetworks/createCertificate/createCertificate.exe
+/cmd/cdnctl/cdn.log
+/cmd/expired_domain/cdn.log
+/cmd/expired_domain/expired_domain.exe

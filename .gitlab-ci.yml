@@ -1,0 +1,101 @@
+stages:
+  - build
+  - getDomainId
+  - disableDomain
+  - enableDomain
+  - deleteDomain
+  - createDomain
+  - getCertID
+variables:
+  createdomainname:
+
+before_script:
+  - export PATH=$PATH:/usr/local/go/bin
+  - go version
+  - go env
+  - export GO111MODULE=on
+
+build:
+  stage: build
+  script:
+    - cd getDomainId/basic/
+    - go mod tidy
+    - go build -v ./...
+  
+getDomainId:
+  stage: getDomainId
+  script:
+    - cd getDomainId/basic/
+    - pwd
+    - go run Client.go 
+    - DomainID=$(go run Client.go 2>&1 | grep domainidresult |awk '{print $2}')  # 提取并設定DomainID變數給disable/enable/delete階段使用
+    - echo $DomainID
+    - echo $DomainID > domainid.txt
+  artifacts:
+    paths:
+      - getDomainId/basic/domainid.txt
+  only:
+    variables:
+      - $setdomainname
+    
+disableDomain:
+  stage: disableDomain
+  script:
+    - pwd
+    - ls -l getDomainId/basic/domainid.txt
+    - cp getDomainId/basic/domainid.txt .
+    - ls -l domainid.txt
+    - DomainID=$(cat domainid.txt)
+    - cd disableDomain/basic/
+    - go run Client.go $DomainID
+  only:
+    variables:
+      - $disable == "true"
+
+enableDomain:
+  stage: enableDomain
+  script:
+    - pwd
+    - ls -l getDomainId/basic/domainid.txt
+    - cp getDomainId/basic/domainid.txt .
+    - ls -l domainid.txt
+    - DomainID=$(cat domainid.txt)
+    - cd enableDomain/basic/
+    - go run Client.go $DomainID
+  only:
+    variables:
+      - $enable == "true"
+deleteDomain:
+  stage: deleteDomain
+  script:
+    - pwd
+    - ls -l getDomainId/basic/domainid.txt
+    - cp getDomainId/basic/domainid.txt .
+    - ls -l domainid.txt
+    - DomainID=$(cat domainid.txt)
+    - cd enableDomain/basic/
+    - go run Client.go $DomainID
+  only:
+    variables:
+      - $delete == "true"
+createDomain:
+  stage: createDomain
+  script:
+    - cd createDomain/basic
+    - go run Client.go
+    - sleep 15  #等api成功創建域名才能分組
+    - cd ../../controlGroup/basic  #createDomain後需要修改group才會在後台顯示
+    - go run Client.go
+  only:
+    variables:
+      - $createdomainname
+
+getCertID:
+  stage: getCertID
+  script:
+    - cd getCertificateList/basic
+    - go run Client.go
+   
+  only:
+    variables:
+      - $certname
