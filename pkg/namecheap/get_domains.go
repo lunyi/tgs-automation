@@ -91,7 +91,7 @@ func (nc *NamecheapClient) GetExpiredDomains() ([]FilteredDomain, error) {
 		_domains, totolCount, shouldReturn, err := getDomains(nc.HTTPClient, url, index)
 
 		if err != nil {
-			return nil, err
+			return filterDomainsWithExpired(domains), nil
 		}
 		if !shouldReturn {
 			domains = append(domains, _domains...)

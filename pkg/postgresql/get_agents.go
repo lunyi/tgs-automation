@@ -51,7 +51,7 @@ func (s *GetAgentService) GetAgentDomains(domains []namecheap.FilteredDomain) ([
 	JOIN dbo.agent_domains bd ON a.id = bd.agent_id
 	JOIN temp_domains td ON bd.domain_name = td.name
 	ORDER BY 1,2
-`
+	`
 	rows, err := s.Db.Query(query)
 	fmt.Println("start query")
 

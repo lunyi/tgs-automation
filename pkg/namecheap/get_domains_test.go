@@ -15,8 +15,8 @@ import (
 )
 
 func TestNew(t *testing.T) {
-
-	mockHttpClient := createMockHTTPClient(t)
+	domainsResult := createDomainResults()
+	mockHttpClient := createMockHTTPClient(t, domainsResult)
 
 	config := util.NamecheapConfig{
 		NamecheapApiKey:   "NamecheapApiKey",
@@ -38,7 +38,8 @@ func TestNew(t *testing.T) {
 }
 
 func TestNew_Assert(t *testing.T) {
-	mockHttpClient := createMockHTTPClient(t)
+	domainsResult := createDomainResults()
+	mockHttpClient := createMockHTTPClient(t, domainsResult)
 	config := util.NamecheapConfig{
 		NamecheapApiKey:   "NamecheapApiKey",
 		NamecheapUsername: "NamecheapUsername",
@@ -54,8 +55,38 @@ func TestNew_Assert(t *testing.T) {
 	assert.Equal(t, config.NamecheapUsername, namecheapClient.Config.NamecheapUsername)
 }
 
-// A helper function to create a mock HTTP server response
-// createMockResponse helps in creating a mock HTTP response
+func TestGetExpiredDomains(t *testing.T) {
+	domainsResult := createDomainResults()
+
+	var expectedDomains []FilteredDomain
+	for _, domain := range domainsResult {
+		expectedDomains = append(expectedDomains, FilteredDomain{
+			Name:    domain.Name,
+			Created: domain.Created,
+			Expires: domain.Expires,
+		})
+	}
+
+	mockHttpClient := createMockHTTPClient(t, domainsResult)
+
+	client := New(util.NamecheapConfig{
+		NamecheapUsername: "user",
+		NamecheapApiKey:   "key",
+		NamecheapClientIp: "ip",
+	}, mockHttpClient)
+
+	// Mocking time.Now() to return a specific date if necessary
+	// ...
+
+	actualDomains, err := client.GetExpiredDomains()
+
+	// Check if an error occurred
+	assert.NoError(t, err, "Unexpected error: %v", err)
+
+	// Check if the result is as expected
+	assert.Equal(t, expectedDomains, actualDomains, "Unexpected result")
+}
+
 func createMockResponse(statusCode int, body string) *http.Response {
 	return &http.Response{
 		StatusCode: statusCode,
@@ -64,24 +95,12 @@ func createMockResponse(statusCode int, body string) *http.Response {
 	}
 }
 
-func createMockHTTPClient(t *testing.T) *mocks.MockHTTPClient {
-	nextMonth := time.Now().AddDate(0, 1, 0)
+func createMockHTTPClient(t *testing.T, domains []Domain) *mocks.MockHTTPClient {
 	mockApiResponse := ApiResponse{
 		Status: "OK",
 		CommandResponse: CommandResponse{
 			DomainGetListResult: DomainGetListResult{
-				Domains: []Domain{
-					{
-						Name:    "expiredexample.com",
-						Created: time.Now().Add(-96 * time.Hour).Format(dateFormat),
-						Expires: time.Date(nextMonth.Year(), nextMonth.Month(), 2, 0, 0, 0, 0, nextMonth.Location()).Format(dateFormat),
-					},
-					{
-						Name:    "futureexample.com",
-						Created: time.Now().Add(-96 * time.Hour).Format(dateFormat),
-						Expires: time.Date(nextMonth.Year(), nextMonth.Month(), 2, 0, 0, 0, 0, nextMonth.Location()).Format(dateFormat),
-					},
-				},
+				Domains: domains,
 			},
 			Paging: Paging{
 				TotalItems:  2,
@@ -98,28 +117,32 @@ func createMockHTTPClient(t *testing.T) *mocks.MockHTTPClient {
 
 	mockClient := new(mocks.MockHTTPClient)
 	mockClient.On("Get", mock.Anything).Return(createMockResponse(200, string(responseBody)), nil)
-
 	return mockClient
 }
 
-func TestGetExpiredDomains(t *testing.T) {
-	mockHttpClient := createMockHTTPClient(t)
+func createDomainResults() []Domain {
+	nextMonth := time.Now().AddDate(0, 1, 0)
+	domainsResult := []Domain{
+		{
+			Name:    "expiredexample.com",
+			Created: time.Now().Add(-96 * time.Hour).Format(dateFormat),
+			Expires: time.Date(nextMonth.Year(), nextMonth.Month(), 2, 0, 0, 0, 0, nextMonth.Location()).Format(dateFormat),
+		},
+		{
+			Name:    "futureexample.com",
+			Created: time.Now().Add(-96 * time.Hour).Format(dateFormat),
+			Expires: time.Date(nextMonth.Year(), nextMonth.Month(), 2, 0, 0, 0, 0, nextMonth.Location()).Format(dateFormat),
+		},
+	}
 
-	client := New(util.NamecheapConfig{
-		NamecheapUsername: "user",
-		NamecheapApiKey:   "key",
-		NamecheapClientIp: "ip",
-	}, mockHttpClient)
-
-	// Mocking time.Now() to return a specific date if necessary
-	// ...
-
-	domains, err := client.GetExpiredDomains()
-
-	// Check if an error occurred
-	assert.NoError(t, err, "Unexpected error: %v", err)
-
-	// Check if the result is as expected
-	expectedDomain := FilteredDomain{Name: "example.com", Created: "01/01/2022", Expires: "01/02/2023"}
-	assert.Equal(t, []FilteredDomain{expectedDomain}, domains, "Unexpected result")
+	// Convert expectDomains to []FilteredDomain
+	var expectedDomains []FilteredDomain
+	for _, domain := range domainsResult {
+		expectedDomains = append(expectedDomains, FilteredDomain{
+			Name:    domain.Name,
+			Created: domain.Created,
+			Expires: domain.Expires,
+		})
+	}
+	return domainsResult
 }

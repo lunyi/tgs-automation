@@ -17,27 +17,34 @@ import (
 )
 
 type GoogleSheetServiceInterface interface {
-	CreateExpiredDomainExcel(domains []postgresql.DomainForExcel)
+	CreateSheetsService(key string) *sheets.Service
+	CreateSheet(sheetsService *sheets.Service, spreadsheetId string, sheetName string)
+	PlaceTextCenter(title string, values [][]interface{})
+	WriteData(
+		spreadsheetId string,
+		domains []postgresql.DomainForExcel,
+		writeRangeFunc func() string,
+		valueRangeFunc func(domains []postgresql.DomainForExcel) *sheets.ValueRange) error
 }
 
 type GoogleSheetService struct {
-	Service       *sheets.Service
 	SpreadsheetId string
+	GoogleApiKey  string
+	SheetService  *sheets.Service
 }
 
 func New(config util.GoogleSheetConfig) (GoogleSheetServiceInterface, error) {
-	sheetsService := createSheetsService(config.GoogleApiKey)
-
 	return &GoogleSheetService{
-		Service:       sheetsService,
+		GoogleApiKey:  config.GoogleApiKey,
 		SpreadsheetId: config.SheetId,
 	}, nil
 }
 
-func (gs *GoogleSheetService) CreateExpiredDomainExcel(domains []postgresql.DomainForExcel) {
-	sheetName := time.Now().Format("01/2006") // Format: MM/YYYY
-	createSheet(gs.Service, gs.SpreadsheetId, sheetName)
-	gs.writeData(
+func CreateExpiredDomainExcel(gs *GoogleSheetService, sheetName string, domains []postgresql.DomainForExcel) {
+	gs.SheetService = gs.CreateSheetsService(gs.GoogleApiKey)
+	gs.CreateSheet(gs.SheetService, gs.SpreadsheetId, sheetName)
+
+	gs.WriteData(
 		gs.SpreadsheetId,
 		domains,
 		func() string {
@@ -45,13 +52,12 @@ func (gs *GoogleSheetService) CreateExpiredDomainExcel(domains []postgresql.Doma
 		},
 		func(domains []postgresql.DomainForExcel) *sheets.ValueRange {
 			valueRange := createValueRangeForDomain(domains)
-			PlaceTextCenter(gs, sheetName, valueRange.Values)
+			gs.PlaceTextCenter(sheetName, valueRange.Values)
 			return valueRange
 		},
 	)
-	fmt.Println("3")
 
-	gs.writeData(
+	gs.WriteData(
 		gs.SpreadsheetId,
 		domains,
 		func() string {
@@ -65,8 +71,39 @@ func (gs *GoogleSheetService) CreateExpiredDomainExcel(domains []postgresql.Doma
 	fmt.Println("Data successfully written to Google Sheet.")
 }
 
-func PlaceTextCenter(gs *GoogleSheetService, title string, values [][]interface{}) {
-	sheetId, err := getSheetID(gs.Service, gs.SpreadsheetId, title)
+func (gs *GoogleSheetService) CreateSheetsService(key string) *sheets.Service {
+	creds, err := ioutil.ReadFile(key)
+	if err != nil {
+		message := fmt.Sprintf("Unable to read client secret file: %v", err)
+		log.LogFatal(message)
+		fmt.Println(message)
+	}
+
+	conf, err := google.JWTConfigFromJSON(creds, sheets.SpreadsheetsScope)
+	if err != nil {
+		message := fmt.Sprintf("Unable to parse client secret file to config: %v", err)
+		log.LogFatal(message)
+		fmt.Println(message)
+	}
+
+	jwtConf := &jwt.Config{
+		Email:      conf.Email,
+		PrivateKey: conf.PrivateKey,
+		Scopes:     []string{sheets.SpreadsheetsScope},
+		TokenURL:   conf.TokenURL,
+	}
+
+	client := jwtConf.Client(context.Background())
+
+	sheetsService, err := sheets.New(client)
+	if err != nil {
+		log.LogFatal(fmt.Sprintf("Unable to retrieve Sheets client: %v", err))
+	}
+	return sheetsService
+}
+
+func (gs *GoogleSheetService) PlaceTextCenter(title string, values [][]interface{}) {
+	sheetId, err := getSheetID(gs.SheetService, gs.SpreadsheetId, title)
 
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("Fail to get sheet id: %v", err))
@@ -96,13 +133,13 @@ func PlaceTextCenter(gs *GoogleSheetService, title string, values [][]interface{
 		Requests: requests,
 	}
 
-	_, err = gs.Service.Spreadsheets.BatchUpdate(gs.SpreadsheetId, batchUpdate).Do()
+	_, err = gs.SheetService.Spreadsheets.BatchUpdate(gs.SpreadsheetId, batchUpdate).Do()
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("Unable to set alignment: %v", err))
 	}
 }
 
-func (gs *GoogleSheetService) writeData(
+func (gs *GoogleSheetService) WriteData(
 	spreadsheetId string,
 	domains []postgresql.DomainForExcel,
 	writeRangeFunc func() string,
@@ -111,13 +148,40 @@ func (gs *GoogleSheetService) writeData(
 	valueRange := valueRangeFunc(domains)
 	writeRange := writeRangeFunc()
 
-	_, err := gs.Service.Spreadsheets.Values.Update(spreadsheetId, writeRange, valueRange).
+	_, err := gs.SheetService.Spreadsheets.Values.Update(spreadsheetId, writeRange, valueRange).
 		ValueInputOption("RAW").Do()
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("Unable to update cell value: %v", err))
 		return err
 	}
 	return nil
+}
+
+func (gs *GoogleSheetService) CreateSheet(sheetsService *sheets.Service, spreadsheetId string, sheetName string) {
+	if checkIfSheetExists(sheetsService, spreadsheetId, sheetName) {
+		return
+	}
+
+	newSheetProperties := &sheets.SheetProperties{
+		Title: sheetName,
+	}
+
+	batchUpdateRequest := &sheets.BatchUpdateSpreadsheetRequest{
+		Requests: []*sheets.Request{
+			{
+				AddSheet: &sheets.AddSheetRequest{
+					Properties: newSheetProperties,
+				},
+			},
+		},
+	}
+
+	_, err := sheetsService.Spreadsheets.BatchUpdate(spreadsheetId, batchUpdateRequest).Do()
+	if err != nil {
+		log.LogFatal(fmt.Sprintf("Unable to create new sheet: %v", err))
+	}
+
+	fmt.Printf("New sheet '%s' created successfully.\n", sheetName)
 }
 
 func createValueRangeForDomain(domains []postgresql.DomainForExcel) *sheets.ValueRange {
@@ -190,64 +254,6 @@ func mapStrings(domains []postgresql.DomainForExcel, f func(postgresql.DomainFor
 		result[i] = f(v)
 	}
 	return result
-}
-
-func createSheetsService(key string) *sheets.Service {
-	creds, err := ioutil.ReadFile(key)
-	if err != nil {
-		message := fmt.Sprintf("Unable to read client secret file: %v", err)
-		log.LogFatal(message)
-		fmt.Println(message)
-	}
-
-	conf, err := google.JWTConfigFromJSON(creds, sheets.SpreadsheetsScope)
-	if err != nil {
-		message := fmt.Sprintf("Unable to parse client secret file to config: %v", err)
-		log.LogFatal(message)
-		fmt.Println(message)
-	}
-
-	jwtConf := &jwt.Config{
-		Email:      conf.Email,
-		PrivateKey: conf.PrivateKey,
-		Scopes:     []string{sheets.SpreadsheetsScope},
-		TokenURL:   conf.TokenURL,
-	}
-
-	client := jwtConf.Client(context.Background())
-
-	sheetsService, err := sheets.New(client)
-	if err != nil {
-		log.LogFatal(fmt.Sprintf("Unable to retrieve Sheets client: %v", err))
-	}
-	return sheetsService
-}
-
-func createSheet(sheetsService *sheets.Service, spreadsheetId string, sheetName string) {
-	if checkIfSheetExists(sheetsService, spreadsheetId, sheetName) {
-		return
-	}
-
-	newSheetProperties := &sheets.SheetProperties{
-		Title: sheetName,
-	}
-
-	batchUpdateRequest := &sheets.BatchUpdateSpreadsheetRequest{
-		Requests: []*sheets.Request{
-			{
-				AddSheet: &sheets.AddSheetRequest{
-					Properties: newSheetProperties,
-				},
-			},
-		},
-	}
-
-	_, err := sheetsService.Spreadsheets.BatchUpdate(spreadsheetId, batchUpdateRequest).Do()
-	if err != nil {
-		log.LogFatal(fmt.Sprintf("Unable to create new sheet: %v", err))
-	}
-
-	fmt.Printf("New sheet '%s' created successfully.\n", sheetName)
 }
 
 func checkIfSheetExists(sheetsService *sheets.Service, spreadsheetId string, sheetName string) bool {
