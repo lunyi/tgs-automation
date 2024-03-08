@@ -1,16 +1,26 @@
 package main
 
 import (
+	"cdnetwork/internal/httpclient"
 	"cdnetwork/internal/util"
 	"cdnetwork/pkg/googlesheet"
 	"cdnetwork/pkg/namecheap"
 	"cdnetwork/pkg/postgresql"
 	"fmt"
+	"net/http"
+	"time"
 )
 
 func main() {
 	config := util.GetConfig()
-	namecheapClient := namecheap.New(config.Namecheap)
+
+	myclient := &httpclient.StandardHTTPClient{
+		Client: &http.Client{
+			Timeout: 10 * time.Second,
+		},
+	}
+
+	namecheapClient := namecheap.New(config.Namecheap, myclient)
 
 	domains, err := namecheapClient.GetExpiredDomains()
 	if err != nil {

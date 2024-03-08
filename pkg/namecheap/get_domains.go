@@ -1,12 +1,12 @@
 package namecheap
 
 import (
+	"cdnetwork/internal/httpclient"
 	"cdnetwork/internal/log"
 	"cdnetwork/internal/util"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"strconv"
 	"time"
 )
@@ -66,12 +66,14 @@ type NamecheapAPI interface {
 }
 
 type NamecheapClient struct {
-	Config util.NamecheapConfig
+	Config     util.NamecheapConfig
+	HTTPClient httpclient.HttpClient
 }
 
-func New(config util.NamecheapConfig) NamecheapAPI {
+func New(config util.NamecheapConfig, httpClient httpclient.HttpClient) NamecheapAPI {
 	return &NamecheapClient{
-		Config: config,
+		Config:     config,
+		HTTPClient: httpClient,
 	}
 }
 
@@ -86,7 +88,7 @@ func (nc *NamecheapClient) GetExpiredDomains() ([]FilteredDomain, error) {
 	index := 1
 	for index < maxPages {
 		fmt.Println(index)
-		_domains, totolCount, shouldReturn, err := getDomains(url, index)
+		_domains, totolCount, shouldReturn, err := getDomains(nc.HTTPClient, url, index)
 
 		if err != nil {
 			return nil, err
@@ -107,16 +109,19 @@ func (nc *NamecheapClient) GetExpiredDomains() ([]FilteredDomain, error) {
 
 func filterDomainsWithExpired(domains []Domain) []FilteredDomain {
 	currentDate := time.Now()
-	next30Days := currentDate.AddDate(0, 0, 30)
+	nextMonth := currentDate.AddDate(0, 1, 0)
+	firstDayOfNextMonth := time.Date(nextMonth.Year(), nextMonth.Month(), 1, 0, 0, 0, 0, nextMonth.Location())
+	lastDayOfNextMonth := firstDayOfNextMonth.AddDate(0, 1, 0)
+
 	var result []FilteredDomain
 	for _, domain := range domains {
 		expireDate, err := time.Parse(dateFormat, domain.Expires)
 		if err != nil {
-			fmt.Println("Error parsing expiration date:", err)
+			fmt.Println("Error parsing expiration date2:", err)
 			continue
 		}
 
-		if expireDate.After(currentDate) && expireDate.Before(next30Days) {
+		if expireDate.After(firstDayOfNextMonth) && expireDate.Before(lastDayOfNextMonth) {
 			result = append(result, FilteredDomain{
 				Name:    domain.Name,
 				Created: domain.Created,
@@ -131,11 +136,11 @@ func filterDomainsWithExpired(domains []Domain) []FilteredDomain {
 	return result
 }
 
-func getDomains(url string, index int) ([]Domain, int, bool, error) {
+func getDomains(httpclient httpclient.HttpClient, url string, index int) ([]Domain, int, bool, error) {
 	url = url + strconv.Itoa(index)
 	fmt.Println("url:", url)
 
-	response, err := http.Get(url)
+	response, err := httpclient.Get(url)
 	if err != nil {
 		fmt.Println("Error fetching domain list:", err)
 		return []Domain{}, -1, true, err
