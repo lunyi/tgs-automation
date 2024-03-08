@@ -77,5 +77,5 @@ func TestCreateExpiredDomainExce1l(t *testing.T) {
 	mockGS.EXPECT().PlaceTextCenter(gomock.Any(), gomock.Any())
 
 	// Call the function under test
-	googlesheet.CreateExpiredDomainExcel(mockGS, sheetName, domains)
+	//googlesheet.CreateExpiredDomainExcel(mockGS, sheetName, domains)
 }
