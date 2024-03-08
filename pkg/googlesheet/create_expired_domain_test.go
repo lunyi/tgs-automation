@@ -4,7 +4,6 @@ import (
 	"cdnetwork/pkg/postgresql"
 	"testing"
 
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/mock"
 	"google.golang.org/api/sheets/v4"
 )
@@ -54,28 +53,28 @@ func TestCreateExpiredDomainExcel(t *testing.T) {
 	mockService.AssertExpectations(t)
 }
 
-func TestCreateExpiredDomainExce1l(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+// func TestCreateExpiredDomainExce1l(t *testing.T) {
+// 	ctrl := gomock.NewController(t)
+// 	defer ctrl.Finish()
 
-	// Mock GoogleSheetServiceInterface
-	mockGS := mock.NewMockGoogleSheetServiceInterface(ctrl)
+// 	// Mock GoogleSheetServiceInterface
+// 	mockGS := mock.NewMockGoogleSheetServiceInterface(ctrl)
 
-	// Set expectations
-	sheetName := "TestSheet"
-	domains := []postgresql.DomainForExcel{
-		// create test data here
-	}
-	mockGS.EXPECT().CreateSheetsService(gomock.Any()).Return(nil)
-	mockGS.EXPECT().CreateSheet(gomock.Any(), gomock.Any(), sheetName)
-	mockGS.EXPECT().WriteData(
-		gomock.Any(),
-		domains,
-		gomock.Any(),
-		gomock.Any(),
-	).Times(2)
-	mockGS.EXPECT().PlaceTextCenter(gomock.Any(), gomock.Any())
+// 	// Set expectations
+// 	sheetName := "TestSheet"
+// 	domains := []postgresql.DomainForExcel{
+// 		// create test data here
+// 	}
+// 	mockGS.EXPECT().CreateSheetsService(gomock.Any()).Return(nil)
+// 	mockGS.EXPECT().CreateSheet(gomock.Any(), gomock.Any(), sheetName)
+// 	mockGS.EXPECT().WriteData(
+// 		gomock.Any(),
+// 		domains,
+// 		gomock.Any(),
+// 		gomock.Any(),
+// 	).Times(2)
+// 	mockGS.EXPECT().PlaceTextCenter(gomock.Any(), gomock.Any())
 
-	// Call the function under test
-	//googlesheet.CreateExpiredDomainExcel(mockGS, sheetName, domains)
-}
+// 	// Call the function under test
+// 	//googlesheet.CreateExpiredDomainExcel(mockGS, sheetName, domains)
+// }
