@@ -34,12 +34,16 @@ func main() {
 		fmt.Println(err.Error())
 	}
 
-	googleSheetSvc, err := googlesheet.New(config.GoogleSheet)
+	googleSheetSvcInterface, googleSheetSvc, err := googlesheet.New(config.GoogleSheet)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 
 	sheetName := time.Now().Format("01/2006") // Format: MM/YYYY
 
-	googlesheet.CreateExpiredDomainExcel(googleSheetSvc.(*googlesheet.GoogleSheetService), sheetName, domainsForExcel)
+	googlesheet.CreateExpiredDomainExcel(
+		googleSheetSvcInterface,
+		googleSheetSvc,
+		sheetName,
+		domainsForExcel)
 }

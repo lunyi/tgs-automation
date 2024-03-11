@@ -19,7 +19,6 @@ import (
 type GoogleSheetServiceInterface interface {
 	CreateSheetsService(key string) *sheets.Service
 	CreateSheet(sheetsService *sheets.Service, spreadsheetId string, sheetName string)
-	PlaceTextCenter(title string, values [][]interface{})
 	WriteData(
 		spreadsheetId string,
 		domains []postgresql.DomainForExcel,
@@ -33,32 +32,33 @@ type GoogleSheetService struct {
 	SheetService  *sheets.Service
 }
 
-func New(config util.GoogleSheetConfig) (GoogleSheetServiceInterface, error) {
-	return &GoogleSheetService{
+func New(config util.GoogleSheetConfig) (GoogleSheetServiceInterface, *GoogleSheetService, error) {
+	svc := &GoogleSheetService{
 		GoogleApiKey:  config.GoogleApiKey,
 		SpreadsheetId: config.SheetId,
-	}, nil
+	}
+	return svc, svc, nil
 }
 
-func CreateExpiredDomainExcel(gs *GoogleSheetService, sheetName string, domains []postgresql.DomainForExcel) {
-	gs.SheetService = gs.CreateSheetsService(gs.GoogleApiKey)
-	gs.CreateSheet(gs.SheetService, gs.SpreadsheetId, sheetName)
+func CreateExpiredDomainExcel(gs GoogleSheetServiceInterface, gss *GoogleSheetService, sheetName string, domains []postgresql.DomainForExcel) {
+	gss.SheetService = gs.CreateSheetsService(gss.GoogleApiKey)
+	gs.CreateSheet(gss.SheetService, gss.SpreadsheetId, sheetName)
 
 	gs.WriteData(
-		gs.SpreadsheetId,
+		gss.SpreadsheetId,
 		domains,
 		func() string {
 			return fmt.Sprintf("%s!A1:F%d", sheetName, len(domains)+1)
 		},
 		func(domains []postgresql.DomainForExcel) *sheets.ValueRange {
 			valueRange := createValueRangeForDomain(domains)
-			gs.PlaceTextCenter(sheetName, valueRange.Values)
+			placeTextCenter(gss, sheetName, valueRange.Values)
 			return valueRange
 		},
 	)
 
 	gs.WriteData(
-		gs.SpreadsheetId,
+		gss.SpreadsheetId,
 		domains,
 		func() string {
 			return fmt.Sprintf("%s!A%d:F%d", sheetName, len(domains)+3, len(domains)+3)
@@ -102,7 +102,7 @@ func (gs *GoogleSheetService) CreateSheetsService(key string) *sheets.Service {
 	return sheetsService
 }
 
-func (gs *GoogleSheetService) PlaceTextCenter(title string, values [][]interface{}) {
+func placeTextCenter(gs *GoogleSheetService, title string, values [][]interface{}) {
 	sheetId, err := getSheetID(gs.SheetService, gs.SpreadsheetId, title)
 
 	if err != nil {

@@ -8,7 +8,7 @@ import (
 	postgresql "cdnetwork/pkg/postgresql"
 	reflect "reflect"
 
-	gomock "github.com/golang/mock/gomock"
+	"go.uber.org/mock/gomock"
 	sheets "google.golang.org/api/sheets/v4"
 )
 
@@ -59,18 +59,6 @@ func (m *MockGoogleSheetServiceInterface) CreateSheetsService(key string) *sheet
 func (mr *MockGoogleSheetServiceInterfaceMockRecorder) CreateSheetsService(key interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSheetsService", reflect.TypeOf((*MockGoogleSheetServiceInterface)(nil).CreateSheetsService), key)
-}
-
-// PlaceTextCenter mocks base method.
-func (m *MockGoogleSheetServiceInterface) PlaceTextCenter(title string, values [][]interface{}) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "PlaceTextCenter", title, values)
-}
-
-// PlaceTextCenter indicates an expected call of PlaceTextCenter.
-func (mr *MockGoogleSheetServiceInterfaceMockRecorder) PlaceTextCenter(title, values interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlaceTextCenter", reflect.TypeOf((*MockGoogleSheetServiceInterface)(nil).PlaceTextCenter), title, values)
 }
 
 // WriteData mocks base method.
