@@ -1,3 +1,6 @@
+//go:build wireinject
+// +build wireinject
+
 package main
 
 import (
@@ -8,7 +11,6 @@ import (
 
 func InitExpiredDomainsService(cfg util.TgsConfig) (*ExpiredDomainsService, error) {
 	wire.Build(
-		expiredDomainSet,
 		newExpiredDomainsService,
 	)
 	return &ExpiredDomainsService{}, nil
