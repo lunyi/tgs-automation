@@ -1,3 +1,4 @@
+// go install github.com/google/wire/cmd/wire@latest
 package main
 
 import (
