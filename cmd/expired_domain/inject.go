@@ -14,9 +14,11 @@ import (
 )
 
 var expiredDomainSet = wire.NewSet(
+	providerHttpClient,
 	providerNameCheap,
 	providerPosrgresql,
-	providerGoogleSheet,
+	providerGoogleSheetSvc,
+	providerGoogleSheetInterface,
 )
 
 func providerNameCheap(
@@ -30,9 +32,29 @@ func providerPosrgresql(
 	return postgresql.New(cfg)
 }
 
-func providerGoogleSheet(
-	cfg util.GoogleSheetConfig) (googlesheet.GoogleSheetServiceInterface, *googlesheet.GoogleSheetService, error) {
-	return googlesheet.New(cfg)
+func providerGoogleSheetSvc(
+	cfg util.GoogleSheetConfig) *googlesheet.GoogleSheetService {
+	itf, svc, err := googlesheet.New(cfg)
+	if err != nil {
+		return svc
+	}
+
+	if itf != nil {
+		return svc
+	}
+	return nil
+}
+
+func providerGoogleSheetInterface(
+	cfg util.GoogleSheetConfig) googlesheet.GoogleSheetServiceInterface {
+	itf, svc, err := googlesheet.New(cfg)
+	if err != nil {
+		return itf
+	}
+	if svc != nil {
+		return svc
+	}
+	return nil
 }
 
 func providerHttpClient() *httpclient.StandardHTTPClient {
