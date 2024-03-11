@@ -10,7 +10,7 @@ import (
 )
 
 func InitExpiredDomainsService(cfg util.TgsConfig) (*ExpiredDomainsService, error) {
-	wire.Bind(
+	wire.Build(
 		expiredDomainSet,
 		newExpiredDomainsService,
 	)
