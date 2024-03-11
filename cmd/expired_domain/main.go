@@ -22,8 +22,8 @@ func newExpiredDomainsService(
 	googlesheetInterface *googlesheet.GoogleSheetServiceInterface,
 	googlesheetSvc *googlesheet.GoogleSheetService,
 	postgresqlInterface *postgresql.GetAgentServiceInterface,
-	namecheapInterface *namecheap.NamecheapAPI
-	) *ExpiredDomainsService {
+	namecheapInterface *namecheap.NamecheapAPI,
+) *ExpiredDomainsService {
 	return &ExpiredDomainsService{
 		googlesheetInterface: googlesheetInterface,
 		googlesheetSvc:       googlesheetSvc,
@@ -68,4 +68,3 @@ func main() {
 		sheetName,
 		domainsForExcel)
 }
-
