@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cdnetwork/internal/httpclient"
 	"cdnetwork/internal/log"
 	"cdnetwork/internal/util"
 	"cdnetwork/pkg/googlesheet"
@@ -10,23 +11,21 @@ import (
 )
 
 type ExpiredDomainsService struct {
-	googlesheetInterface *googlesheet.GoogleSheetServiceInterface
+	googlesheetInterface googlesheet.GoogleSheetServiceInterface
 	googlesheetSvc       *googlesheet.GoogleSheetService
-	postgresqlInterface  *postgresql.GetAgentService
-	namecheapInterface   *namecheap.NamecheapClient
+	postgresqlInterface  postgresql.GetAgentServiceInterface
+	namecheapInterface   namecheap.NamecheapAPI
+	httpClient           *httpclient.StandardHTTPClient
 }
 
-func newExpiredDomainsService(
-	googlesheetInterface *googlesheet.GoogleSheetServiceInterface,
-	googlesheetSvc *googlesheet.GoogleSheetService,
-	postgresqlInterface *postgresql.GetAgentService,
-	namecheapInterface *namecheap.NamecheapClient,
-) *ExpiredDomainsService {
+func newExpiredDomainsService(config util.TgsConfig) *ExpiredDomainsService {
+	client := providerHttpClient()
 	return &ExpiredDomainsService{
-		googlesheetInterface: googlesheetInterface,
-		googlesheetSvc:       googlesheetSvc,
-		postgresqlInterface:  postgresqlInterface,
-		namecheapInterface:   namecheapInterface,
+		httpClient:           client,
+		googlesheetInterface: providerGoogleSheetInterface(config.GoogleSheet),
+		googlesheetSvc:       providerGoogleSheetSvc(config.GoogleSheet),
+		postgresqlInterface:  providerPostgresql(config.Postgresql),
+		namecheapInterface:   providerNameCheap(config.Namecheap, client),
 	}
 }
 
@@ -52,7 +51,7 @@ func main() {
 		log.LogFatal(err.Error())
 	}
 
-	googlesheet.CreateExpiredDomainExcel(*app.googlesheetInterface, app.googlesheetSvc, sheetName, filterDomains)
+	googlesheet.CreateExpiredDomainExcel(app.googlesheetInterface, app.googlesheetSvc, sheetName, filterDomains)
 
 	// myclient := &httpclient.StandardHTTPClient{
 	// 	Client: &http.Client{
