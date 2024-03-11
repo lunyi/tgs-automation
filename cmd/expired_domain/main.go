@@ -11,6 +11,27 @@ import (
 	"time"
 )
 
+type ExpiredDomainsService struct {
+	googlesheetInterface *googlesheet.GoogleSheetServiceInterface
+	googlesheetSvc       *googlesheet.GoogleSheetService
+	postgresqlInterface  *postgresql.GetAgentServiceInterface
+	namecheapInterface   *namecheap.NamecheapAPI
+}
+
+func newExpiredDomainsService(
+	googlesheetInterface *googlesheet.GoogleSheetServiceInterface,
+	googlesheetSvc *googlesheet.GoogleSheetService,
+	postgresqlInterface *postgresql.GetAgentServiceInterface,
+	namecheapInterface *namecheap.NamecheapAPI
+	) *ExpiredDomainsService {
+	return &ExpiredDomainsService{
+		googlesheetInterface: googlesheetInterface,
+		googlesheetSvc:       googlesheetSvc,
+		postgresqlInterface:  postgresqlInterface,
+		namecheapInterface:   namecheapInterface,
+	}
+}
+
 func main() {
 	config := util.GetConfig()
 
@@ -47,3 +68,4 @@ func main() {
 		sheetName,
 		domainsForExcel)
 }
+

@@ -1,3 +1,5 @@
+//mockgen -destination  create_expired_domain_mock.go -source create_expired_domain.go -package googlesheet
+
 package googlesheet
 
 import (
