@@ -8,7 +8,7 @@ LABEL maintainer="ly.lester@rayprosoft.com"
 WORKDIR /app
 
 # Copy go mod and sum files
-COPY go.mod go.sum ./
+COPY ../go.mod ../go.sum ./
 
 # Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
 RUN go mod download
@@ -17,7 +17,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN go build -o main ./cmd/expired_domain
+RUN go build -o main expired_domain
 
 # Expose port 8080 to the outside world
 EXPOSE 8080
