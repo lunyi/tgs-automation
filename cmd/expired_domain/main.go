@@ -29,6 +29,24 @@ func newExpiredDomainsService(config util.TgsConfig) *ExpiredDomainsService {
 	}
 }
 
+func (app *ExpiredDomainsService) Create(sheetName string) error {
+	domains, err := app.namecheapInterface.GetExpiredDomains()
+
+	if err != nil {
+		log.LogFatal(err.Error())
+		return err
+	}
+
+	filterDomains, err := app.postgresqlInterface.GetAgentDomains(domains)
+
+	if err != nil {
+		log.LogFatal(err.Error())
+		return err
+	}
+
+	googlesheet.CreateExpiredDomainExcel(app.googlesheetInterface, app.googlesheetSvc, sheetName, filterDomains)
+}
+
 func main() {
 	config := util.GetConfig()
 	sheetName := time.Now().Format("01/2006")
@@ -39,19 +57,21 @@ func main() {
 		log.LogFatal(err.Error())
 	}
 
-	domains, err := app.namecheapInterface.GetExpiredDomains()
+	app.Create(sheetName)
 
-	if err != nil {
-		log.LogFatal(err.Error())
-	}
+	// domains, err := app.namecheapInterface.GetExpiredDomains()
 
-	filterDomains, err := app.postgresqlInterface.GetAgentDomains(domains)
+	// if err != nil {
+	// 	log.LogFatal(err.Error())
+	// }
 
-	if err != nil {
-		log.LogFatal(err.Error())
-	}
+	// filterDomains, err := app.postgresqlInterface.GetAgentDomains(domains)
 
-	googlesheet.CreateExpiredDomainExcel(app.googlesheetInterface, app.googlesheetSvc, sheetName, filterDomains)
+	// if err != nil {
+	// 	log.LogFatal(err.Error())
+	// }
+
+	// googlesheet.CreateExpiredDomainExcel(app.googlesheetInterface, app.googlesheetSvc, sheetName, filterDomains)
 
 	// myclient := &httpclient.StandardHTTPClient{
 	// 	Client: &http.Client{

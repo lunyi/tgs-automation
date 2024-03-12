@@ -9,16 +9,6 @@ import (
 	"cdnetwork/pkg/postgresql"
 	"net/http"
 	"time"
-
-	"github.com/google/wire"
-)
-
-var expiredDomainSet = wire.NewSet(
-	providerHttpClient,
-	providerNameCheap,
-	providerPostgresql,
-	providerGoogleSheetSvc,
-	providerGoogleSheetInterface,
 )
 
 func providerNameCheap(cfg util.NamecheapConfig, client *httpclient.StandardHTTPClient) namecheap.NamecheapAPI {
