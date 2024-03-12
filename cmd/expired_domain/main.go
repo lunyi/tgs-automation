@@ -44,7 +44,12 @@ func (app *ExpiredDomainsService) Create(sheetName string) error {
 		return err
 	}
 
-	googlesheet.CreateExpiredDomainExcel(app.googlesheetInterface, app.googlesheetSvc, sheetName, filterDomains)
+	err = googlesheet.CreateExpiredDomainExcel(app.googlesheetInterface, app.googlesheetSvc, sheetName, filterDomains)
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func main() {
@@ -58,6 +63,10 @@ func main() {
 	}
 
 	app.Create(sheetName)
+
+	if err != nil {
+		log.LogFatal(err.Error())
+	}
 
 	// domains, err := app.namecheapInterface.GetExpiredDomains()
 
