@@ -13,6 +13,6 @@ import (
 // Injectors from wire.go:
 
 func InitExpiredDomainsService(cfg util.TgsConfig) (*ExpiredDomainsService, error) {
-	expiredDomainsService := newExpiredDomainsService(cfg)
+	expiredDomainsService := NewExpiredDomainsService(cfg)
 	return expiredDomainsService, nil
 }

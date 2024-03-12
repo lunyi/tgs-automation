@@ -18,16 +18,6 @@ type ExpiredDomainsService struct {
 	httpClient           *httpclient.StandardHTTPClient
 }
 
-func newExpiredDomainsService(config util.TgsConfig) *ExpiredDomainsService {
-	client := providerHttpClient()
-	return &ExpiredDomainsService{
-		httpClient:           client,
-		googlesheetInterface: providerGoogleSheetInterface(config.GoogleSheet),
-		googlesheetSvc:       providerGoogleSheetSvc(config.GoogleSheet),
-		postgresqlInterface:  providerPostgresql(config.Postgresql),
-		namecheapInterface:   providerNameCheap(config.Namecheap, client),
-	}
-}
 
 func (app *ExpiredDomainsService) Create(sheetName string) error {
 	domains, err := app.namecheapInterface.GetExpiredDomains()

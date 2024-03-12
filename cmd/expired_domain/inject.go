@@ -11,6 +11,17 @@ import (
 	"time"
 )
 
+func NewExpiredDomainsService(config util.TgsConfig) *ExpiredDomainsService {
+	client := providerHttpClient()
+	return &ExpiredDomainsService{
+		httpClient:           client,
+		googlesheetInterface: providerGoogleSheetInterface(config.GoogleSheet),
+		googlesheetSvc:       providerGoogleSheetSvc(config.GoogleSheet),
+		postgresqlInterface:  providerPostgresql(config.Postgresql),
+		namecheapInterface:   providerNameCheap(config.Namecheap, client),
+	}
+}
+
 func providerNameCheap(cfg util.NamecheapConfig, client *httpclient.StandardHTTPClient) namecheap.NamecheapAPI {
 	return namecheap.New(cfg, client)
 }
