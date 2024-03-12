@@ -18,7 +18,6 @@ type ExpiredDomainsService struct {
 	httpClient           *httpclient.StandardHTTPClient
 }
 
-
 func (app *ExpiredDomainsService) Create(sheetName string) error {
 	domains, err := app.namecheapInterface.GetExpiredDomains()
 

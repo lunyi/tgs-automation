@@ -1,6 +1,6 @@
-// go install github.com/google/wire/cmd/wire@latest
 package main
 
+// go install github.com/google/wire/cmd/wire@latest
 import (
 	"cdnetwork/internal/httpclient"
 	"cdnetwork/internal/util"
