@@ -8,7 +8,7 @@ import (
 	postgresql "cdnetwork/pkg/postgresql"
 	reflect "reflect"
 
-	"go.uber.org/mock/gomock"
+	gomock "github.com/golang/mock/gomock"
 	sheets "google.golang.org/api/sheets/v4"
 )
 
@@ -36,9 +36,11 @@ func (m *MockGoogleSheetServiceInterface) EXPECT() *MockGoogleSheetServiceInterf
 }
 
 // CreateSheet mocks base method.
-func (m *MockGoogleSheetServiceInterface) CreateSheet(sheetsService *sheets.Service, spreadsheetId, sheetName string) {
+func (m *MockGoogleSheetServiceInterface) CreateSheet(sheetsService *sheets.Service, spreadsheetId, sheetName string) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "CreateSheet", sheetsService, spreadsheetId, sheetName)
+	ret := m.ctrl.Call(m, "CreateSheet", sheetsService, spreadsheetId, sheetName)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // CreateSheet indicates an expected call of CreateSheet.
@@ -48,11 +50,12 @@ func (mr *MockGoogleSheetServiceInterfaceMockRecorder) CreateSheet(sheetsService
 }
 
 // CreateSheetsService mocks base method.
-func (m *MockGoogleSheetServiceInterface) CreateSheetsService(key string) *sheets.Service {
+func (m *MockGoogleSheetServiceInterface) CreateSheetsService(key string) (*sheets.Service, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateSheetsService", key)
 	ret0, _ := ret[0].(*sheets.Service)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // CreateSheetsService indicates an expected call of CreateSheetsService.
