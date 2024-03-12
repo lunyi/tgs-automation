@@ -339,7 +339,7 @@ func getSheetID(srv *sheets.Service, spreadsheetID string, sheetTitle string) (i
 	}
 
 	if sheetID == 0 {
-		return 0, fmt.Errorf("Sheet with title '%s' not found", sheetTitle)
+		return 0, fmt.Errorf("sheet with title '%s' not found", sheetTitle)
 	}
 
 	return sheetID, nil
