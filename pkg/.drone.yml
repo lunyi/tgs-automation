@@ -6,6 +6,8 @@ steps:
 - name: build
   image: golang:1.21
   commands:
+  - ls -al
+  - pwd
   - go mod download
   - go build ./...
 
