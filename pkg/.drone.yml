@@ -34,5 +34,4 @@ steps:
       from_secret: docker_password
     repo: your_image_name
     tags:
-      - latest
       - $(date +%Y%m%d%H%M%S)
