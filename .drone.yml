@@ -4,7 +4,7 @@ name: default
 
 steps:
 - name: build
-  image: golang:1.21
+  image: golang:1.21.1
   commands:
   - ls -al
   - pwd
