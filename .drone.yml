@@ -17,6 +17,18 @@ steps:
   commands:
   - go test ./...
 
+- name: docker-build
+  image: plugins/docker
+  settings:
+    repo: your_docker_repo
+    tags: latest
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+  commands:
+    - "docker build -f dockerfiles/Dockerfile.expired_domain -t expired_domain ."
+
 - name: deploy
   image: plugins/docker
   settings:
