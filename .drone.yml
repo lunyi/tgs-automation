@@ -22,7 +22,7 @@ steps:
   privileged: true
   settings:
     debug: true
-    registry: pgtgs
+    registry: registry.hub.docker.com
     repo: pgtgs/expired_domain
     dockerfile: dockerfiles/Dockerfile.expired_domain
     tags: latest
