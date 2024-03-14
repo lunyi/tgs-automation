@@ -8,6 +8,7 @@ steps:
   commands:
   - ls -al
   - pwd
+  - hostname
   - go mod download
   - go build ./...
 
@@ -19,14 +20,14 @@ steps:
 - name: docker-build
   image: plugins/docker
   settings:
-    repo: your_docker_repo
+    repo: pgtgs
     tags: latest
     username:
       from_secret: docker_username
     password:
       from_secret: docker_password
-  # commands:
-  #   - "docker build -f dockerfiles/Dockerfile.expired_domain -t expired_domain ."
+  commands:
+    - "docker build -f dockerfiles/Dockerfile.expired_domain -t expired_domain ."
 
 - name: deploy
   image: plugins/docker
