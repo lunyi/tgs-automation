@@ -2,6 +2,9 @@ kind: pipeline
 type: kubernetes
 name: default
 
+clone:
+  retries: 5
+  
 steps:
 - name: build-and-test
   image: golang:1.21.1
