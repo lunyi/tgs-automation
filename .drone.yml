@@ -3,10 +3,6 @@ type: kubernetes
 name: default
 
 steps:
-- name: clone
-  image: drone/git
-  settings:
-    depth: 50
 - name: build
   image: golang:1.21.1
   commands:
