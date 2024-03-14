@@ -5,8 +5,8 @@ FROM golang:1.21.1
 LABEL maintainer="ly.lester@rayprosoft.com"
 
 ENV GOPROXY=https://goproxy.io,direct
-ENV HTTPS_PROXY="https://goproxy.io"
-ENV HTTP_PROXY="http://goproxy.io"
+# ENV HTTPS_PROXY="https://goproxy.io"
+# ENV HTTP_PROXY="http://goproxy.io"
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
