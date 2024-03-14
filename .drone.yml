@@ -22,14 +22,14 @@ steps:
   privileged: true
   settings:
     debug: true
+    registry: pgtgs
     repo: pgtgs/expired_domain
+    dockerfile: dockerfiles/Dockerfile.expired_domain
     tags: latest
     username:
       from_secret: docker_username
     password:
       from_secret: docker_password
-  commands:
-    - "docker build -f dockerfiles/Dockerfile.expired_domain -t expired_domain ."
   volumes:
     - name: dockersock
       path: /var/run/docker.sock
