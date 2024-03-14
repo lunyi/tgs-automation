@@ -20,7 +20,7 @@ steps:
 - name: docker-build
   image: plugins/docker
   settings:
-    repo: pgtgs
+    repo: pgtgs/expired_domain
     tags: latest
     username:
       from_secret: docker_username
@@ -28,10 +28,7 @@ steps:
       from_secret: docker_password
   commands:
     - "docker build -f dockerfiles/Dockerfile.expired_domain -t expired_domain ."
-  volumes:
-    - name: dockersock
-      path: /var/run/docker.sock
-      
+
 - name: deploy
   image: plugins/docker
   settings:
