@@ -50,8 +50,8 @@ steps:
     repo: your_image_name
     tags:
       - $(date +%Y%m%d%H%M%S)
-# trigger:
-#   branch: 
-#   - main
+trigger:
+  branch: 
+  - main
 #   event:
 #   - push
