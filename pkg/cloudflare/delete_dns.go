@@ -2,16 +2,20 @@ package cloudflare
 
 import (
 	"cdnetwork/internal/util"
+	"errors"
 	"fmt"
 	"net/http"
 )
 
-func DeleteDNS(domain string) {
+func DeleteDNS(domain string) error {
 	config := util.GetConfig()
 
 	apiToken := config.CloudflareToken
 	zoneName := extractDomain(domain)
-	zoneID := GetZoneId(zoneName)
+	zoneID, err := GetZoneId(zoneName)
+	if err != nil {
+		return err
+	}
 
 	// DNS record ID to be deleted
 	recordID := "DNS_RECORD_ID_TO_DELETE"
@@ -23,7 +27,7 @@ func DeleteDNS(domain string) {
 	req, err := http.NewRequest("DELETE", apiEndpoint, nil)
 	if err != nil {
 		fmt.Println("Error creating request:", err)
-		return
+		return err
 	}
 
 	// Set headers
@@ -34,15 +38,16 @@ func DeleteDNS(domain string) {
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Println("Error sending request:", err)
-		return
+		return err
 	}
 	defer resp.Body.Close()
 
 	// Check response status
 	if resp.StatusCode != http.StatusOK {
 		fmt.Println("Error:", resp.Status)
-		return
+		return errors.New("http status is not 200")
 	}
 
 	fmt.Println("DNS record deleted successfully!")
+	return nil
 }

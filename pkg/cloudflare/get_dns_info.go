@@ -21,24 +21,31 @@ type DNSRecordsResponse struct {
 	Result []DNSRecord `json:"result"`
 }
 
-func GetDnsInfo(dnsName string) {
+func GetDnsInfo(dnsName string) error {
 	// Define your Cloudflare API token or key
 	config := util.GetConfig()
 	zoneName := extractDomain(dnsName)
-	zoneId := GetZoneId(zoneName)
-	fmt.Println(fmt.Sprintf("zoneId: %s", zoneId))
+
+	zoneId, err := GetZoneId(zoneName)
+	if err != nil {
+		return err
+	}
+
+	log.LogInfo(fmt.Sprintf("zoneId: %s", zoneId))
 
 	// Get DNS info for the specified DNS record
 	dnsRecords, err := getDNSInfo(config.CloudflareToken, zoneId, dnsName)
 
 	if err != nil {
-		fmt.Println("Error getting DNS info:", err)
-		return
+		log.LogError(fmt.Sprintln("Error getting DNS info:", err))
+		return err
 	}
 
 	for _, record := range dnsRecords {
-		fmt.Printf("ID: %s, Type: %s, Name: %s, Content: %s\n", record.ID, record.Type, record.Name, record.Content)
+		log.LogInfo(fmt.Sprintf("ID: %s, Type: %s, Name: %s, Content: %s\n", record.ID, record.Type, record.Name, record.Content))
 	}
+
+	return nil
 }
 
 func extractDomain(dns string) string {
@@ -65,7 +72,7 @@ func getDNSInfo(apiToken, zoneID, dnsName string) ([]DNSRecord, error) {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.LogError(fmt.Sprintf("Error reading response body:", err))
+		log.LogError(fmt.Sprintln("Error reading response body:", err))
 	}
 
 	// Print response body

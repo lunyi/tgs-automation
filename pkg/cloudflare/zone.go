@@ -4,6 +4,7 @@ import (
 	"cdnetwork/internal/log"
 	"cdnetwork/internal/util"
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -14,7 +15,7 @@ type ZoneResponse struct {
 	} `json:"result"`
 }
 
-func GetZoneId(domain string) string {
+func GetZoneId(domain string) (string, error) {
 	// Define your Cloudflare API token or key
 	config := util.GetConfig()
 
@@ -22,12 +23,11 @@ func GetZoneId(domain string) string {
 	// Get Zone ID for the domain
 	zoneID, err := getZoneID(apiToken, domain)
 	if err != nil {
-		msg := fmt.Sprintf("Error getting Zone ID:", err)
-		log.LogError(msg)
-		return msg
+		log.LogError(fmt.Sprintln("Error getting Zone ID:", err))
+		return "", err
 	}
 
-	return zoneID
+	return zoneID, nil
 }
 
 // Function to get Zone ID for the domain
@@ -51,7 +51,7 @@ func getZoneID(apiToken, domain string) (string, error) {
 
 	// Check if any result is found
 	if len(zoneResponse.Result) == 0 {
-		return "", fmt.Errorf("No zone found for the specified domain")
+		return "", errors.New("no zone found")
 	}
 
 	// Return the Zone ID

@@ -15,7 +15,10 @@ func CreateDNS(domain string) error {
 
 	apiToken := config.CloudflareToken
 	zoneName := extractDomain(domain)
-	zoneID := GetZoneId(zoneName)
+	zoneID, err := GetZoneId(zoneName)
+	if err != nil {
+		return err
+	}
 
 	record := DNSRecord{
 		Type:    "CNAME",
