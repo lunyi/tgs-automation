@@ -12,7 +12,7 @@ steps:
   - go build ./...
 
 - name: test
-  image: golang:1.16
+  image: golang:1.21.1
   commands:
   - go test ./...
 
