@@ -8,7 +8,6 @@ steps:
   commands:
   - ls -al
   - pwd
-  - ll
   - go mod download
   - go build ./...
 
