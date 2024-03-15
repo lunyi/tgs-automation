@@ -26,8 +26,7 @@ steps:
     repo: pgtgs/expired_domain
     dockerfile: dockerfiles/Dockerfile.expired_domain
     tags: latest
-    username:
-      from_secret: docker_username
+    username: pgtgs
     password:
       from_secret: docker_password
 
