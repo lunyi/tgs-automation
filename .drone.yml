@@ -24,33 +24,10 @@ steps:
     debug: true
     registry: registry.hub.docker.com
     repo: pgtgs/expired_domain
+    tags: latest
     dockerfile: dockerfiles/Dockerfile.expired_domain
-    tags: latest
     username: pgtgs
-    password:
-      from_secret: docker_password
-
-- name: deploy
-  image: plugins/docker
-  settings:
-    repo: your_docker_repo
-    tags: latest
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
-
-- name: publish
-  image: plugins/docker
-  settings:
-    registry: your_registry
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
-    repo: your_image_name
-    tags:
-      - $(date +%Y%m%d%H%M%S)
+    password: dckr_pat_9bLt9kNG5MmSQs-m-n6oYTcjwJ4
 
 trigger:
   branch: 
