@@ -15,6 +15,7 @@ steps:
   - go mod download
   - go build ./...
   - go test ./...
+  - go build -o main ./cmd/expired_domain
 
 - name: docker-build
   image: plugins/docker
