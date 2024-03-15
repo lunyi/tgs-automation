@@ -22,17 +22,15 @@ steps:
   privileged: true
   settings:
     debug: true
-    registry: registry.hub.docker.com
-    repo: pgtgs/expired_domain
-    tags: latest
-    dockerfile: dockerfiles/Dockerfile.expired_domain
     username: 
       from_secret: docker_username
     password: 
       from_secret: docker_password
-    script:
-    - docker login --username ${docker_username} --password ${docker_password}
-
+    registry: registry.hub.docker.com
+    repo: pgtgs/expired_domain
+    tags: latest
+    dockerfile: dockerfiles/Dockerfile.expired_domain
+    
 trigger:
   branch: 
   - main
