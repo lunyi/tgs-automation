@@ -22,6 +22,7 @@ steps:
   privileged: true
   settings:
     debug: true
+    secrets: [ docker_username, docker_password ]
     username: 
       from_secret: docker_username
     password: 
@@ -30,7 +31,7 @@ steps:
     repo: pgtgs/expired_domain
     tags: latest
     dockerfile: dockerfiles/Dockerfile.expired_domain
-    
+
 trigger:
   branch: 
   - main
