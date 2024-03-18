@@ -40,4 +40,4 @@ deploy_job:
     - export KUBECONFIG=$kubeconfig_staging
     - echo "KUBECONFIG=$kubeconfig_staging
   script:
-    - kubectl set image cronjob/${component} ${component}=${ImageName}:${TAG} --record -n devops
+    - kubectl set image cronjob/expired-domains expired-domain=${ImageName}:${TAG} --record -n devops
