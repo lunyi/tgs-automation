@@ -6,7 +6,6 @@ stages:
 variables:
   ImageName: "pgtgs/expired_domain"
   Registry: "registry.hub.docker.com"
-  PATH: "/usr/local/bin:/usr/bin:/bin"
 
 build_job:
   stage: build-and-test
@@ -28,7 +27,6 @@ docker_build_job:
   only:
     - main
   script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
     - export TAG="$(date -d $CI_PIPELINE_CREATED_AT +%Y%m%d).$CI_PIPELINE_IID"
     - docker build -t $ImageName:$TAG -f dockerfiles/Dockerfile.expired_domain .
     - docker push ${ImageName}:${TAG}
