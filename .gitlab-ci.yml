@@ -37,6 +37,7 @@ deploy_job:
   only:
     - main
   before_script:
+    - export TAG="latest"
     - export KUBECONFIG=$kubeconfig_devops
     - echo "KUBECONFIG=$kubeconfig_devops"
   script:

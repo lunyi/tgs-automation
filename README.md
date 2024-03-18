@@ -1,6 +1,14 @@
 # tgs-automation
 
 
+kubectl create secret generic tgs-config --from-file=config.yaml -n devops
+kubectl create secret generic google-sheet --from-file=google.json -n devops
+
+kubectl create configmap google-json --from-file=google.json=google.json -n devops
+
+kubectl delete cm tgs-config -n devops
+kubectl create configmap tgs-config --from-file=config=config.yaml -n devops
+
 
 ## Getting started
 
