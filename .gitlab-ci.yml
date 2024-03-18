@@ -6,16 +6,17 @@ stages:
 variables:
   ImageName: "pgtgs/expired_domain"
   Registry: "registry.hub.docker.com"
+
 build_job:
   stage: build-and-tests
   script:
-      - ls -al
-      - pwd
-      - hostname
-      - go mod download
-      - go build ./...
-      - go test ./...
-      - go build -o main ./cmd/expired_domain
+    - ls -al
+    - pwd
+    - hostname
+    - go mod download
+    - go build ./...
+    - go test ./...
+    - go build -o main ./cmd/expired_domain
 
 docker_build_job:
   stage: docker-build
