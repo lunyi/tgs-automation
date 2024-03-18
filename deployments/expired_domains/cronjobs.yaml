@@ -10,6 +10,8 @@ spec:
       suspend: false
       parallelism: 1
       ttlSecondsAfterFinished: 86400
+      activeDeadlineSeconds: 600
+      backoffLimit: 1
       template:
         spec:
           activeDeadlineSeconds: 3600
@@ -26,6 +28,8 @@ spec:
             - name: google-json
               mountPath: /config/google.json
           restartPolicy: OnFailure
+          imagePullSecrets:
+          - name: dockerhub
           volumes:
           - name: tgs-config
             configMap:
