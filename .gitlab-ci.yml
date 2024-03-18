@@ -1,5 +1,5 @@
 stages:
-  - build-and-test
+  - build-and-tests
   - docker-build
   - deploy
 
