@@ -8,10 +8,9 @@ spec:
   jobTemplate:
     spec:
       suspend: false
-      parallelism: 1
       ttlSecondsAfterFinished: 86400
       activeDeadlineSeconds: 600
-      backoffLimit: 1
+      backoffLimit: 3
       template:
         spec:
           activeDeadlineSeconds: 3600
