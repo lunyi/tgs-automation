@@ -21,9 +21,6 @@ spec:
   failedJobsHistoryLimit: 1
   startingDeadlineSeconds: 300
   suspend: false
-  activeDeadlineSeconds: 3600
-  backoffLimit: 6
-  completions: 1
   parallelism: 1
   ttlSecondsAfterFinished: 86400
   schedule: "*/5 * * * *"
@@ -31,8 +28,11 @@ spec:
     spec:
       template:
         spec:
+          activeDeadlineSeconds: 3600
+          backoffLimit: 6
+          completions: 1
           containers:
-          - name: 
+          - name: expired_domain
             image: pgtgs/expired_domain:latest
             command: ["./main"]
           env:
