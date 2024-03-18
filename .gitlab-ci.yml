@@ -1,13 +1,13 @@
 stages:
   - build-and-test
-  - test
+  - docker-build
   - deploy
 
 variables:
   ImageName: "pgtgs/expired_domain"
   Registry: "registry.hub.docker.com"
 build_job:
-  stage: build
+  stage: build-and-tests
   script:
       - ls -al
       - pwd
@@ -18,7 +18,7 @@ build_job:
       - go build -o main ./cmd/expired_domain
 
 docker_build_job:
-  stage: test
+  stage: docker-build
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
     - export TAG="$(date -d $CI_PIPELINE_CREATED_AT +%Y%m%d).$CI_PIPELINE_IID"
