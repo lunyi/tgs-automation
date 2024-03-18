@@ -14,7 +14,7 @@ spec:
         spec:
           activeDeadlineSeconds: 3600
           containers:
-          - name: expired_domain
+          - name: expired-domain
             image: pgtgs/expired_domain:latest
             command: ["./main"]
             env:
@@ -22,20 +22,14 @@ spec:
               value: /config/config
             volumeMounts:
             - name: tgs-config
-              mountPath: /config
+              mountPath: /config/config
             - name: google-json
-              mountPath: /config    
+              mountPath: /config/google.json
           restartPolicy: OnFailure
           volumes:
           - name: tgs-config
             configMap:
               name: tgs-config
-              items:
-              - key: config
-                path: config
           - name: google-json
             configMap:
               name: google-json
-              items:
-              - key: googe-json
-                path: config
