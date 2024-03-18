@@ -1,23 +1,9 @@
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: expired-domains
   namespace: devops
 spec:
-  template:
-    spec:
-      containers:
-      - name: 
-        image: pgtgs/expired_domain:latest
-        command: ["./main"]
-        env:
-        - name: CONFIGPATH
-          value: /config/config
-        volumeMounts:
-        - name: tgs-config
-          mountPath: /config
-        - name: google-json
-          mountPath: /config
   volumes:
   - name: tgs-config
     configMap:
@@ -49,4 +35,12 @@ spec:
           - name: 
             image: pgtgs/expired_domain:latest
             command: ["./main"]
+          env:
+          - name: CONFIGPATH
+            value: /config/config
+          volumeMounts:
+          - name: tgs-config
+            mountPath: /config
+          - name: google-json
+            mountPath: /config    
           restartPolicy: OnFailure
