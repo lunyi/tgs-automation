@@ -6,9 +6,12 @@ stages:
 variables:
   ImageName: "pgtgs/expired_domain"
   Registry: "registry.hub.docker.com"
+  PATH: "/usr/local/bin:/usr/bin:/bin"
 
 build_job:
-  stage: build-and-tests
+  stage: build-and-test
+  only:
+    - main
   script:
     - ls -al
     - pwd
@@ -20,6 +23,8 @@ build_job:
 
 docker_build_job:
   stage: docker-build
+  only:
+    - main
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
     - export TAG="$(date -d $CI_PIPELINE_CREATED_AT +%Y%m%d).$CI_PIPELINE_IID"
@@ -28,6 +33,8 @@ docker_build_job:
 
 deploy_job:
   stage: deploy
+  only:
+    - main
   before_script:
     - export KUBECONFIG=$kubeconfig_dev
     - echo "KUBECONFIG=$kubeconfig_dev"
