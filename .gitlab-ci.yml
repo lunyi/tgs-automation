@@ -28,6 +28,7 @@ docker_build_job:
     - main
   script:
     - export TAG="$(date -d $CI_PIPELINE_CREATED_AT +%Y%m%d).$CI_PIPELINE_IID"
+    - export TAG="latest"
     - docker build -t $ImageName:$TAG -f dockerfiles/Dockerfile.expired_domain .
     - docker push ${ImageName}:${TAG}
 

@@ -1,0 +1,52 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: expired-domains
+  namespace: devops
+spec:
+  template:
+    spec:
+      containers:
+      - name: 
+        image: pgtgs/expired_domain:latest
+        command: ["./main"]
+        env:
+        - name: CONFIGPATH
+          value: /config/config
+        volumeMounts:
+        - name: tgs-config
+          mountPath: /config
+        - name: google-json
+          mountPath: /config
+  volumes:
+  - name: tgs-config
+    configMap:
+      name: tgs-config
+      items:
+      - key: config
+        path: config
+  - name: google-json
+    configMap:
+      name: google-json
+      items:
+      - key: googe-json
+        path: config
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  startingDeadlineSeconds: 300
+  suspend: false
+  activeDeadlineSeconds: 3600
+  backoffLimit: 6
+  completions: 1
+  parallelism: 1
+  ttlSecondsAfterFinished: 86400
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: 
+            image: pgtgs/expired_domain:latest
+            command: ["./main"]
+          restartPolicy: OnFailure
