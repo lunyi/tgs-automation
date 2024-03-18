@@ -1,0 +1,34 @@
+stages:
+  - build-and-test
+  - test
+  - deploy
+
+variables:
+  ImageName: "pgtgs/expired_domain"
+  Registry: "registry.hub.docker.com"
+build_job:
+  stage: build
+  script:
+      - ls -al
+      - pwd
+      - hostname
+      - go mod download
+      - go build ./...
+      - go test ./...
+      - go build -o main ./cmd/expired_domain
+
+docker_build_job:
+  stage: test
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+    - export TAG="$(date -d $CI_PIPELINE_CREATED_AT +%Y%m%d).$CI_PIPELINE_IID"
+    - docker build -t $ImageName:$TAG -f dockerfiles/Dockerfile.expired_domain .
+    - docker push ${ImageName}:${TAG}
+
+deploy_job:
+  stage: deploy
+  before_script:
+    - export KUBECONFIG=$kubeconfig_dev
+    - echo "KUBECONFIG=$kubeconfig_dev"
+  script:
+    - kubectl set image cronjob/${component} ${component}=${ImageName}:${TAG} --record -n devops
