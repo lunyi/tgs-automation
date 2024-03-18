@@ -26,16 +26,16 @@ spec:
             - name: google-json
               mountPath: /config    
           restartPolicy: OnFailure
-    volumes:
-    - name: tgs-config
-      configMap:
-        name: tgs-config
-        items:
-        - key: config
-          path: config
-    - name: google-json
-      configMap:
-        name: google-json
-        items:
-        - key: googe-json
-          path: config
+      volumes:
+      - name: tgs-config
+        configMap:
+          name: tgs-config
+          items:
+          - key: config
+            path: config
+      - name: google-json
+        configMap:
+          name: google-json
+          items:
+          - key: googe-json
+            path: config
