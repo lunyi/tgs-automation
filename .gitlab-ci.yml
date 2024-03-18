@@ -16,6 +16,8 @@ build_job:
     - ls -al
     - pwd
     - hostname
+    - export PATH=$PATH:/usr/local/go/bin
+    - echo "PATH=$PATH"
     - go mod download
     - go build ./...
     - go test ./...
