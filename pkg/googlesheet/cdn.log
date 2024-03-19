@@ -1,0 +1,4 @@
+time="2024-03-19T11:08:50+08:00" level=info msg="Creating Google Sheet..."
+time="2024-03-19T11:08:50+08:00" level=info msg="Google Sheet service created successfully."
+time="2024-03-19T11:08:50+08:00" level=info msg="Sheet created successfully. Writing data to Google Sheet..."
+time="2024-03-19T11:08:50+08:00" level=info msg="Creating Google Sheet..."
