@@ -58,8 +58,6 @@ func CreateExpiredDomainExcel(
 	}
 
 	log.LogInfo("Google Sheet service created successfully.")
-
-	gss.SheetService = sheetService
 	err = gs.CreateSheet(gss.SheetService, gss.SpreadsheetId, sheetName)
 
 	if err != nil {
