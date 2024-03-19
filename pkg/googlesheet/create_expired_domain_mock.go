@@ -70,15 +70,15 @@ func (mr *MockGoogleSheetServiceInterfaceMockRecorder) CreateSheetsService(key a
 }
 
 // WriteData mocks base method.
-func (m *MockGoogleSheetServiceInterface) WriteData(spreadsheetId string, domains []postgresql.DomainForExcel, writeRangeFunc func() string, valueRangeFunc func([]postgresql.DomainForExcel) *sheets.ValueRange) error {
+func (m *MockGoogleSheetServiceInterface) WriteData(sheetService *sheets.Service, spreadsheetId string, domains []postgresql.DomainForExcel, writeRangeFunc func() string, valueRangeFunc func([]postgresql.DomainForExcel) *sheets.ValueRange) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "WriteData", spreadsheetId, domains, writeRangeFunc, valueRangeFunc)
+	ret := m.ctrl.Call(m, "WriteData", sheetService, spreadsheetId, domains, writeRangeFunc, valueRangeFunc)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // WriteData indicates an expected call of WriteData.
-func (mr *MockGoogleSheetServiceInterfaceMockRecorder) WriteData(spreadsheetId, domains, writeRangeFunc, valueRangeFunc any) *gomock.Call {
+func (mr *MockGoogleSheetServiceInterfaceMockRecorder) WriteData(sheetService, spreadsheetId, domains, writeRangeFunc, valueRangeFunc any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteData", reflect.TypeOf((*MockGoogleSheetServiceInterface)(nil).WriteData), spreadsheetId, domains, writeRangeFunc, valueRangeFunc)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteData", reflect.TypeOf((*MockGoogleSheetServiceInterface)(nil).WriteData), sheetService, spreadsheetId, domains, writeRangeFunc, valueRangeFunc)
 }
