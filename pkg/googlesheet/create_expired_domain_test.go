@@ -1,11 +1,11 @@
-//mockgen -destination  create_expired_domain_mock.go -source create_expired_domain.go -package googlesheet
-
 package googlesheet
 
 import (
+	"fmt"
+	"testing"
+
 	"cdnetwork/internal/util"
 	"cdnetwork/pkg/postgresql"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 	gomock "go.uber.org/mock/gomock"
@@ -35,7 +35,6 @@ func TestNew(t *testing.T) {
 }
 
 func TestCreateExpiredDomainExcel(t *testing.T) {
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -55,4 +54,24 @@ func TestCreateExpiredDomainExcel(t *testing.T) {
 
 	err := CreateExpiredDomainExcel(mockGS, mockGSS, sheetName, domains)
 	assert.NoError(t, err)
+}
+
+func TestCreateExpiredDomainExcel_Error(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockGS := NewMockGoogleSheetServiceInterface(ctrl)
+	mockGSS := &GoogleSheetService{SpreadsheetId: "your-sheet-id", GoogleApiKey: "your-api-key"}
+
+	sheetName := "testSheet"
+	domains := []postgresql.DomainForExcel{
+		{Domain: "example.com", Expires: "2022-01-01"},
+		{Domain: "example.org", Expires: "2022-02-01"},
+	}
+
+	mockGS.EXPECT().CreateSheetsService(gomock.Any()).Return(nil, fmt.Errorf("error creating sheet service"))
+
+	err := CreateExpiredDomainExcel(mockGS, mockGSS, sheetName, domains)
+	assert.Error(t, err)
+	assert.EqualError(t, err, "error creating sheet service")
 }
