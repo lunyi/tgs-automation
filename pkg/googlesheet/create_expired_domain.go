@@ -180,11 +180,15 @@ func (gs *GoogleSheetService) WriteData(
 	writeRangeFunc func() string,
 	valueRangeFunc func(domains []postgresql.DomainForExcel) *sheets.ValueRange) error {
 
+	log.LogInfo("Writing data to Google Sheet...")
 	valueRange := valueRangeFunc(domains)
+	log.LogInfo("Value range created successfully.")
 	writeRange := writeRangeFunc()
+	log.LogInfo("Write range created successfully.")
 
 	_, err := gs.SheetService.Spreadsheets.Values.Update(spreadsheetId, writeRange, valueRange).
 		ValueInputOption("RAW").Do()
+	log.LogInfo("Data written to Google Sheet successfully.")
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("Unable to update cell value: %v", err))
 		return err
