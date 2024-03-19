@@ -75,7 +75,7 @@ func CreateExpiredDomainExcel(
 		},
 		func(domains []postgresql.DomainForExcel) *sheets.ValueRange {
 			valueRange := createValueRangeForDomain(domains)
-			placeTextCenter(gss, sheetName, valueRange.Values)
+			placeTextCenter(sheetService, gss.SpreadsheetId, sheetName, valueRange.Values)
 			return valueRange
 		},
 	)
@@ -137,8 +137,8 @@ func (gs *GoogleSheetService) CreateSheetsService(key string) (*sheets.Service, 
 	return sheetsService, nil
 }
 
-func placeTextCenter(gs *GoogleSheetService, title string, values [][]interface{}) error {
-	sheetId, err := getSheetID(gs.SheetService, gs.SpreadsheetId, title)
+func placeTextCenter(sheetService *sheets.Service, spreadsheetId string, title string, values [][]interface{}) error {
+	sheetId, err := getSheetID(sheetService, spreadsheetId, title)
 
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("Fail to get sheet id: %v", err))
@@ -169,7 +169,7 @@ func placeTextCenter(gs *GoogleSheetService, title string, values [][]interface{
 		Requests: requests,
 	}
 
-	_, err = gs.SheetService.Spreadsheets.BatchUpdate(gs.SpreadsheetId, batchUpdate).Do()
+	_, err = sheetService.Spreadsheets.BatchUpdate(spreadsheetId, batchUpdate).Do()
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("Unable to set alignment: %v", err))
 		return err
