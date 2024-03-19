@@ -127,11 +127,13 @@ func (gs *GoogleSheetService) CreateSheetsService(key string) (*sheets.Service, 
 	}
 
 	client := jwtConf.Client(context.Background())
-
+	log.LogInfo("Sheets client created successfully.")
 	sheetsService, err := sheets.New(client)
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("Unable to retrieve Sheets client: %v", err))
 	}
+	log.LogInfo("Sheets service created successfully.")
+	log.LogInfo(fmt.Sprintf("Sheets service: %v", sheetsService))
 	return sheetsService, nil
 }
 
