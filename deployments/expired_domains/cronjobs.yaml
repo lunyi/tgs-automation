@@ -4,35 +4,49 @@ metadata:
   name: expired-domains
   namespace: devops
 spec:
-  schedule: "*/5 * * * *"
+  concurrencyPolicy: Allow
+  failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
-      suspend: false
-      ttlSecondsAfterFinished: 86400
       activeDeadlineSeconds: 600
       backoffLimit: 3
+      parallelism: 1
+      suspend: false
       template:
         spec:
           activeDeadlineSeconds: 3600
           containers:
-          - name: expired-domain
-            image: pgtgs/expired_domain:latest
-            command: ["./main"]
-            env:
+          - env:
             - name: CONFIGPATH
               value: /config/config
+            image: pgtgs/expired_domain:latest
+            imagePullPolicy: Always
+            name: expired-domain
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
             volumeMounts:
-            - name: tgs-config
-              mountPath: /config/config
-            - name: google-json
-              mountPath: /config/google.json
-          restartPolicy: OnFailure
+            - mountPath: /config
+              name: tgs-config
+            - mountPath: /data
+              name: google-json
+          dnsPolicy: ClusterFirst
           imagePullSecrets:
           - name: dockerhub
+          restartPolicy: OnFailure
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
           volumes:
-          - name: tgs-config
-            configMap:
+          - configMap:
+              defaultMode: 420
               name: tgs-config
-          - name: google-json
-            configMap:
+            name: tgs-config
+          - configMap:
+              defaultMode: 420
               name: google-json
+            name: google-json
+      ttlSecondsAfterFinished: 86400
+  schedule: 14 9 * * *
+  successfulJobsHistoryLimit: 3
+  suspend: false

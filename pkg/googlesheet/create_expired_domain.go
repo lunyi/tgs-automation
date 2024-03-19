@@ -75,11 +75,12 @@ func CreateExpiredDomainExcel(
 		},
 		func(domains []postgresql.DomainForExcel) *sheets.ValueRange {
 			valueRange := createValueRangeForDomain(domains)
-			placeTextCenter(gss, sheetName, valueRange.Values)
+			//placeTextCenter(gss, sheetName, valueRange.Values)
 			return valueRange
 		},
 	)
 
+	log.LogTrace("Data successfully written to Google Sheet.")
 	if err != nil {
 		return err
 	}
