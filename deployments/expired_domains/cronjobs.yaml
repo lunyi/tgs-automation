@@ -15,6 +15,13 @@ spec:
       template:
         spec:
           activeDeadlineSeconds: 3600
+          initContainers:
+          - name: install-plugins
+            image: fluent/fluentd:v1.12-debian-1 # Adjust the version as necessary
+            command: ['sh', '-c', 'gem install fluent-plugin-elasticsearch --no-document && touch /done']
+            volumeMounts:
+            - name: plugin-flag
+              mountPath: /done
           containers:
           - image: pgtgs/expired_domain:latest
             imagePullPolicy: Always
@@ -29,7 +36,7 @@ spec:
             - mountPath: /data
               name: google-json
           - name: fluentd-sidecar
-            image: fluent/fluentd:latest # Use an appropriate Fluentd image
+            image: fluentd:latest # Use an appropriate Fluentd image
             env:
               - name: ELASTICSEARCH_HOST
                 value: "elasticsearch-master.observability" # Change to your Elasticsearch service hostname
@@ -57,7 +64,9 @@ spec:
           - name: fluentd-config-volume
             configMap:
               name: fluentd-config
+          - name: plugin-flag
+            emptyDir: {}
       ttlSecondsAfterFinished: 86400
-  schedule: 14 9 * * *
+  schedule: 4 6 * * *
   successfulJobsHistoryLimit: 3
   suspend: false
