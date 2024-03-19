@@ -20,6 +20,7 @@ type GoogleSheetServiceInterface interface {
 	CreateSheetsService(key string) (*sheets.Service, error)
 	CreateSheet(sheetsService *sheets.Service, spreadsheetId string, sheetName string) error
 	WriteData(
+		sheetService *sheets.Service,
 		spreadsheetId string,
 		domains []postgresql.DomainForExcel,
 		writeRangeFunc func() string,
@@ -68,6 +69,7 @@ func CreateExpiredDomainExcel(
 	log.LogInfo("Sheet created successfully. Writing data to Google Sheet...")
 
 	err = gs.WriteData(
+		sheetService,
 		gss.SpreadsheetId,
 		domains,
 		func() string {
@@ -75,7 +77,7 @@ func CreateExpiredDomainExcel(
 		},
 		func(domains []postgresql.DomainForExcel) *sheets.ValueRange {
 			valueRange := createValueRangeForDomain(domains)
-			//placeTextCenter(gss, sheetName, valueRange.Values)
+			placeTextCenter(gss, sheetName, valueRange.Values)
 			return valueRange
 		},
 	)
@@ -86,6 +88,7 @@ func CreateExpiredDomainExcel(
 	}
 
 	err = gs.WriteData(
+		sheetService,
 		gss.SpreadsheetId,
 		domains,
 		func() string {
@@ -175,6 +178,7 @@ func placeTextCenter(gs *GoogleSheetService, title string, values [][]interface{
 }
 
 func (gs *GoogleSheetService) WriteData(
+	sheetService *sheets.Service,
 	spreadsheetId string,
 	domains []postgresql.DomainForExcel,
 	writeRangeFunc func() string,
@@ -182,24 +186,7 @@ func (gs *GoogleSheetService) WriteData(
 	valueRange := valueRangeFunc(domains)
 	writeRange := writeRangeFunc()
 
-	a := gs.SheetService
-	if a == nil {
-		log.LogError("SheetService is nil")
-	}
-	b := gs.SheetService.Spreadsheets
-	if b == nil {
-		log.LogError("SheetService.Spreadsheets is nil")
-	}
-	c := gs.SheetService.Spreadsheets.Values
-	if c == nil {
-		log.LogError("SheetService.Spreadsheets.Values is nil")
-	}
-	d := gs.SheetService.Spreadsheets.Values.Update(spreadsheetId, writeRange, valueRange)
-	if d == nil {
-		log.LogError("SheetService.Spreadsheets.Values.Update(spreadsheetId, writeRange, valueRange) is nil")
-	}
-
-	_, err := gs.SheetService.Spreadsheets.Values.Update(spreadsheetId, writeRange, valueRange).
+	_, err := sheetService.Spreadsheets.Values.Update(spreadsheetId, writeRange, valueRange).
 		ValueInputOption("RAW").Do()
 
 	log.LogInfo("Data written to Google Sheet successfully.")
