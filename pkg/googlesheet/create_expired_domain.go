@@ -40,11 +40,23 @@ func New(config util.GoogleSheetConfig) (GoogleSheetServiceInterface, *GoogleShe
 	return svc, svc, nil
 }
 
-func CreateExpiredDomainExcel(gs GoogleSheetServiceInterface, gss *GoogleSheetService, sheetName string, domains []postgresql.DomainForExcel) error {
+func CreateExpiredDomainExcel(
+	gs GoogleSheetServiceInterface,
+	gss *GoogleSheetService,
+	sheetName string,
+	domains []postgresql.DomainForExcel) error {
+
+	if gs == nil || gss == nil {
+		return fmt.Errorf("GoogleSheetServiceInterface or GoogleSheetService is nil")
+	}
+
+	log.LogInfo("Creating Google Sheet...")
 	sheetService, err := gs.CreateSheetsService(gss.GoogleApiKey)
 	if err != nil {
 		return err
 	}
+
+	log.LogInfo("Google Sheet service created successfully.")
 
 	gss.SheetService = sheetService
 	err = gs.CreateSheet(gss.SheetService, gss.SpreadsheetId, sheetName)
@@ -52,6 +64,8 @@ func CreateExpiredDomainExcel(gs GoogleSheetServiceInterface, gss *GoogleSheetSe
 	if err != nil {
 		return err
 	}
+
+	log.LogInfo("Sheet created successfully. Writing data to Google Sheet...")
 
 	err = gs.WriteData(
 		gss.SpreadsheetId,
