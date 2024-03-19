@@ -16,20 +16,28 @@ spec:
         spec:
           activeDeadlineSeconds: 3600
           containers:
-          - env:
-            - name: CONFIGPATH
-              value: /config/config
-            image: pgtgs/expired_domain:latest
+          - image: pgtgs/expired_domain:latest
             imagePullPolicy: Always
             name: expired-domain
+            env:
+            - name: CONFIGPATH
+              value: /config/config
             resources: {}
-            terminationMessagePath: /dev/termination-log
-            terminationMessagePolicy: File
             volumeMounts:
             - mountPath: /config
               name: tgs-config
             - mountPath: /data
               name: google-json
+          - name: fluentd-sidecar
+            image: fluent/fluentd:latest # Use an appropriate Fluentd image
+            env:
+              - name: ELASTICSEARCH_HOST
+                value: "elasticsearch-master.observability" # Change to your Elasticsearch service hostname
+              - name: ELASTICSEARCH_PORT
+                value: "80" # Default Elasticsearch port
+            volumeMounts:
+              - name: fluentd-config-volume
+                mountPath: /fluentd/etc
           dnsPolicy: ClusterFirst
           imagePullSecrets:
           - name: dockerhub
@@ -46,6 +54,9 @@ spec:
               defaultMode: 420
               name: google-json
             name: google-json
+          - name: fluentd-config-volume
+            configMap:
+              name: fluentd-config
       ttlSecondsAfterFinished: 86400
   schedule: 14 9 * * *
   successfulJobsHistoryLimit: 3
