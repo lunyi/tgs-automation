@@ -15,13 +15,6 @@ spec:
       template:
         spec:
           activeDeadlineSeconds: 3600
-          initContainers:
-          - name: install-plugins
-            image: fluent/fluentd:v1.12-debian-1 # Adjust the version as necessary
-            command: ['sh', '-c', 'gem install fluent-plugin-elasticsearch --no-document && touch /done']
-            volumeMounts:
-            - name: plugin-flag
-              mountPath: /done
           containers:
           - image: pgtgs/expired_domain:latest
             imagePullPolicy: Always
@@ -35,16 +28,17 @@ spec:
               name: tgs-config
             - mountPath: /data
               name: google-json
-          - name: fluentd-sidecar
-            image: fluentd:latest # Use an appropriate Fluentd image
+          - name: fluent-bit-sidecar
+            image: fluent/fluent-bit:latest
             env:
-              - name: ELASTICSEARCH_HOST
-                value: "elasticsearch-master.observability" # Change to your Elasticsearch service hostname
-              - name: ELASTICSEARCH_PORT
-                value: "80" # Default Elasticsearch port
+            - name: ELASTICSEARCH_HOST
+              value: "elasticsearch-master.observability"
+            - name: ELASTICSEARCH_PORT
+              value: ""
             volumeMounts:
-              - name: fluentd-config-volume
-                mountPath: /fluentd/etc
+            - name: fluent-bit-config
+              mountPath: /fluent-bit/etc/fluent-bit.conf
+              subPath: fluent-bit.conf
           dnsPolicy: ClusterFirst
           imagePullSecrets:
           - name: dockerhub
@@ -61,11 +55,9 @@ spec:
               defaultMode: 420
               name: google-json
             name: google-json
-          - name: fluentd-config-volume
+          - name: fluent-bit-config
             configMap:
-              name: fluentd-config
-          - name: plugin-flag
-            emptyDir: {}
+              name: fluent-bit-config
       ttlSecondsAfterFinished: 86400
   schedule: 4 6 * * *
   successfulJobsHistoryLimit: 3
