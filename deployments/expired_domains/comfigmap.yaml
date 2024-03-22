@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: fluent-bit-config
+  namespace: devops
 data:
   fluent-bit.conf: |
     [SERVICE]
@@ -13,17 +14,28 @@ data:
     [INPUT]
       Name             tail
       Path             /var/log/containers/expired-domains*_devops*.log
-      Parser           docker, cri
-      multiline.parser docker, cri
+      Parser           cri
       Tag              devops.*
       Mem_Buf_Limit    5MB
       Refresh_Interval 5
       Skip_Long_Lines  On
-
+    
     [OUTPUT]
       Name            es
       Match           devops.*
       Host            ${ELASTICSEARCH_HOST}
       Port            ${ELASTICSEARCH_PORT}
       Logstash_Format On
+      Logstash_Prefix log_unknown
+      Logstash_Prefix_Key es_index
+      Include_Tag_Key On
+      Replace_Dots    On
+      Suppress_Type_Name On
       Retry_Limit     False
+  parsers.conf: |
+    [PARSER]
+      Name cri
+      Format regex
+      Regex ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<message>.*)$
+      Time_Key    time
+      Time_Format %Y-%m-%dT%H:%M:%S.%L%z

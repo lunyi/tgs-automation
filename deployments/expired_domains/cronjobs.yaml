@@ -5,7 +5,7 @@ metadata:
   namespace: devops
 spec:
   concurrencyPolicy: Allow
-  failedJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 5
   jobTemplate:
     spec:
       activeDeadlineSeconds: 600
@@ -34,18 +34,19 @@ spec:
             - name: ELASTICSEARCH_HOST
               value: "elasticsearch-master.observability"
             - name: ELASTICSEARCH_PORT
-              value: ""
+              value: "80"
             volumeMounts:
             - name: fluent-bit-config
-              mountPath: /fluent-bit/etc/fluent-bit.conf
-              subPath: fluent-bit.conf
+              mountPath: /fluent-bit/etc
+            - name: log-volume
+              mountPath: /var/log/containers
           dnsPolicy: ClusterFirst
           imagePullSecrets:
           - name: dockerhub
           restartPolicy: OnFailure
           schedulerName: default-scheduler
           securityContext: {}
-          terminationGracePeriodSeconds: 30
+          terminationGracePeriodSeconds: 300
           volumes:
           - configMap:
               defaultMode: 420
@@ -58,6 +59,8 @@ spec:
           - name: fluent-bit-config
             configMap:
               name: fluent-bit-config
+          - name: log-volume
+            emptyDir: {}
       ttlSecondsAfterFinished: 86400
   schedule: 4 6 * * *
   successfulJobsHistoryLimit: 3
