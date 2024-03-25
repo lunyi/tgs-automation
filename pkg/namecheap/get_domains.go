@@ -2,7 +2,6 @@ package namecheap
 
 import (
 	"cdnetwork/internal/httpclient"
-	"cdnetwork/internal/log"
 	"cdnetwork/internal/util"
 	"encoding/xml"
 	"fmt"
@@ -153,7 +152,7 @@ func getDomains(httpclient httpclient.HttpClient, url string, index int) ([]Doma
 		return []Domain{}, -1, true, err
 	}
 
-	log.LogInfo(string(body))
+	//log.LogInfo(string(body))
 	var apiResponse ApiResponse
 	if err := xml.Unmarshal(body, &apiResponse); err != nil {
 		fmt.Println("Error unmarshalling XML:", err)
