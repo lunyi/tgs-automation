@@ -12,8 +12,10 @@ require (
 	cloud.google.com/go/compute v1.23.4 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/DATA-DOG/go-sqlmock v1.5.2 // indirect
+	github.com/alexmullins/zip v0.0.0-20180717182244-4affb64b04d0 // indirect
 	github.com/alibabacloud-go/debug v1.0.0 // indirect
 	github.com/appleboy/drone-gitlab-ci v1.0.2 // indirect
+	github.com/aws/aws-sdk-go v1.51.7 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/chromedp/cdproto v0.0.0-20240202021202-6d0b6a386732 // indirect
 	github.com/chromedp/chromedp v0.9.5 // indirect
@@ -41,6 +43,7 @@ require (
 	github.com/jinzhu/gorm v1.9.16 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -65,6 +68,7 @@ require (
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/stretchr/testify v1.9.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
+	github.com/tealeg/xlsx v1.0.5 // indirect
 	github.com/tebeka/selenium v0.9.9 // indirect
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 	github.com/urfave/cli v1.22.14 // indirect

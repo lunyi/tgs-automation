@@ -16,6 +16,12 @@ type TgsConfig struct {
 	Namecheap        NamecheapConfig   `yaml:"namecheap"`
 	Postgresql       PostgresqlConfig  `yaml:"postgresql"`
 	Telegram         TelegramConfig    `yaml:"telegram"`
+	AwsS3            AwsS3Config       `yaml:"aws_s3"`
+}
+
+type AwsS3Config struct {
+	AccessKey    string `yaml:"access_key"`
+	AccessSecret string `yaml:"access_secret"`
 }
 
 type GoogleSheetConfig struct {
