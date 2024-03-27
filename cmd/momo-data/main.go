@@ -77,7 +77,7 @@ func CreateExcel(players []postgresql.PlayerInfo, brand string, dateField string
 	// Populating data
 	for _, player := range players {
 		row := sheet.AddRow()
-		row.AddCell().Value = player.Agent
+		row.AddCell().Value = player.Agent.String
 		row.AddCell().Value = player.Host
 		row.AddCell().Value = player.PlayerName
 		row.AddCell().SetFloat(player.DailyDepositAmount)

@@ -67,15 +67,17 @@ AND %s >= $2 AND %s < $3
 	defer rows.Close()
 
 	var players []PlayerInfo
-	// Iterate over the result set
 	for rows.Next() {
 		var pi PlayerInfo
 		// Adjust the Scan based on the date field used
 		if err := rows.Scan(&pi.Agent, &pi.Host, &pi.PlayerName, &pi.DailyDepositAmount, &pi.DailyDepositCount, &pi.FirstDepositOn); err != nil {
 			log.LogFatal(fmt.Sprintf("Error scanning row: %v", err))
 		}
+		if !pi.Agent.Valid {
+			pi.Agent.String = ""
+		}
 		players = append(players, pi)
-		fmt.Printf("%+v\n", pi)
+		//fmt.Printf("%+v\n", pi)
 	}
 
 	// Check for errors from iterating over rows
