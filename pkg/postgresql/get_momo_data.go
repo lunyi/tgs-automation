@@ -10,15 +10,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type PlayerInfo struct {
-	Agent              string
-	Host               string // Use sql.NullString for nullable fields
-	PlayerName         string
-	DailyDepositAmount float64
-	DailyDepositCount  int
-	FirstDepositOn     time.Time // This will hold either the first deposit or registered date based on your choice
-}
-
 type GetMomoDataInterface interface {
 	GetMomodata(brandCode string, dateField string, startDate string, endDate string, timezoneOffset string) ([]PlayerInfo, error)
 	Close()
@@ -93,4 +84,13 @@ AND %s >= $2 AND %s < $3
 		return nil, err
 	}
 	return players, nil
+}
+
+type PlayerInfo struct {
+	Agent              sql.NullString
+	Host               string // Use sql.NullString for nullable fields
+	PlayerName         string
+	DailyDepositAmount float64
+	DailyDepositCount  int
+	FirstDepositOn     time.Time // This will hold either the first deposit or registered date based on your choice
 }
