@@ -201,3 +201,22 @@ func TelegramNotify(config util.MomoTelegramConfig, file string, message string)
 	}
 	return nil
 }
+
+func TelegramNotify2(config util.MomoTelegramConfig, file string, message string) error {
+	bot, err := tgbotapi.NewBotAPI(config.Token)
+	if err != nil {
+		log.LogFatal(fmt.Sprintf("Failed to create Telegram bot: %s", err))
+		return err
+	}
+
+	bot.Debug = true
+	chatID := config.ChatId
+	msg := tgbotapi.NewDocumentUpload(chatID, file)
+	msg.Caption = message
+
+	if _, err := bot.Send(msg); err != nil {
+		log.LogFatal(fmt.Sprintf("Failed to send message: %s", err))
+		return err
+	}
+	return nil
+}
