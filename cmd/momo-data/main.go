@@ -100,9 +100,9 @@ func CreateExcel(players []postgresql.PlayerInfo, brand string, dateField string
 
 func Zipfile(fileToZip string, password string) (string, error) {
 
-	zipFileName := strings.Replace(fileToZip, ".xlsx", ".zip", -1)
+	internalFileName := strings.Replace(fileToZip, ".xlsx", ".zip", -1)
 
-	log.LogInfo(fmt.Sprintf("Creating ZIP file: %s", zipFileName))
+	zipFileName := "example.zip"
 
 	outFile, err := os.Create(zipFileName)
 	if err != nil {
@@ -139,7 +139,7 @@ func Zipfile(fileToZip string, password string) (string, error) {
 	header.Name = fileToZip // Ensure filename is correct
 
 	// Encrypt and write the file into the ZIP
-	zipFileWriter, err := zipWriter.Encrypt(zipFileName, password)
+	zipFileWriter, err := zipWriter.Encrypt(internalFileName, password)
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("Error creating encrypted zip entry: %s", err))
 		return "", err
