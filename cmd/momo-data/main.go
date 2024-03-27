@@ -90,7 +90,7 @@ func CreateExcel(players []postgresql.PlayerInfo, brand string, dateField string
 		row.AddCell().Value = player.FirstDepositOn.Format(time.RFC3339)
 	}
 
-	filename := fmt.Sprintf("%s-%s-%s.xlsx", time.Now().Format("20060102"), brand, dateField)
+	filename := fmt.Sprintf("%s-%s-%s.xlsx", time.Now().AddDate(0, 0, -1).Format("20060102"), brand, dateField)
 
 	// Save the file to the disk
 	err = file.Save(filename)

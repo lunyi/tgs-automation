@@ -53,7 +53,7 @@ LEFT JOIN
         AND PIR.ip_type = 1
 LEFT JOIN dbo.agents a ON a.id = p.agent_id
 WHERE p.brand_id = (SELECT id FROM dbo.brands WHERE code=$1)
-AND %s >= $2 AND %s < $3
+AND %s >= $2 AND %s < $3 order by 1,2,3
 `, dateField, dateField, dateField)
 
 	log.LogInfo(fmt.Sprintf("Query: %s", query))
