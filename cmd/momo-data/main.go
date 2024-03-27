@@ -50,12 +50,12 @@ func main() {
 		if err != nil {
 			log.LogFatal(err.Error())
 		}
-		password := fmt.Sprintf("PG%s", time.Now().Format("20060102"))
-		zipFile, err := Zipfile(filename, password)
+		//password := fmt.Sprintf("PG%s", time.Now().Format("20060102"))
+		//zipFile, err := Zipfile(filename, password)
 		if err != nil {
 			log.LogFatal(err.Error())
 		}
-		uploadFileToS3(session, config.AwsS3.Bucket, zipFile, fmt.Sprintf("./%s", zipFile))
+		uploadFileToS3(session, config.AwsS3.Bucket, filename, fmt.Sprintf("./%s", filename))
 	}
 }
 
@@ -101,6 +101,8 @@ func CreateExcel(players []postgresql.PlayerInfo, brand string, dateField string
 func Zipfile(fileToZip string, password string) (string, error) {
 
 	zipFileName := strings.Replace(fileToZip, ".xslx", ".zip", -1)
+
+	log.LogInfo(fmt.Sprintf("Creating ZIP file: %s", zipFileName))
 
 	outFile, err := os.Create(zipFileName)
 	if err != nil {
