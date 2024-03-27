@@ -66,7 +66,7 @@ AND %s >= $2 AND %s < $3
 `, dateField, dateField, dateField)
 
 	log.LogInfo(fmt.Sprintf("Query: %s", query))
-	log.LogInfo(fmt.Sprintf("Brand: %s, StartDate: %s, EndDate: %s", brandCode, startDate, endDate)
+	log.LogInfo(fmt.Sprintf("Brand: %s, StartDate: %s, EndDate: %s", brandCode, startDate, endDate))
 	// Execute the query
 	rows, err := s.Db.Query(query, brandCode, startDate+timezoneOffset, endDate+timezoneOffset)
 	if err != nil {
