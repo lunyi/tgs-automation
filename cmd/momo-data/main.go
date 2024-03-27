@@ -50,12 +50,12 @@ func main() {
 		if err != nil {
 			log.LogFatal(err.Error())
 		}
-		password := fmt.Sprintf("PG%s", time.Now().Format("2006-01-02"))
+		password := fmt.Sprintf("PG%s", time.Now().Format("20060102"))
 		zipFile, err := Zipfile(filename, password)
 		if err != nil {
 			log.LogFatal(err.Error())
 		}
-		uploadFileToS3(session, config.AwsS3.Bucket, zipFile, "")
+		uploadFileToS3(session, config.AwsS3.Bucket, zipFile, fmt.Sprintf("./%s", zipFile))
 	}
 }
 
@@ -85,7 +85,7 @@ func CreateExcel(players []postgresql.PlayerInfo, brand string, dateField string
 		row.AddCell().Value = player.FirstDepositOn.Format(time.RFC3339)
 	}
 
-	filename := fmt.Sprintf("PG%s-%s-%s.xlsx", time.Now().Format("2006-01-02"), brand, dateField)
+	filename := fmt.Sprintf("PG%s-%s-%s.xlsx", time.Now().Format("20060102"), brand, dateField)
 
 	// Save the file to the disk
 	err = file.Save(filename)
