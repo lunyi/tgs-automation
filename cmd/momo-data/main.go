@@ -100,60 +100,43 @@ func CreateExcel(players []postgresql.PlayerInfo, brand string, dateField string
 
 func Zipfile(fileToZip string, password string) (string, error) {
 
-	internalFileName := strings.Replace(fileToZip, ".xlsx", ".zip", -1)
+	zipFileName := strings.Replace(fileToZip, ".xlsx", ".zip", -1)
 
-	zipFileName := "example.zip"
-
-	outFile, err := os.Create(zipFileName)
+	newZipFile, err := os.Create(zipFileName)
 	if err != nil {
 		log.LogFatal(err.Error())
-		return "", err
+		panic(err)
 	}
-	defer outFile.Close()
+	defer newZipFile.Close()
 
-	// Create a new ZIP writer
-	zipWriter := zip.NewWriter(outFile)
+	// Create a new zip writer
+	zipWriter := zip.NewWriter(newZipFile)
 	defer zipWriter.Close()
 
+	// Add a file to the zip file
+	zipFile, err := zipWriter.Encrypt(fileToZip, password)
+	if err != nil {
+		log.LogFatal(err.Error())
+		panic(err)
+	}
 	// Open the file to be zipped
-	inFile, err := os.Open(fileToZip)
+	fileToZipReader, err := os.Open(fileToZip)
 	if err != nil {
 		log.LogFatal(err.Error())
-		return "", err
+		panic(err)
 	}
-	defer inFile.Close()
+	defer fileToZipReader.Close()
 
-	// Get the file info to replicate it in the ZIP
-	info, err := inFile.Stat()
-	if err != nil {
+	// Copy the file data to the zip
+	if _, err = io.Copy(zipFile, fileToZipReader); err != nil {
 		log.LogFatal(err.Error())
-		return "", err
+		panic(err)
 	}
 
-	// Create a header based on the file info
-	header, err := zip.FileInfoHeader(info)
-	if err != nil {
+	// Closing the zip writer is necessary to finalize the zip file
+	if err = zipWriter.Close(); err != nil {
 		log.LogFatal(err.Error())
-		return "", err
-	}
-	header.Name = fileToZip // Ensure filename is correct
-
-	// Encrypt and write the file into the ZIP
-	zipFileWriter, err := zipWriter.Encrypt(internalFileName, password)
-	if err != nil {
-		log.LogFatal(fmt.Sprintf("Error creating encrypted zip entry: %s", err))
-		return "", err
-	}
-
-	_, err = io.Copy(zipFileWriter, inFile)
-	if err != nil {
-		log.LogFatal(fmt.Sprintf("Error writing file to zip: %s", err))
-		return "", err
-	}
-
-	if err := zipWriter.Close(); err != nil {
-		log.LogFatal(fmt.Sprintf("Error closing zip writer: %s", err))
-		return "", err
+		panic(err)
 	}
 
 	log.LogInfo("ZIP file created successfully.")
