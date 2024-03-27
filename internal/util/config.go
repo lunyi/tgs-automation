@@ -9,14 +9,20 @@ import (
 )
 
 type TgsConfig struct {
-	CloudflareToken  string            `yaml:"cloudflare_token"`
-	ChromeDriverPath string            `yaml:"chrome_driver_path"`
-	GoogleSheet      GoogleSheetConfig `yaml:"google_sheet"`
-	Cdnetwork        CdnConfig         `yaml:"cdnetwork"`
-	Namecheap        NamecheapConfig   `yaml:"namecheap"`
-	Postgresql       PostgresqlConfig  `yaml:"postgresql"`
-	Telegram         TelegramConfig    `yaml:"telegram"`
-	AwsS3            AwsS3Config       `yaml:"aws_s3"`
+	CloudflareToken  string             `yaml:"cloudflare_token"`
+	ChromeDriverPath string             `yaml:"chrome_driver_path"`
+	GoogleSheet      GoogleSheetConfig  `yaml:"google_sheet"`
+	Cdnetwork        CdnConfig          `yaml:"cdnetwork"`
+	Namecheap        NamecheapConfig    `yaml:"namecheap"`
+	Postgresql       PostgresqlConfig   `yaml:"postgresql"`
+	Telegram         TelegramConfig     `yaml:"telegram"`
+	AwsS3            AwsS3Config        `yaml:"aws_s3"`
+	MomoTelegram     MomoTelegramConfig `yaml:"momo_telegram"`
+}
+
+type MomoTelegramConfig struct {
+	Token  string `yaml:"token"`
+	ChatId int64  `yaml:"chat_id"`
 }
 
 type AwsS3Config struct {

@@ -18,6 +18,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/tealeg/xlsx"
 )
 
@@ -30,10 +31,10 @@ func main() {
 	yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
 
 	data := []map[string]string{
-		{"Brand": "MOVN2", "Field": "pdp.first_deposit_on", "File": "deposit"},
-		{"Brand": "MOVN2", "Field": "p.registered_on", "File": "register"},
-		{"Brand": "MOPH", "Field": "pdp.first_deposit_on", "File": "deposit"},
-		{"Brand": "MOPH", "Field": "p.registered_on", "File": "register"},
+		{"Brand": "MOVN2", "Field": "pdp.first_deposit_on", "File": "deposit", "Message": "MOVN2 %s 所有首次存款的網域&上級代理玩家"},
+		{"Brand": "MOVN2", "Field": "p.registered_on", "File": "register", "Message": "MOVN2 %s 所有首次註冊的網域&上級代理玩家"},
+		{"Brand": "MOPH", "Field": "pdp.first_deposit_on", "File": "deposit", "Message": "MOVPH %s 所有首次存款的網域&上級代理玩家"},
+		{"Brand": "MOPH", "Field": "p.registered_on", "File": "register", "Message": "MOPH %s 所有首次註冊的網域&上級代理玩家"},
 	}
 
 	session := createSession(config.AwsS3)
@@ -55,7 +56,11 @@ func main() {
 		if err != nil {
 			log.LogFatal(err.Error())
 		}
-		uploadFileToS3(session, config.AwsS3.Bucket, zipFile, fmt.Sprintf("./%s", zipFile))
+		filePath := fmt.Sprintf("./%s", zipFile)
+		uploadFileToS3(session, config.AwsS3.Bucket, zipFile, filePath)
+
+		message := fmt.Sprintf(item["Message"], time.Now().Format("01/02"))
+		TelegramNotify(config.MomoTelegram, filePath, message)
 	}
 }
 
@@ -85,7 +90,7 @@ func CreateExcel(players []postgresql.PlayerInfo, brand string, dateField string
 		row.AddCell().Value = player.FirstDepositOn.Format(time.RFC3339)
 	}
 
-	filename := fmt.Sprintf("PG%s-%s-%s.xlsx", time.Now().Format("20060102"), brand, dateField)
+	filename := fmt.Sprintf("%s-%s-%s.xlsx", time.Now().Format("20060102"), brand, dateField)
 
 	// Save the file to the disk
 	err = file.Save(filename)
@@ -176,4 +181,23 @@ func uploadFileToS3(sess *session.Session, bucketName, fileKey, filePath string)
 	}
 
 	log.LogInfo("Successfully uploaded file to S3")
+}
+
+func TelegramNotify(config util.MomoTelegramConfig, file string, message string) error {
+	bot, err := tgbotapi.NewBotAPI(config.Token)
+	if err != nil {
+		log.LogFatal(fmt.Sprintf("Failed to create Telegram bot: %s", err))
+		return err
+	}
+
+	bot.Debug = true
+	chatID := config.ChatId
+	msg := tgbotapi.NewDocumentUpload(chatID, file)
+	msg.Caption = message
+
+	if _, err := bot.Send(msg); err != nil {
+		log.LogFatal(fmt.Sprintf("Failed to send message: %s", err))
+		return err
+	}
+	return nil
 }
