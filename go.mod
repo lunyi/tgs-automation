@@ -15,7 +15,7 @@ require (
 	github.com/alexmullins/zip v0.0.0-20180717182244-4affb64b04d0 // indirect
 	github.com/alibabacloud-go/debug v1.0.0 // indirect
 	github.com/appleboy/drone-gitlab-ci v1.0.2 // indirect
-	github.com/aws/aws-sdk-go v1.51.7 // indirect
+	github.com/aws/aws-sdk-go v1.51.8 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/chromedp/cdproto v0.0.0-20240202021202-6d0b6a386732 // indirect
 	github.com/chromedp/chromedp v0.9.5 // indirect

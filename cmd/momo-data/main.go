@@ -13,6 +13,10 @@ import (
 	"time"
 
 	"github.com/alexmullins/zip"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 
 	"github.com/tealeg/xlsx"
 )
@@ -32,24 +36,35 @@ func main() {
 		{"Brand": "MOPH", "Field": "p.registered_on", "File": "register"},
 	}
 
+	session := createSession(config.AwsS3)
 	// Print the slice of maps
 	for _, item := range data {
 		fmt.Printf("Code: %s, Field: %s\n", item["Brand"], item["Field"])
+
 		players, err := app.GetMomodata(item["Brand"], item["Field"], yesterday, today, "+08:00")
 		if err != nil {
 			log.LogFatal(err.Error())
 		}
 
-		CreateExcel(players, item["Brand"], item["File"])
+		filename, err := CreateExcel(players, item["Brand"], item["File"])
+		if err != nil {
+			log.LogFatal(err.Error())
+		}
+		password := fmt.Sprintf("PG%s", time.Now().Format("2006-01-02"))
+		zipFile, err := Zipfile(filename, password)
+		if err != nil {
+			log.LogFatal(err.Error())
+		}
+		uploadFileToS3(session, config.AwsS3.Bucket, zipFile, "")
 	}
-
 }
 
-func CreateExcel(players []postgresql.PlayerInfo, brand string, dateField string) {
+func CreateExcel(players []postgresql.PlayerInfo, brand string, dateField string) (string, error) {
 	file := xlsx.NewFile()
 	sheet, err := file.AddSheet("PlayerInfo")
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("AddSheet failed: %s", err))
+		return "", err
 	}
 
 	headerRow := sheet.AddRow()
@@ -71,23 +86,26 @@ func CreateExcel(players []postgresql.PlayerInfo, brand string, dateField string
 	}
 
 	filename := fmt.Sprintf("PG%s-%s-%s.xlsx", time.Now().Format("2006-01-02"), brand, dateField)
-	password := fmt.Sprintf("PG%s", time.Now().Format("2006-01-02"))
-	Zipfile(filename, password)
+
 	// Save the file to the disk
 	err = file.Save(filename)
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("Save failed:: %s", err))
+		return "", err
 	}
 
 	log.LogInfo("File saved successfully.")
+	return filename, nil
 }
 
-func Zipfile(fileToZip string, password string) error {
+func Zipfile(fileToZip string, password string) (string, error) {
+
 	zipFileName := strings.Replace(fileToZip, ".xslx", ".zip", -1)
+
 	outFile, err := os.Create(zipFileName)
 	if err != nil {
 		log.LogFatal(err.Error())
-		return err
+		return "", err
 	}
 	defer outFile.Close()
 
@@ -99,7 +117,7 @@ func Zipfile(fileToZip string, password string) error {
 	inFile, err := os.Open(fileToZip)
 	if err != nil {
 		log.LogFatal(err.Error())
-		return err
+		return "", err
 	}
 	defer inFile.Close()
 
@@ -107,14 +125,14 @@ func Zipfile(fileToZip string, password string) error {
 	info, err := inFile.Stat()
 	if err != nil {
 		log.LogFatal(err.Error())
-		return err
+		return "", err
 	}
 
 	// Create a header based on the file info
 	header, err := zip.FileInfoHeader(info)
 	if err != nil {
 		log.LogFatal(err.Error())
-		return err
+		return "", err
 	}
 	header.Name = fileToZip // Ensure filename is correct
 
@@ -122,30 +140,31 @@ func Zipfile(fileToZip string, password string) error {
 	zipFileWriter, err := zipWriter.Encrypt(zipFileName, password)
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("Error creating encrypted zip entry: %s", err))
-		return err
+		return "", err
 	}
 
 	_, err = io.Copy(zipFileWriter, inFile)
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("Error writing file to zip: %s", err))
-		return err
+		return "", err
 	}
 
 	if err := zipWriter.Close(); err != nil {
 		log.LogFatal(fmt.Sprintf("Error closing zip writer: %s", err))
+		return "", err
 	}
 
 	log.LogInfo("ZIP file created successfully.")
-	return nil
+	return zipFileName, nil
 }
 
-func createSession() *session.Session {
+func createSession(config util.AwsS3Config) *session.Session {
 	sess, err := session.NewSession(&aws.Config{
-		Region:      aws.String("your-region"), // e.g., us-west-2
-		Credentials: credentials.NewStaticCredentials("your-access-key-id", "your-secret-access-key", ""),
+		Region:      aws.String(config.Region),
+		Credentials: credentials.NewStaticCredentials(config.AccessKey, config.AccessSecret, ""),
 	})
 	if err != nil {
-		log.Fatalf("Failed to create AWS session: %s", err)
+		log.LogFatal(fmt.Sprintf("Failed to create AWS session: %s", err))
 	}
 
 	return sess
@@ -155,7 +174,7 @@ func uploadFileToS3(sess *session.Session, bucketName, fileKey, filePath string)
 	// Read the file
 	fileBytes, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		log.Fatalf("Unable to read file: %s", err)
+		log.LogFatal(fmt.Sprintf("Unable to read file: %s", err))
 	}
 
 	// Create an uploader with the session and default options
@@ -168,8 +187,8 @@ func uploadFileToS3(sess *session.Session, bucketName, fileKey, filePath string)
 		Body:   bytes.NewReader(fileBytes),
 	})
 	if err != nil {
-		log.Fatalf("Unable to upload file to S3: %s", err)
+		log.LogFatal(fmt.Sprintf("Unable to upload file to S3: %s", err))
 	}
 
-	fmt.Println("Successfully uploaded file to S3")
+	log.LogInfo("Successfully uploaded file to S3")
 }

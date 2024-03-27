@@ -20,8 +20,10 @@ type TgsConfig struct {
 }
 
 type AwsS3Config struct {
+	Region       string `yaml:"region"`
 	AccessKey    string `yaml:"access_key"`
 	AccessSecret string `yaml:"access_secret"`
+	Bucket       string `yaml:"bucket"`
 }
 
 type GoogleSheetConfig struct {
