@@ -24,13 +24,13 @@ import (
 
 func getData() map[string][]map[string]string {
 	dataMOVN2 := []map[string]string{
-		{"Brand": "MOVN2", "Field": "pdp.first_deposit_on", "Column": "first_deposit_on", "File": "首存"},
-		{"Brand": "MOVN2", "Field": "p.registered_on", "Column": "registered_on", "File": "註冊"},
+		{"Brand": "MOVN2", "Field": "pdp.first_deposit_on", "Column": "first_deposit_on", "File": "deposit"},
+		{"Brand": "MOVN2", "Field": "p.registered_on", "Column": "registered_on", "File": "registered"},
 	}
 
 	dataMOPH := []map[string]string{
-		{"Brand": "MOPH", "Field": "pdp.first_deposit_on", "Column": "first_deposit_on", "File": "首存"},
-		{"Brand": "MOPH", "Field": "p.registered_on", "Column": "registered_on", "File": "註冊"},
+		{"Brand": "MOPH", "Field": "pdp.first_deposit_on", "Column": "first_deposit_on", "File": "deposit"},
+		{"Brand": "MOPH", "Field": "p.registered_on", "Column": "registered_on", "File": "registered"},
 	}
 
 	return map[string][]map[string]string{
