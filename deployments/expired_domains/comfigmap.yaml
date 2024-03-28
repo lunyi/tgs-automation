@@ -26,7 +26,7 @@ data:
       Host            ${ELASTICSEARCH_HOST}
       Port            ${ELASTICSEARCH_PORT}
       Logstash_Format On
-      Logstash_Prefix log_unknown
+      Logstash_Prefix log_expired_domains
       Logstash_Prefix_Key es_index
       Include_Tag_Key On
       Replace_Dots    On

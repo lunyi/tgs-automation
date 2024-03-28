@@ -24,7 +24,7 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
-func getData() map[string][]map[string]string {
+func getBrandData() map[string][]map[string]string {
 	dataMOVN2 := []map[string]string{
 		{"Brand": "MOVN2", "Field": "pdp.first_deposit_on", "Column": "first_deposit_on", "File": "deposit"},
 		{"Brand": "MOVN2", "Field": "p.registered_on", "Column": "registered_on", "File": "registered"},
@@ -50,8 +50,8 @@ func main() {
 	yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
 	prefilename := time.Now().AddDate(0, 0, -1).Format("0102")
 	session := createSession(config.AwsS3)
-	password := fmt.Sprintf("PG%s", time.Now().Format("20060102"))
-	data := getData()
+	password := fmt.Sprintf("PG%s", time.Now().AddDate(0, 0, -1).Format("20060102"))
+	data := getBrandData()
 
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
@@ -60,7 +60,7 @@ func main() {
 		fmt.Printf("Records for %s:\n", brand)
 		filenames := []string{}
 		for _, record := range records {
-			filenames = getMomoData(record, app, brand, yesterday, today, filenames)
+			filenames = getMomoDataExcels(record, app, brand, yesterday, today, filenames)
 		}
 		zipAndUpoload(prefilename, brand, filenames, password, session, config)
 
@@ -72,7 +72,7 @@ func main() {
 	os.Exit(0)
 }
 
-func getMomoData(
+func getMomoDataExcels(
 	record map[string]string,
 	app postgresql.GetMomoDataInterface,
 	brand string,
