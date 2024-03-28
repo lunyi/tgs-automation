@@ -92,6 +92,7 @@ func zipAndUpoload(
 	password string,
 	session *session.Session,
 	config util.TgsConfig) {
+
 	zipfilename := fmt.Sprintf("%s_%s.zip", prefilename, brand)
 	zipFile, err := Zipfiles(zipfilename, filenames, password)
 	if err != nil {
@@ -112,11 +113,15 @@ func CreateExcel(players []postgresql.PlayerInfo, brand string, column string, f
 		return "", err
 	}
 
+	boldStyle := xlsx.NewStyle()
+	boldStyle.Font.Bold = true
+
 	headerRow := sheet.AddRow()
 	headerTitles := []string{"Agent", "Host", "PlayerName", "DailyDepositAmount", "DailyDepositCount", column}
 	for _, title := range headerTitles {
 		cell := headerRow.AddCell()
 		cell.Value = title
+		cell.SetStyle(boldStyle)
 	}
 
 	// Populating data
