@@ -63,22 +63,15 @@ func main() {
 	}
 }
 
-func zipAndUpoload(prefilename string, brand string, filenames []string, password string, session *session.Session, config util.TgsConfig) {
-	zipfilename := fmt.Sprintf("%s_%s.zip", prefilename, brand)
-	zipFile, err := Zipfiles(zipfilename, filenames, password)
-	if err != nil {
-		log.LogFatal(err.Error())
-	}
-	filePath := fmt.Sprintf("./%s", zipFile)
-	uploadFileToS3(session, config.AwsS3.Bucket, zipFile, filePath)
-	TelegramNotify(config.MomoTelegram, filePath, fmt.Sprintf("Momo %s Data", brand))
+func getMomoData(
+	record map[string]string,
+	app postgresql.GetMomoDataInterface,
+	brand string,
+	yesterday string,
+	today string,
+	filenames []string) []string {
 
-	deleteFiles()
-}
-
-func getMomoData(record map[string]string, app postgresql.GetMomoDataInterface, brand string, yesterday string, today string, filenames []string) []string {
 	fmt.Printf("Field: %s, File: %s\n", record["Field"], record["File"])
-
 	players, err := app.GetMomodata(brand, record["Field"], yesterday, today, "+08:00")
 	if err != nil {
 		log.LogFatal(err.Error())
@@ -92,7 +85,27 @@ func getMomoData(record map[string]string, app postgresql.GetMomoDataInterface, 
 	return filenames
 }
 
-func CreateExcel(players []postgresql.PlayerInfo, brand string, colunn string, dateField string) (string, error) {
+func zipAndUpoload(
+	prefilename string,
+	brand string,
+	filenames []string,
+	password string,
+	session *session.Session,
+	config util.TgsConfig) {
+
+	zipfilename := fmt.Sprintf("%s_%s.zip", prefilename, brand)
+	zipFile, err := Zipfiles(zipfilename, filenames, password)
+	if err != nil {
+		log.LogFatal(err.Error())
+	}
+	filePath := fmt.Sprintf("./%s", zipFile)
+	uploadFileToS3(session, config.AwsS3.Bucket, zipFile, filePath)
+	TelegramNotify(config.MomoTelegram, filePath, fmt.Sprintf("Momo %s Data", brand))
+
+	deleteFiles()
+}
+
+func CreateExcel(players []postgresql.PlayerInfo, brand string, column string, fileField string) (string, error) {
 	file := xlsx.NewFile()
 	sheet, err := file.AddSheet("PlayerInfo")
 	if err != nil {
@@ -101,7 +114,7 @@ func CreateExcel(players []postgresql.PlayerInfo, brand string, colunn string, d
 	}
 
 	headerRow := sheet.AddRow()
-	headerTitles := []string{"Agent", "Host", "PlayerName", "DailyDepositAmount", "DailyDepositCount", dateField}
+	headerTitles := []string{"Agent", "Host", "PlayerName", "DailyDepositAmount", "DailyDepositCount", column}
 	for _, title := range headerTitles {
 		cell := headerRow.AddCell()
 		cell.Value = title
@@ -118,7 +131,7 @@ func CreateExcel(players []postgresql.PlayerInfo, brand string, colunn string, d
 		row.AddCell().Value = player.FirstDepositOn.Format(time.RFC3339)
 	}
 
-	filename := fmt.Sprintf("%s_%s_%s.xlsx", time.Now().AddDate(0, 0, -1).Format("0102"), brand, colunn)
+	filename := fmt.Sprintf("%s_%s_%s.xlsx", time.Now().AddDate(0, 0, -1).Format("0102"), brand, fileField)
 
 	// Save the file to the disk
 	err = file.Save(filename)
