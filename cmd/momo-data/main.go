@@ -9,7 +9,9 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
 	"time"
 
 	"github.com/alexmullins/zip"
@@ -51,6 +53,9 @@ func main() {
 	password := fmt.Sprintf("PG%s", time.Now().Format("20060102"))
 	data := getData()
 
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
+
 	for brand, records := range data {
 		fmt.Printf("Records for %s:\n", brand)
 		filenames := []string{}
@@ -61,6 +66,10 @@ func main() {
 
 		fmt.Println("-----")
 	}
+
+	sig := <-signals
+	log.LogInfo(fmt.Sprintf("Received signal: %v, initiating shutdown", sig))
+	os.Exit(0)
 }
 
 func getMomoData(
