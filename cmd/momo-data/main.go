@@ -92,7 +92,6 @@ func zipAndUpoload(
 	password string,
 	session *session.Session,
 	config util.TgsConfig) {
-	return
 	zipfilename := fmt.Sprintf("%s_%s.zip", prefilename, brand)
 	zipFile, err := Zipfiles(zipfilename, filenames, password)
 	if err != nil {
