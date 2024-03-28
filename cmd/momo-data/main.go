@@ -9,7 +9,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"strings"
+	"path/filepath"
 	"time"
 
 	"github.com/alexmullins/zip"
@@ -22,6 +22,23 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
+func getData() map[string][]map[string]string {
+	dataMOVN2 := []map[string]string{
+		{"Brand": "MOVN2", "Field": "pdp.first_deposit_on", "Column": "first_deposit_on", "File": "首存"},
+		{"Brand": "MOVN2", "Field": "p.registered_on", "Column": "registered_on", "File": "註冊"},
+	}
+
+	dataMOPH := []map[string]string{
+		{"Brand": "MOPH", "Field": "pdp.first_deposit_on", "Column": "first_deposit_on", "File": "首存"},
+		{"Brand": "MOPH", "Field": "p.registered_on", "Column": "registered_on", "File": "註冊"},
+	}
+
+	return map[string][]map[string]string{
+		"MOVN2": dataMOVN2,
+		"MOPH":  dataMOPH,
+	}
+}
+
 func main() {
 	config := util.GetConfig()
 	app := postgresql.NewMomoDataInterface(config.Postgresql)
@@ -29,42 +46,53 @@ func main() {
 
 	today := time.Now().Format("2006-01-02") // Today's date in "YYYY-MM-DD" format
 	yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
-
-	data := []map[string]string{
-		{"Brand": "MOVN2", "Field": "pdp.first_deposit_on", "File": "deposit", "Message": "MOVN2 %s 所有首次存款的網域&上級代理玩家"},
-		{"Brand": "MOVN2", "Field": "p.registered_on", "File": "register", "Message": "MOVN2 %s 所有首次註冊的網域&上級代理玩家"},
-		{"Brand": "MOPH", "Field": "pdp.first_deposit_on", "File": "deposit", "Message": "MOVPH %s 所有首次存款的網域&上級代理玩家"},
-		{"Brand": "MOPH", "Field": "p.registered_on", "File": "register", "Message": "MOPH %s 所有首次註冊的網域&上級代理玩家"},
-	}
-
+	prefilename := time.Now().AddDate(0, 0, -1).Format("0102")
 	session := createSession(config.AwsS3)
-	// Print the slice of maps
-	for _, item := range data {
-		fmt.Printf("Code: %s, Field: %s\n", item["Brand"], item["Field"])
+	password := fmt.Sprintf("PG%s", time.Now().Format("20060102"))
+	data := getData()
 
-		players, err := app.GetMomodata(item["Brand"], item["Field"], yesterday, today, "+08:00")
-		if err != nil {
-			log.LogFatal(err.Error())
+	for brand, records := range data {
+		fmt.Printf("Records for %s:\n", brand)
+		filenames := []string{}
+		for _, record := range records {
+			filenames = getMomoData(record, app, brand, yesterday, today, filenames)
 		}
+		zipAndUpoload(prefilename, brand, filenames, password, session, config)
 
-		filename, err := CreateExcel(players, item["Brand"], item["File"])
-		if err != nil {
-			log.LogFatal(err.Error())
-		}
-		password := fmt.Sprintf("PG%s", time.Now().Format("20060102"))
-		zipFile, err := Zipfile(filename, password)
-		if err != nil {
-			log.LogFatal(err.Error())
-		}
-		filePath := fmt.Sprintf("./%s", zipFile)
-		uploadFileToS3(session, config.AwsS3.Bucket, zipFile, filePath)
-
-		message := fmt.Sprintf(item["Message"], time.Now().Format("01/02"))
-		TelegramNotify(config.MomoTelegram, filePath, message)
+		fmt.Println("-----")
 	}
 }
 
-func CreateExcel(players []postgresql.PlayerInfo, brand string, dateField string) (string, error) {
+func zipAndUpoload(prefilename string, brand string, filenames []string, password string, session *session.Session, config util.TgsConfig) {
+	zipfilename := fmt.Sprintf("%s_%s.zip", prefilename, brand)
+	zipFile, err := Zipfiles(zipfilename, filenames, password)
+	if err != nil {
+		log.LogFatal(err.Error())
+	}
+	filePath := fmt.Sprintf("./%s", zipFile)
+	uploadFileToS3(session, config.AwsS3.Bucket, zipFile, filePath)
+	TelegramNotify(config.MomoTelegram, filePath, fmt.Sprintf("Momo %s Data", brand))
+
+	deleteFiles()
+}
+
+func getMomoData(record map[string]string, app postgresql.GetMomoDataInterface, brand string, yesterday string, today string, filenames []string) []string {
+	fmt.Printf("Field: %s, File: %s\n", record["Field"], record["File"])
+
+	players, err := app.GetMomodata(brand, record["Field"], yesterday, today, "+08:00")
+	if err != nil {
+		log.LogFatal(err.Error())
+	}
+
+	filename, err := CreateExcel(players, brand, record["Column"], record["File"])
+	if err != nil {
+		log.LogFatal(err.Error())
+	}
+	filenames = append(filenames, filename)
+	return filenames
+}
+
+func CreateExcel(players []postgresql.PlayerInfo, brand string, colunn string, dateField string) (string, error) {
 	file := xlsx.NewFile()
 	sheet, err := file.AddSheet("PlayerInfo")
 	if err != nil {
@@ -90,7 +118,7 @@ func CreateExcel(players []postgresql.PlayerInfo, brand string, dateField string
 		row.AddCell().Value = player.FirstDepositOn.Format(time.RFC3339)
 	}
 
-	filename := fmt.Sprintf("%s-%s-%s.xlsx", time.Now().AddDate(0, 0, -1).Format("20060102"), brand, dateField)
+	filename := fmt.Sprintf("%s_%s_%s.xlsx", time.Now().AddDate(0, 0, -1).Format("0102"), brand, colunn)
 
 	// Save the file to the disk
 	err = file.Save(filename)
@@ -103,9 +131,7 @@ func CreateExcel(players []postgresql.PlayerInfo, brand string, dateField string
 	return filename, nil
 }
 
-func Zipfile(fileToZip string, password string) (string, error) {
-
-	zipFileName := strings.Replace(fileToZip, ".xlsx", ".zip", -1)
+func Zipfiles(zipFileName string, fileToZip []string, password string) (string, error) {
 
 	newZipFile, err := os.Create(zipFileName)
 	if err != nil {
@@ -118,34 +144,30 @@ func Zipfile(fileToZip string, password string) (string, error) {
 	zipWriter := zip.NewWriter(newZipFile)
 	defer zipWriter.Close()
 
-	// Add a file to the zip file
-	zipFile, err := zipWriter.Encrypt(fileToZip, password)
-	if err != nil {
-		log.LogFatal(err.Error())
-		panic(err)
+	for _, filename := range fileToZip {
+		addFileToZipWithPassword(zipWriter, filename, password)
 	}
-	// Open the file to be zipped
-	fileToZipReader, err := os.Open(fileToZip)
-	if err != nil {
-		log.LogFatal(err.Error())
-		panic(err)
-	}
-	defer fileToZipReader.Close()
-
-	// Copy the file data to the zip
-	if _, err = io.Copy(zipFile, fileToZipReader); err != nil {
-		log.LogFatal(err.Error())
-		panic(err)
-	}
-
-	// Closing the zip writer is necessary to finalize the zip file
-	if err = zipWriter.Close(); err != nil {
-		log.LogFatal(err.Error())
-		panic(err)
-	}
-
-	log.LogInfo("ZIP file created successfully.")
 	return zipFileName, nil
+}
+
+func addFileToZipWithPassword(zipWriter *zip.Writer, filename string, password string) {
+	// Open the file to be added to the zip file
+	fileToZip, err := os.Open(filename)
+	if err != nil {
+		panic(err)
+	}
+	defer fileToZip.Close()
+
+	// Create a writer for the file entry in the zip file, with encryption
+	writer, err := zipWriter.Encrypt(filename, password)
+	if err != nil {
+		panic(err)
+	}
+
+	// Copy the file content to the zip file
+	if _, err = io.Copy(writer, fileToZip); err != nil {
+		panic(err)
+	}
 }
 
 func createSession(config util.AwsS3Config) *session.Session {
@@ -219,4 +241,29 @@ func TelegramNotify2(config util.MomoTelegramConfig, file string, message string
 		return err
 	}
 	return nil
+}
+
+func deleteFiles() {
+	patterns := []string{
+		"./*.xlsx",
+		"./*.zip",
+	}
+
+	for _, pattern := range patterns {
+		// Use filepath.Glob to find all files that match the pattern
+		matches, err := filepath.Glob(pattern)
+		if err != nil {
+			log.LogFatal(err.Error())
+		}
+
+		// Loop through the matching files and delete them
+		for _, match := range matches {
+			err := os.Remove(match)
+			if err != nil {
+				log.LogInfo(fmt.Sprintf("Failed to delete %s: %s", match, err))
+			} else {
+				log.LogInfo(fmt.Sprintf("Deleted %s", match))
+			}
+		}
+	}
 }
