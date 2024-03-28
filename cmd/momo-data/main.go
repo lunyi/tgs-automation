@@ -92,7 +92,7 @@ func zipAndUpoload(
 	password string,
 	session *session.Session,
 	config util.TgsConfig) {
-
+	return
 	zipfilename := fmt.Sprintf("%s_%s.zip", prefilename, brand)
 	zipFile, err := Zipfiles(zipfilename, filenames, password)
 	if err != nil {
@@ -100,7 +100,7 @@ func zipAndUpoload(
 	}
 	filePath := fmt.Sprintf("./%s", zipFile)
 	uploadFileToS3(session, config.AwsS3.Bucket, zipFile, filePath)
-	TelegramNotify(config.MomoTelegram, filePath, fmt.Sprintf("Momo %s Data", brand))
+	TelegramNotify(config.MomoTelegram, filePath, fmt.Sprintf("%s Data", brand))
 
 	deleteFiles()
 }
