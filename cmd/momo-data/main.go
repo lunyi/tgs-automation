@@ -32,8 +32,8 @@ func main() {
 	today := time.Now().Format("2006-01-02") // Today's date in "YYYY-MM-DD" format
 	yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
 	prefilename := time.Now().AddDate(0, 0, -1).Format("0102")
-	session := createSession(config.AwsS3)
 	password := fmt.Sprintf("PG%s", time.Now().AddDate(0, 0, -1).Format("20060102"))
+	session := createSession(config.AwsS3)
 
 	brands := []string{"MOVN2", "MOPH"}
 
@@ -41,8 +41,8 @@ func main() {
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
 
 	for _, brand := range brands {
-		playerFirstDepositFile := createPlayerExcelFirstDeposit(app, brand, yesterday, today, prefilename)
-		playerRegisteredFile := createPlayerExcelRegistered(app, brand, yesterday, today, prefilename)
+		playerFirstDepositFile := createExcelPlayerFirstDeposit(app, brand, yesterday, today, prefilename)
+		playerRegisteredFile := createExcelPlayerRegistered(app, brand, yesterday, today, prefilename)
 		filenames := []string{playerFirstDepositFile, playerRegisteredFile}
 		zipAndUpoload(prefilename, brand, filenames, password, session, config)
 		fmt.Println("-----")
@@ -53,7 +53,7 @@ func main() {
 	os.Exit(0)
 }
 
-func createPlayerExcelRegistered(app postgresql.GetMomoDataInterface, brand string, yesterday string, today string, prefilename string) string {
+func createExcelPlayerRegistered(app postgresql.GetMomoDataInterface, brand string, yesterday string, today string, prefilename string) string {
 	playerRegistered, err := app.GetMomoRegisteredPlayers(brand, yesterday, today, "+08:00")
 	if err != nil {
 		log.LogFatal(err.Error())
@@ -66,14 +66,14 @@ func createPlayerExcelRegistered(app postgresql.GetMomoDataInterface, brand stri
 
 	playerRegisteredFile := fmt.Sprintf("%s_%s_register.xlsx", prefilename, brand)
 
-	err = CreateExcel(playerRegisteredInterface, playerRegisteredFile, PopulateSheetPlayerRegistered)
+	err = createExcel(playerRegisteredInterface, playerRegisteredFile, populateSheetPlayerRegistered)
 	if err != nil {
 		log.LogFatal(err.Error())
 	}
 	return playerRegisteredFile
 }
 
-func createPlayerExcelFirstDeposit(app postgresql.GetMomoDataInterface, brand string, yesterday string, today string, prefilename string) string {
+func createExcelPlayerFirstDeposit(app postgresql.GetMomoDataInterface, brand string, yesterday string, today string, prefilename string) string {
 	playerFirstDeposit, err := app.GetMomoFirstDepositePlayers(brand, yesterday, today, "+08:00")
 	if err != nil {
 		log.LogFatal(err.Error())
@@ -86,7 +86,7 @@ func createPlayerExcelFirstDeposit(app postgresql.GetMomoDataInterface, brand st
 		playerFirstDepositInterface = append(playerFirstDepositInterface, p)
 	}
 
-	err = CreateExcel(playerFirstDepositInterface, playerFirstDepositFile, PopulateSheetFirstDeposit)
+	err = createExcel(playerFirstDepositInterface, playerFirstDepositFile, populateSheetFirstDeposit)
 	if err != nil {
 		log.LogFatal(err.Error())
 	}
@@ -95,7 +95,7 @@ func createPlayerExcelFirstDeposit(app postgresql.GetMomoDataInterface, brand st
 
 type PopulatorFunc func(*xlsx.Row, *xlsx.Style, *xlsx.Sheet, []interface{})
 
-func CreateExcel(players []interface{}, excelFilename string, populate PopulatorFunc) error {
+func createExcel(players []interface{}, excelFilename string, populate PopulatorFunc) error {
 	file := xlsx.NewFile()
 	sheet, err := file.AddSheet("PlayerInfo")
 	if err != nil {
@@ -119,7 +119,7 @@ func CreateExcel(players []interface{}, excelFilename string, populate Populator
 	return nil
 }
 
-func PopulateSheetFirstDeposit(headerRow *xlsx.Row, boldStyle *xlsx.Style, sheet *xlsx.Sheet, players []interface{}) {
+func populateSheetFirstDeposit(headerRow *xlsx.Row, boldStyle *xlsx.Style, sheet *xlsx.Sheet, players []interface{}) {
 	headerTitles := []string{"Agent", "Host", "PlayerName", "DailyDepositAmount", "DailyDepositCount", "FirstDepositOn"}
 	for _, title := range headerTitles {
 		cell := headerRow.AddCell()
@@ -138,7 +138,7 @@ func PopulateSheetFirstDeposit(headerRow *xlsx.Row, boldStyle *xlsx.Style, sheet
 	}
 }
 
-func PopulateSheetPlayerRegistered(headerRow *xlsx.Row, boldStyle *xlsx.Style, sheet *xlsx.Sheet, players []interface{}) {
+func populateSheetPlayerRegistered(headerRow *xlsx.Row, boldStyle *xlsx.Style, sheet *xlsx.Sheet, players []interface{}) {
 	headerTitles := []string{"Agent", "Host", "PlayerName", "RealName", "RegisteredOn"}
 	for _, title := range headerTitles {
 		cell := headerRow.AddCell()
@@ -156,85 +156,6 @@ func PopulateSheetPlayerRegistered(headerRow *xlsx.Row, boldStyle *xlsx.Style, s
 		row.AddCell().Value = player.(postgresql.PlayerRegisterInfo).RegisteredOn.Format(time.RFC3339)
 	}
 }
-
-// func CreateExcelFirstDepositOn(players []postgresql.PlayerFirstDeposit, excelFilename string) error {
-// 	file := xlsx.NewFile()
-// 	sheet, err := file.AddSheet("PlayerInfo")
-// 	if err != nil {
-// 		log.LogFatal(fmt.Sprintf("AddSheet failed: %s", err))
-// 		return err
-// 	}
-
-// 	boldStyle := xlsx.NewStyle()
-// 	boldStyle.Font.Bold = true
-
-// 	headerRow := sheet.AddRow()
-// 	headerTitles := []string{"Agent", "Host", "PlayerName", "DailyDepositAmount", "DailyDepositCount", "FirstDepositOn"}
-// 	for _, title := range headerTitles {
-// 		cell := headerRow.AddCell()
-// 		cell.Value = title
-// 		cell.SetStyle(boldStyle)
-// 	}
-
-// 	// Populating data
-// 	for _, player := range players {
-// 		row := sheet.AddRow()
-// 		row.AddCell().Value = player.Agent.String
-// 		row.AddCell().Value = player.Host
-// 		row.AddCell().Value = player.PlayerName
-// 		row.AddCell().SetFloat(player.DailyDepositAmount)
-// 		row.AddCell().SetInt(player.DailyDepositCount)
-// 		row.AddCell().Value = player.FirstDepositOn.Format(time.RFC3339)
-// 	}
-// 	// Save the file to the disk
-// 	err = file.Save(excelFilename)
-// 	if err != nil {
-// 		log.LogFatal(fmt.Sprintf("Save failed:: %s", err))
-// 		return err
-// 	}
-
-// 	log.LogInfo("Player first deposit excel successfully.")
-// 	return nil
-// }
-
-// func CreateExcelRegistered(players []postgresql.PlayerRegisterInfo, excelFilename string) error {
-// 	file := xlsx.NewFile()
-// 	sheet, err := file.AddSheet("PlayerInfo")
-// 	if err != nil {
-// 		log.LogFatal(fmt.Sprintf("AddSheet failed: %s", err))
-// 		return err
-// 	}
-
-// 	boldStyle := xlsx.NewStyle()
-// 	boldStyle.Font.Bold = true
-
-// 	headerRow := sheet.AddRow()
-// 	headerTitles := []string{"Agent", "Host", "PlayerName", "RealName", "RegisteredOn"}
-// 	for _, title := range headerTitles {
-// 		cell := headerRow.AddCell()
-// 		cell.Value = title
-// 		cell.SetStyle(boldStyle)
-// 	}
-
-// 	// Populating data
-// 	for _, player := range players {
-// 		row := sheet.AddRow()
-// 		row.AddCell().Value = player.Agent.String
-// 		row.AddCell().Value = player.Host
-// 		row.AddCell().Value = player.PlayerName
-// 		row.AddCell().Value = player.RealName.String
-// 		row.AddCell().Value = player.RegisteredOn.Format(time.RFC3339)
-// 	}
-
-// 	err = file.Save(excelFilename)
-// 	if err != nil {
-// 		log.LogFatal(fmt.Sprintf("Save failed:: %s", err))
-// 		return err
-// 	}
-
-// 	log.LogInfo("Player Registered excel saved successfully.")
-// 	return nil
-// }
 
 func zipAndUpoload(
 	prefilename string,
