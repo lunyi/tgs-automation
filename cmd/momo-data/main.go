@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -68,7 +69,7 @@ func createExcelPlayerRegistered(app postgresql.GetMomoDataInterface, brand stri
 		playerRegisteredInterface = append(playerRegisteredInterface, p)
 	}
 
-	playerRegisteredFile := fmt.Sprintf("%s_%s_註冊.xlsx", prefilename, brand)
+	playerRegisteredFile := fmt.Sprintf("%s_%s_註冊.xlsx", prefilename, strings.ToLower(brand))
 
 	err = createExcel(playerRegisteredInterface, playerRegisteredFile, populateSheetPlayerRegistered)
 	if err != nil {
@@ -83,7 +84,7 @@ func createExcelPlayerFirstDeposit(app postgresql.GetMomoDataInterface, brand st
 		log.LogFatal(err.Error())
 	}
 
-	playerFirstDepositFile := fmt.Sprintf("%s_%s_首存.xlsx", prefilename, brand)
+	playerFirstDepositFile := fmt.Sprintf("%s_%s_首存.xlsx", prefilename, strings.ToLower(brand))
 
 	var playerFirstDepositInterface []interface{}
 	for _, p := range playerFirstDeposit {
