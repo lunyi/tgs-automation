@@ -11,7 +11,8 @@ import (
 )
 
 type GetMomoDataInterface interface {
-	GetMomodata(brandCode string, dateField string, startDate string, endDate string, timezoneOffset string) ([]PlayerInfo, error)
+	GetMomoFirstDepositePlayers(brandCode string, startDate string, endDate string, timezoneOffset string) ([]PlayerFirstDeposit, error)
+	GetMomoRegisteredPlayers(brandCode string, startDate string, endDate string, timezoneOffset string) ([]PlayerRegisterInfo, error)
 	Close()
 }
 
@@ -36,15 +37,15 @@ func (s *GetMomodataService) Close() {
 	s.Db.Close()
 }
 
-func (s *GetMomodataService) GetMomodata(brandCode string, dateField string, startDate string, endDate string, timezoneOffset string) ([]PlayerInfo, error) {
-	query := fmt.Sprintf(`
+func (s *GetMomodataService) GetMomoFirstDepositePlayers(brandCode string, startDate string, endDate string, timezoneOffset string) ([]PlayerFirstDeposit, error) {
+	query := `
 SELECT 
     a.username AS agent,
     PIR.host,
     p.username AS playername, 
     pdp.daily_deposit_amount, 
     pdp.daily_deposit_count,
-    %s
+    pdp.first_deposit_on
 FROM 
     dbo.player_daily_payment_statistics pdp
 JOIN dbo.players p ON p.player_code = pdp.player_code
@@ -53,8 +54,8 @@ LEFT JOIN
         AND PIR.ip_type = 1
 LEFT JOIN dbo.agents a ON a.id = p.agent_id
 WHERE p.brand_id = (SELECT id FROM dbo.brands WHERE code=$1)
-AND %s >= $2 AND %s < $3 order by 1 nulls first,2,3
-`, dateField, dateField, dateField)
+AND pdp.first_deposit_on >= $2 AND pdp.first_deposit_on < $3 order by 1 nulls first,2,3
+`
 
 	log.LogInfo(fmt.Sprintf("Query: %s", query))
 	log.LogInfo(fmt.Sprintf("Brand: %s, StartDate: %s, EndDate: %s", brandCode, startDate, endDate))
@@ -66,9 +67,9 @@ AND %s >= $2 AND %s < $3 order by 1 nulls first,2,3
 	}
 	defer rows.Close()
 
-	var players []PlayerInfo
+	var players []PlayerFirstDeposit
 	for rows.Next() {
-		var pi PlayerInfo
+		var pi PlayerFirstDeposit
 		// Adjust the Scan based on the date field used
 		if err := rows.Scan(&pi.Agent, &pi.Host, &pi.PlayerName, &pi.DailyDepositAmount, &pi.DailyDepositCount, &pi.FirstDepositOn); err != nil {
 			log.LogFatal(fmt.Sprintf("Error scanning row: %v", err))
@@ -88,7 +89,7 @@ AND %s >= $2 AND %s < $3 order by 1 nulls first,2,3
 	return players, nil
 }
 
-type PlayerInfo struct {
+type PlayerFirstDeposit struct {
 	Agent              sql.NullString
 	Host               string // Use sql.NullString for nullable fields
 	PlayerName         string

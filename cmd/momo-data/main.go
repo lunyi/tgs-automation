@@ -24,23 +24,6 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
-func getBrandData() map[string][]map[string]string {
-	dataMOVN2 := []map[string]string{
-		{"Brand": "MOVN2", "Field": "pdp.first_deposit_on", "Column": "first_deposit_on", "File": "deposit"},
-		{"Brand": "MOVN2", "Field": "p.registered_on", "Column": "registered_on", "File": "registered"},
-	}
-
-	dataMOPH := []map[string]string{
-		{"Brand": "MOPH", "Field": "pdp.first_deposit_on", "Column": "first_deposit_on", "File": "deposit"},
-		{"Brand": "MOPH", "Field": "p.registered_on", "Column": "registered_on", "File": "registered"},
-	}
-
-	return map[string][]map[string]string{
-		"MOVN2": dataMOVN2,
-		"MOPH":  dataMOPH,
-	}
-}
-
 func main() {
 	config := util.GetConfig()
 	app := postgresql.NewMomoDataInterface(config.Postgresql)
@@ -51,19 +34,15 @@ func main() {
 	prefilename := time.Now().AddDate(0, 0, -1).Format("0102")
 	session := createSession(config.AwsS3)
 	password := fmt.Sprintf("PG%s", time.Now().AddDate(0, 0, -1).Format("20060102"))
-	data := getBrandData()
+
+	brands := []string{"MOVN2", "MOPH"}
 
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
 
-	for brand, records := range data {
-		fmt.Printf("Records for %s:\n", brand)
-		filenames := []string{}
-		for _, record := range records {
-			filenames = getMomoDataExcels(record, app, brand, yesterday, today, filenames)
-		}
+	for _, brand := range brands {
+		filenames := getMomoDataExcels(app, brand, prefilename, yesterday, today)
 		zipAndUpoload(prefilename, brand, filenames, password, session, config)
-
 		fmt.Println("-----")
 	}
 
@@ -73,25 +52,35 @@ func main() {
 }
 
 func getMomoDataExcels(
-	record map[string]string,
 	app postgresql.GetMomoDataInterface,
 	brand string,
+	prefilename string,
 	yesterday string,
-	today string,
-	filenames []string) []string {
+	today string) []string {
 
-	fmt.Printf("Field: %s, File: %s\n", record["Field"], record["File"])
-	players, err := app.GetMomodata(brand, record["Field"], yesterday, today, "+08:00")
+	playerFirstDeposit, err := app.GetMomoFirstDepositePlayers(brand, yesterday, today, "+08:00")
 	if err != nil {
 		log.LogFatal(err.Error())
 	}
 
-	filename, err := CreateExcel(players, brand, record["Column"], record["File"])
+	playerFirstDepositFile := fmt.Sprintf("%s_%s_首存.xlsx", prefilename, brand)
+	err = CreateExcelFirstDepositOn(playerFirstDeposit, playerFirstDepositFile)
 	if err != nil {
 		log.LogFatal(err.Error())
 	}
-	filenames = append(filenames, filename)
-	return filenames
+
+	playerRegistered, err := app.GetMomoRegisteredPlayers(brand, yesterday, today, "+08:00")
+	if err != nil {
+		log.LogFatal(err.Error())
+	}
+
+	playerRegisteredFile := fmt.Sprintf("%s_%s_註冊.xlsx", prefilename, brand)
+	err = CreateExcelRegistered(playerRegistered, playerRegisteredFile)
+	if err != nil {
+		log.LogFatal(err.Error())
+	}
+
+	return []string{playerFirstDepositFile, playerRegisteredFile}
 }
 
 func zipAndUpoload(
@@ -114,19 +103,19 @@ func zipAndUpoload(
 	deleteFiles()
 }
 
-func CreateExcel(players []postgresql.PlayerInfo, brand string, column string, fileField string) (string, error) {
+func CreateExcelFirstDepositOn(players []postgresql.PlayerFirstDeposit, excelFilename string) error {
 	file := xlsx.NewFile()
 	sheet, err := file.AddSheet("PlayerInfo")
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("AddSheet failed: %s", err))
-		return "", err
+		return err
 	}
 
 	boldStyle := xlsx.NewStyle()
 	boldStyle.Font.Bold = true
 
 	headerRow := sheet.AddRow()
-	headerTitles := []string{"Agent", "Host", "PlayerName", "DailyDepositAmount", "DailyDepositCount", column}
+	headerTitles := []string{"Agent", "Host", "PlayerName", "DailyDepositAmount", "DailyDepositCount", "FirstDepositOn"}
 	for _, title := range headerTitles {
 		cell := headerRow.AddCell()
 		cell.Value = title
@@ -143,18 +132,54 @@ func CreateExcel(players []postgresql.PlayerInfo, brand string, column string, f
 		row.AddCell().SetInt(player.DailyDepositCount)
 		row.AddCell().Value = player.FirstDepositOn.Format(time.RFC3339)
 	}
-
-	filename := fmt.Sprintf("%s_%s_%s.xlsx", time.Now().AddDate(0, 0, -1).Format("0102"), brand, fileField)
-
 	// Save the file to the disk
-	err = file.Save(filename)
+	err = file.Save(excelFilename)
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("Save failed:: %s", err))
-		return "", err
+		return err
 	}
 
-	log.LogInfo("File saved successfully.")
-	return filename, nil
+	log.LogInfo("Player first deposit excel successfully.")
+	return nil
+}
+
+func CreateExcelRegistered(players []postgresql.PlayerRegisterInfo, excelFilename string) error {
+	file := xlsx.NewFile()
+	sheet, err := file.AddSheet("PlayerInfo")
+	if err != nil {
+		log.LogFatal(fmt.Sprintf("AddSheet failed: %s", err))
+		return err
+	}
+
+	boldStyle := xlsx.NewStyle()
+	boldStyle.Font.Bold = true
+
+	headerRow := sheet.AddRow()
+	headerTitles := []string{"Agent", "Host", "PlayerName", "RealName", "RegisteredOn"}
+	for _, title := range headerTitles {
+		cell := headerRow.AddCell()
+		cell.Value = title
+		cell.SetStyle(boldStyle)
+	}
+
+	// Populating data
+	for _, player := range players {
+		row := sheet.AddRow()
+		row.AddCell().Value = player.Agent.String
+		row.AddCell().Value = player.Host
+		row.AddCell().Value = player.PlayerName
+		row.AddCell().Value = player.RealName
+		row.AddCell().Value = player.RegisteredOn.Format(time.RFC3339)
+	}
+
+	err = file.Save(excelFilename)
+	if err != nil {
+		log.LogFatal(fmt.Sprintf("Save failed:: %s", err))
+		return err
+	}
+
+	log.LogInfo("Player Registered excel saved successfully.")
+	return nil
 }
 
 func Zipfiles(zipFileName string, fileToZip []string, password string) (string, error) {
