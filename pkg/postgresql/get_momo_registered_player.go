@@ -45,6 +45,9 @@ select
 		if !pi.Agent.Valid {
 			pi.Agent.String = ""
 		}
+		if !pi.RealName.Valid {
+			pi.RealName.String = ""
+		}
 		players = append(players, pi)
 		//fmt.Printf("%+v\n", pi)
 	}
@@ -61,6 +64,6 @@ type PlayerRegisterInfo struct {
 	Agent        sql.NullString
 	Host         string // Use sql.NullString for nullable fields
 	PlayerName   string
-	RealName     string
+	RealName     sql.NullString
 	RegisteredOn time.Time
 }

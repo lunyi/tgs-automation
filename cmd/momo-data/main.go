@@ -168,7 +168,7 @@ func CreateExcelRegistered(players []postgresql.PlayerRegisterInfo, excelFilenam
 		row.AddCell().Value = player.Agent.String
 		row.AddCell().Value = player.Host
 		row.AddCell().Value = player.PlayerName
-		row.AddCell().Value = player.RealName
+		row.AddCell().Value = player.RealName.String
 		row.AddCell().Value = player.RegisteredOn.Format(time.RFC3339)
 	}
 
