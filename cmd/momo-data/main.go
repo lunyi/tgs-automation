@@ -63,7 +63,7 @@ func getMomoDataExcels(
 		log.LogFatal(err.Error())
 	}
 
-	playerFirstDepositFile := fmt.Sprintf("%s_%s_首存.xlsx", prefilename, brand)
+	playerFirstDepositFile := fmt.Sprintf("%s_%s_deposit.xlsx", prefilename, brand)
 	err = CreateExcelFirstDepositOn(playerFirstDeposit, playerFirstDepositFile)
 	if err != nil {
 		log.LogFatal(err.Error())
@@ -74,7 +74,7 @@ func getMomoDataExcels(
 		log.LogFatal(err.Error())
 	}
 
-	playerRegisteredFile := fmt.Sprintf("%s_%s_註冊.xlsx", prefilename, brand)
+	playerRegisteredFile := fmt.Sprintf("%s_%s_register.xlsx", prefilename, brand)
 	err = CreateExcelRegistered(playerRegistered, playerRegisteredFile)
 	if err != nil {
 		log.LogFatal(err.Error())
