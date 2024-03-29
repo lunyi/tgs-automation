@@ -17,7 +17,6 @@ import (
 	"syscall"
 	"time"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/tealeg/xlsx"
 )
 
@@ -37,9 +36,6 @@ func main() {
 		{"MOVN2", config.MomoTelegram.Movn2ChatId},
 		{"MOPH", config.MomoTelegram.MophChatId},
 	}
-
-	config.MomoTelegram.Movn2ChatId = 1234567890
-	config.MomoTelegram.MophChatId = 1234567890
 
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
@@ -220,25 +216,6 @@ func sendFileToTelegram(botToken, chatID, filePath string, wg *sync.WaitGroup) {
 	if resp.StatusCode != http.StatusOK {
 		panic("failed to send document")
 	}
-}
-
-func telegramNotify(telegramToken string, chatId int64, file string, message string) error {
-	bot, err := tgbotapi.NewBotAPI(telegramToken)
-	if err != nil {
-		log.LogFatal(fmt.Sprintf("Failed to create Telegram bot: %s", err))
-		return err
-	}
-
-	bot.Debug = true
-	chatID := chatId
-	msg := tgbotapi.NewDocumentUpload(chatID, file)
-	msg.Caption = message
-
-	if _, err := bot.Send(msg); err != nil {
-		log.LogFatal(fmt.Sprintf("Failed to send message: %s", err))
-		return err
-	}
-	return nil
 }
 
 func deleteFiles() {
