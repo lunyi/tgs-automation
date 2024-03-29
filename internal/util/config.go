@@ -21,8 +21,9 @@ type TgsConfig struct {
 }
 
 type MomoTelegramConfig struct {
-	Token  string `yaml:"token"`
-	ChatId int64  `yaml:"chat_id"`
+	Token       string `yaml:"token"`
+	Movn2ChatId int64  `yaml:"movn2_chat_id"`
+	MophChatId  int64  `yaml:"moph_chat_id"`
 }
 
 type AwsS3Config struct {

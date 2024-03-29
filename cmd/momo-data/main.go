@@ -7,18 +7,14 @@ import (
 	"cdnetwork/pkg/postgresql"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"mime/multipart"
+	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"sync"
 	"syscall"
 	"time"
-
-	"github.com/alexmullins/zip"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/tealeg/xlsx"
@@ -32,21 +28,30 @@ func main() {
 	today := time.Now().Format("2006-01-02") // Today's date in "YYYY-MM-DD" format
 	yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
 	prefilename := time.Now().AddDate(0, 0, -1).Format("0102")
-	session := createSession(config.AwsS3)
 
-	brands := []string{"MOVN2", "MOPH"}
+	brands := []struct {
+		Code   string
+		ChatID int64
+	}{
+		{"MOVN2", config.MomoTelegram.Movn2ChatId},
+		{"MOPH", config.MomoTelegram.MophChatId},
+	}
+
+	config.MomoTelegram.Movn2ChatId = 1234567890
+	config.MomoTelegram.MophChatId = 1234567890
 
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
 
 	for _, brand := range brands {
-		playerFirstDepositFile := createExcelPlayerFirstDeposit(app, brand, yesterday, today, prefilename)
-		playerRegisteredFile := createExcelPlayerRegistered(app, brand, yesterday, today, prefilename)
+		playerFirstDepositFile := createExcelPlayerFirstDeposit(app, brand.Code, yesterday, today, prefilename)
+		playerRegisteredFile := createExcelPlayerRegistered(app, brand.Code, yesterday, today, prefilename)
 		filenames := []string{playerFirstDepositFile, playerRegisteredFile}
-		zipAndUpoload(prefilename, brand, filenames, session, config)
+
+		sendFilesToTelegram(filenames, config.MomoTelegram.Token, fmt.Sprintf("%d", brand.ChatID))
 		fmt.Println("-----")
 	}
-
+	deleteFiles()
 	sig := <-signals
 	log.LogInfo(fmt.Sprintf("Received signal: %v, initiating shutdown", sig))
 	os.Exit(0)
@@ -156,121 +161,75 @@ func populateSheetPlayerRegistered(headerRow *xlsx.Row, boldStyle *xlsx.Style, s
 	}
 }
 
-func zipAndUpoload(
-	prefilename string,
-	brand string,
-	filenames []string,
-	session *session.Session,
-	config util.TgsConfig) {
+func sendFilesToTelegram(filePaths []string, botToken, chatID string) {
+	var wg sync.WaitGroup
 
-	zipfilename := fmt.Sprintf("%s_%s.zip", prefilename, brand)
-	zipFile, err := zipfiles(zipfilename, filenames)
-	if err != nil {
-		log.LogFatal(err.Error())
+	// Iterate over the file paths and send each file in a separate goroutine
+	for _, filePath := range filePaths {
+		wg.Add(1) // Increment the WaitGroup counter
+		go sendFileToTelegram(botToken, chatID, filePath, &wg)
 	}
-	filePath := fmt.Sprintf("./%s", zipFile)
-	uploadFileToS3(session, config.AwsS3.Bucket, zipFile, filePath)
-	telegramNotify(config.MomoTelegram, filePath, fmt.Sprintf("%s Data", brand))
-	deleteFiles()
+
+	wg.Wait()
 }
 
-func zipfiles(zipFileName string, fileToZip []string) (string, error) {
+func sendFileToTelegram(botToken, chatID, filePath string, wg *sync.WaitGroup) {
+	defer wg.Done() // Notify the WaitGroup that we're done after this function completes
 
-	newZipFile, err := os.Create(zipFileName)
+	var requestBody bytes.Buffer
+	multipartWriter := multipart.NewWriter(&requestBody)
+
+	// Add the chat ID to the form-data
+	_ = multipartWriter.WriteField("chat_id", chatID)
+
+	// Open the file to send
+	file, err := os.Open(filePath)
 	if err != nil {
-		log.LogFatal(err.Error())
 		panic(err)
 	}
-	defer newZipFile.Close()
+	defer file.Close()
 
-	// Create a new zip writer
-	zipWriter := zip.NewWriter(newZipFile)
-	defer zipWriter.Close()
-
-	for _, filename := range fileToZip {
-		addFileToZip(zipWriter, filename)
+	// Create a form file part
+	part, err := multipartWriter.CreateFormFile("document", filepath.Base(file.Name()))
+	if err != nil {
+		panic(err)
 	}
-	return zipFileName, nil
+	_, err = io.Copy(part, file)
+	if err != nil {
+		panic(err)
+	}
+
+	// Important to close the writer or the request will be missing the terminating boundary.
+	multipartWriter.Close()
+
+	// Create and send the request
+	req, err := http.NewRequest("POST", "https://api.telegram.org/bot"+botToken+"/sendDocument", &requestBody)
+	if err != nil {
+		panic(err)
+	}
+	req.Header.Set("Content-Type", multipartWriter.FormDataContentType())
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		panic("failed to send document")
+	}
 }
 
-func addFileToZip(zipWriter *zip.Writer, filename string) error {
-	// Open the file to be added to the zip file
-	fileToZip, err := os.Open(filename)
-	if err != nil {
-		return err
-	}
-	defer fileToZip.Close()
-
-	fileInfo, err := fileToZip.Stat()
-	if err != nil {
-		return err
-	}
-
-	// Create a zip file header based on the file info
-	header, err := zip.FileInfoHeader(fileInfo)
-	if err != nil {
-		return err
-	}
-
-	// Using the filename as the header's name
-	header.Name = filename
-	header.Method = zip.Deflate // This is the compression algorithm
-
-	// Create a writer in the zip archive based on the header
-	writer, err := zipWriter.CreateHeader(header)
-	if err != nil {
-		return err
-	}
-
-	// Copy the file's content into the zip archive
-	_, err = io.Copy(writer, fileToZip)
-	return err
-}
-
-func createSession(config util.AwsS3Config) *session.Session {
-	sess, err := session.NewSession(&aws.Config{
-		Region:      aws.String(config.Region),
-		Credentials: credentials.NewStaticCredentials(config.AccessKey, config.AccessSecret, ""),
-	})
-	if err != nil {
-		log.LogFatal(fmt.Sprintf("Failed to create AWS session: %s", err))
-	}
-
-	return sess
-}
-
-func uploadFileToS3(sess *session.Session, bucketName, fileKey, filePath string) {
-	// Read the file
-	fileBytes, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		log.LogFatal(fmt.Sprintf("Unable to read file: %s", err))
-	}
-
-	// Create an uploader with the session and default options
-	uploader := s3.New(sess)
-
-	// Upload the file's bytes to S3
-	_, err = uploader.PutObject(&s3.PutObjectInput{
-		Bucket: aws.String(bucketName),
-		Key:    aws.String(fileKey),
-		Body:   bytes.NewReader(fileBytes),
-	})
-	if err != nil {
-		log.LogFatal(fmt.Sprintf("Unable to upload file to S3: %s", err))
-	}
-
-	log.LogInfo("Successfully uploaded file to S3")
-}
-
-func telegramNotify(config util.MomoTelegramConfig, file string, message string) error {
-	bot, err := tgbotapi.NewBotAPI(config.Token)
+func telegramNotify(telegramToken string, chatId int64, file string, message string) error {
+	bot, err := tgbotapi.NewBotAPI(telegramToken)
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("Failed to create Telegram bot: %s", err))
 		return err
 	}
 
 	bot.Debug = true
-	chatID := config.ChatId
+	chatID := chatId
 	msg := tgbotapi.NewDocumentUpload(chatID, file)
 	msg.Caption = message
 
