@@ -32,7 +32,6 @@ func main() {
 	today := time.Now().Format("2006-01-02") // Today's date in "YYYY-MM-DD" format
 	yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
 	prefilename := time.Now().AddDate(0, 0, -1).Format("0102")
-	password := fmt.Sprintf("PG%s", time.Now().AddDate(0, 0, -1).Format("20060102"))
 	session := createSession(config.AwsS3)
 
 	brands := []string{"MOVN2", "MOPH"}
@@ -44,7 +43,7 @@ func main() {
 		playerFirstDepositFile := createExcelPlayerFirstDeposit(app, brand, yesterday, today, prefilename)
 		playerRegisteredFile := createExcelPlayerRegistered(app, brand, yesterday, today, prefilename)
 		filenames := []string{playerFirstDepositFile, playerRegisteredFile}
-		zipAndUpoload(prefilename, brand, filenames, password, session, config)
+		zipAndUpoload(prefilename, brand, filenames, session, config)
 		fmt.Println("-----")
 	}
 
@@ -161,12 +160,11 @@ func zipAndUpoload(
 	prefilename string,
 	brand string,
 	filenames []string,
-	password string,
 	session *session.Session,
 	config util.TgsConfig) {
 
 	zipfilename := fmt.Sprintf("%s_%s.zip", prefilename, brand)
-	zipFile, err := zipfiles(zipfilename, filenames, password)
+	zipFile, err := zipfiles(zipfilename, filenames)
 	if err != nil {
 		log.LogFatal(err.Error())
 	}
@@ -176,7 +174,7 @@ func zipAndUpoload(
 	deleteFiles()
 }
 
-func zipfiles(zipFileName string, fileToZip []string, password string) (string, error) {
+func zipfiles(zipFileName string, fileToZip []string) (string, error) {
 
 	newZipFile, err := os.Create(zipFileName)
 	if err != nil {
@@ -190,29 +188,43 @@ func zipfiles(zipFileName string, fileToZip []string, password string) (string, 
 	defer zipWriter.Close()
 
 	for _, filename := range fileToZip {
-		addFileToZipWithPassword(zipWriter, filename, password)
+		addFileToZip(zipWriter, filename)
 	}
 	return zipFileName, nil
 }
 
-func addFileToZipWithPassword(zipWriter *zip.Writer, filename string, password string) {
+func addFileToZip(zipWriter *zip.Writer, filename string) error {
 	// Open the file to be added to the zip file
 	fileToZip, err := os.Open(filename)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer fileToZip.Close()
 
-	// Create a writer for the file entry in the zip file, with encryption
-	writer, err := zipWriter.Encrypt(filename, password)
+	fileInfo, err := fileToZip.Stat()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	// Copy the file content to the zip file
-	if _, err = io.Copy(writer, fileToZip); err != nil {
-		panic(err)
+	// Create a zip file header based on the file info
+	header, err := zip.FileInfoHeader(fileInfo)
+	if err != nil {
+		return err
 	}
+
+	// Using the filename as the header's name
+	header.Name = filename
+	header.Method = zip.Deflate // This is the compression algorithm
+
+	// Create a writer in the zip archive based on the header
+	writer, err := zipWriter.CreateHeader(header)
+	if err != nil {
+		return err
+	}
+
+	// Copy the file's content into the zip archive
+	_, err = io.Copy(writer, fileToZip)
+	return err
 }
 
 func createSession(config util.AwsS3Config) *session.Session {
