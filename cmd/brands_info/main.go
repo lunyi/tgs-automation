@@ -19,7 +19,7 @@ func main() {
 	message := ""
 
 	for _, brand := range brands {
-		message = brand.PlatformCode + `\n` +
+		message += brand.PlatformCode + `\n` +
 			`當日營收：` + fmt.Sprintf("%.2f", brand.DailyRevenueUSD) + `\n` +
 			`當日訂單數量：` + brand.DailyOrderCount + `\n` +
 			`當日活躍人數：` + fmt.Sprintf("%v", brand.ActiveUserCount) + `\n` +
