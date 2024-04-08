@@ -129,7 +129,7 @@ func getRooms(token string) ([]Room, error) {
 	}
 
 	var apiResponse RoomApiResponse
-	err = json.Unmarshal(body, &apiResponse)
+	err = json.Unmarshal([]byte(body), &apiResponse)
 	if err != nil {
 		fmt.Println("Error unmarshalling response body:", err)
 		return nil, err // Assuming your function returns a string and an error
