@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 func main() {
@@ -42,17 +43,25 @@ func main() {
 			log.LogInfo("Room:" + room.Title + " Token:" + room.Token)
 		}
 	}
-	err = sendMessage(token, rooms[1].Token, message)
+
+	roomTokens := []string{}
+	for _, room := range rooms {
+		if strings.Contains(strings.ToLower(room.Title), "pg") {
+			roomTokens = append(roomTokens, room.Token)
+		}
+	}
+
+	err = sendMessage(token, roomTokens, message)
 	if err != nil {
 		log.LogError(err.Error())
 	}
 }
 
-func sendMessage(token string, rooms string, message string) error {
+func sendMessage(token string, rooms []string, message string) error {
 	apiURL := "https://message.biatalk.cc/bot/v3/message/multi-chatroom"
 	// Define the request body
 	requestBody := map[string]interface{}{
-		"receivers": []string{rooms},
+		"receivers": rooms,
 		"msg": map[string]string{
 			"type": "html",
 			"text": message,
