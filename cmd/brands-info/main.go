@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strings"
 )
 
 func main() {
@@ -44,10 +43,13 @@ func main() {
 		}
 	}
 
+	groupKeys := []string{"PG Daily Report"}
 	roomTokens := []string{}
 	for _, room := range rooms {
-		if strings.Contains(strings.ToLower(room.Title), "pg") {
-			roomTokens = append(roomTokens, room.Token)
+		for _, key := range groupKeys {
+			if room.Title == key {
+				roomTokens = append(roomTokens, room.Token)
+			}
 		}
 	}
 
