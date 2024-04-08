@@ -20,14 +20,14 @@ func main() {
 		panic(err)
 	}
 
-	message := "日期: " + fmt.Sprintf("%v", brands[0].Date) + "<br>"
+	message := "日期: " + fmt.Sprintf("%v", brands[0].Date.Format("2006-01-02")) + "<br>"
 
 	for _, brand := range brands {
 		message += "<br>" + brand.PlatformCode + "<br>" +
 			"當日營收：" + brand.DailyRevenueUSD + "<br>" +
 			"當日訂單數量：" + brand.DailyOrderCount + "<br>" +
 			"當日活躍人數：" + fmt.Sprintf("%d", brand.ActiveUserCount) + "<br>" +
-			"當月營收：" + brand.CumulativeRevenueUSD + "<br><br>"
+			"當月營收：" + brand.CumulativeRevenueUSD + "<br>"
 
 	}
 	log.LogInfo(message)
