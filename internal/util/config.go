@@ -18,6 +18,7 @@ type TgsConfig struct {
 	Telegram         TelegramConfig     `yaml:"telegram"`
 	AwsS3            AwsS3Config        `yaml:"aws_s3"`
 	MomoTelegram     MomoTelegramConfig `yaml:"momo_telegram"`
+	LetsTalk         LetsTalkConfig     `yaml:"letstalk"`
 }
 
 type MomoTelegramConfig struct {
@@ -67,6 +68,11 @@ type TelegramConfig struct {
 	TelegramBotToken string `yaml:"telegram_bot_token"`
 	TelegramChatId   string `yaml:"telegram_chat_id"`
 	TelegramWebhook  string `yaml:"telegram_webhook"`
+}
+
+type LetsTalkConfig struct {
+	AccountId string `yaml:"account_id"`
+	ApiKey    string `yaml:"api_key"`
 }
 
 func GetConfig() TgsConfig {

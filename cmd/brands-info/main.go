@@ -32,7 +32,7 @@ func main() {
 	}
 	log.LogInfo(message)
 
-	token, err := getToken()
+	token, err := getToken(config.LetsTalk)
 	if err != nil {
 		log.LogInfo("Token:" + token)
 	}
@@ -50,7 +50,7 @@ func main() {
 }
 
 func sendMessage(token string, rooms string, message string) error {
-	apiURL := "https: //message.biatalk.cc/bot/v3/message/multi-chatroom"
+	apiURL := "https://message.biatalk.cc/bot/v3/message/multi-chatroom"
 	// Define the request body
 	requestBody := map[string]interface{}{
 		"receivers": []string{rooms},
@@ -107,13 +107,13 @@ func sendMessage(token string, rooms string, message string) error {
 	return nil
 }
 
-func getToken() (string, error) {
+func getToken(config util.LetsTalkConfig) (string, error) {
 	apiURL := "https://message.biatalk.cc/bot/v3/sign-token"
 
 	// Create the request payload
 	payload := map[string]string{
-		"id":    "100110",
-		"token": "UU8baU1KAUm1gqGbsXdclfaicu69Zvms",
+		"id":    config.AccountId,
+		"token": config.ApiKey,
 	}
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
