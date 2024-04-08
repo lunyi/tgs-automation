@@ -15,15 +15,15 @@ func main() {
 		panic(err)
 	}
 
+	message := ""
+
 	for _, brand := range brands {
-		fmt.Printf("PlatformCode: %s, CurrencyCode: %s, Date: %s, ActiveUserCount: %d, DailyOrderCount: %s, DailyRevenueUSD: %.2f, CumulativeRevenueUSD: %.2f\n",
-			brand.PlatformCode,
-			brand.CurrencyCode,
-			brand.Date.Format("2006-01-02"), // Formatting date as YYYY-MM-DD
-			brand.ActiveUserCount,
-			brand.DailyOrderCount,
-			brand.DailyRevenueUSD,
-			brand.CumulativeRevenueUSD,
-		)
+		message = brand.PlatformCode + `\n` +
+			`當日營收：` + fmt.Sprintf("%.2f", brand.DailyRevenueUSD) + `\n` +
+			`當日訂單數量：` + brand.DailyOrderCount + `\n` +
+			`當日活躍人數：` + fmt.Sprintf("%v", brand.ActiveUserCount) + `\n` +
+			`當月營收：` + fmt.Sprintf("%.2f", brand.CumulativeRevenueUSD) + `\n\n\n`
+
 	}
+	fmt.Sprintln(message)
 }
