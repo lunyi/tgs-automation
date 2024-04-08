@@ -54,7 +54,10 @@ func (s *GetBrandsIncomeService) GetBrandsIncome() ([]BrandsIncomeModel, error) 
 			((p.report_date::date + INTERVAL '1 day' + INTERVAL '8 hours')::timestamp)::date as 日期,
 			count(distinct p.player_code) as 活躍人數, 
 			SUM(p.round_count) as 當日訂單數量_raw,
-			ROUND(SUM(p.win_loss_amount * er.rate_to_usd), 2) as 當日營收美金_raw
+			ROUND(SUM(p.win_loss_amount * er.rate_to_usd), 2) as 當日營收美金_raw,
+			sum(ROUND(sum(p.win_loss_amount * er.rate_to_usd),2)) 
+				OVER (PARTITION BY b.code ORDER BY ((p.report_date::date + INTERVAL '1 day' + INTERVAL '8 hours')::timestamp)::date ASC) 
+				as 當月累計營收美金
 		FROM report.player_aggregates p
 		JOIN dbo.brands b ON b.id = p.brand_id
 		JOIN dbo.brand_currencies bc ON b.id = bc.brand_id
@@ -69,14 +72,15 @@ func (s *GetBrandsIncomeService) GetBrandsIncome() ([]BrandsIncomeModel, error) 
 			bc.currency_code,
 			((p.report_date::date + INTERVAL '1 day' + INTERVAL '8 hours')::timestamp)::date
 	)
-	
+
 	SELECT 
 		'Total' as 平台,
 		'' as 幣別,
 		CURRENT_DATE - INTERVAL '1 day' as 日期,
-		SUM(活躍人數),
+		SUM(活躍人數) as 活躍人數,
 		TO_CHAR(SUM(當日訂單數量_raw), 'FM999,999,999,999') as 當日訂單數量,
-		TO_CHAR(SUM(當日營收美金_raw), 'FM999,999,999,999.99') as 當日營收美金
+		TO_CHAR(SUM(當日營收美金_raw), 'FM999,999,999,999.99') as 當日營收美金,
+		TO_CHAR(SUM(當月累計營收美金), 'FM999,999,999,999.99') as 當月累計營收美金
 	FROM SubQuery
 	WHERE 日期 = CURRENT_DATE - INTERVAL '1 day'
 	UNION ALL
@@ -86,7 +90,8 @@ func (s *GetBrandsIncomeService) GetBrandsIncome() ([]BrandsIncomeModel, error) 
 		日期,
 		活躍人數,
 		TO_CHAR(當日訂單數量_raw, 'FM999,999,999,999') as 當日訂單數量,
-		TO_CHAR(當日營收美金_raw, 'FM999,999,999,999.99') as 當日營收美金
+		TO_CHAR(當日營收美金_raw, 'FM999,999,999,999.99') as 當日營收美金,
+		TO_CHAR(當月累計營收美金, 'FM999,999,999,999.99') as 當月累計營收美金
 	FROM SubQuery
 	WHERE 日期 = CURRENT_DATE - INTERVAL '1 day';
 	
