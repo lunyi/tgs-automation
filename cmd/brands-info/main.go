@@ -9,9 +9,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
+
 	config := util.GetConfig()
 	app := postgresql.NewBrandsIncomeInterface(config.Postgresql)
 
@@ -57,6 +63,10 @@ func main() {
 	if err != nil {
 		log.LogError(err.Error())
 	}
+
+	sig := <-signals
+	log.LogInfo(fmt.Sprintf("Received signal: %v, initiating shutdown", sig))
+	os.Exit(0)
 }
 
 func sendMessage(token string, rooms []string, message string) error {
