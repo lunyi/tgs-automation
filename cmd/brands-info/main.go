@@ -28,7 +28,6 @@ func main() {
 			"當日訂單數量：" + brand.DailyOrderCount + "<br>" +
 			"當日活躍人數：" + fmt.Sprintf("%d", brand.ActiveUserCount) + "<br>" +
 			"當月營收：" + brand.CumulativeRevenueUSD + "<br>"
-
 	}
 	log.LogInfo(message)
 
