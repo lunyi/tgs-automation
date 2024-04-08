@@ -9,7 +9,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func (s *GetMomodataService) GetMomoRegisteredPlayers(brandCode string, startDate string, endDate string, timezoneOffset string) ([]PlayerRegisterInfo, error) {
+func (s *GetMomoDataService) GetMomoRegisteredPlayers(brandCode string, startDate string, endDate string, timezoneOffset string) ([]PlayerRegisterInfo, error) {
 	query := `
 select 
 	a.username as agent, 

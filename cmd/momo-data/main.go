@@ -5,8 +5,10 @@ import (
 	"cdnetwork/internal/log"
 	"cdnetwork/internal/util"
 	"cdnetwork/pkg/postgresql"
+	"context"
 	"fmt"
 	"io"
+	log2 "log"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -18,7 +20,36 @@ import (
 	"time"
 
 	"github.com/tealeg/xlsx"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/sdk/resource"
+	"go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.9.0"
 )
+
+func init() {
+	// Initialize Jaeger exporter to send traces to
+	exporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint("http://0.0.0.0:4317")))
+	if err != nil {
+		log.LogFatal(fmt.Sprintf("Failed to create Jaeger exporter: %v", err))
+	}
+
+	// Create a new tracer provider with a batch span processor and the Jaeger exporter
+	tp := trace.NewTracerProvider(
+		trace.WithBatcher(exporter),
+		// Add resource attributes like service name
+		trace.WithResource(resource.NewWithAttributes(semconv.SchemaURL, semconv.ServiceNameKey.String("YourServiceName"))),
+	)
+	otel.SetTracerProvider(tp)
+
+	// Ensure all spans are flushed before the application exits
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			log2.Fatalf("Failed to shutdown TracerProvider: %v", err)
+			log.LogFatal(fmt.Sprintf("Failed to shutdown TracerProvider: %v", err))
+		}
+	}()
+}
 
 func main() {
 	config := util.GetConfig()
