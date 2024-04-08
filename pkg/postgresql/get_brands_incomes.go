@@ -54,8 +54,10 @@ func (s *GetBrandsIncomeService) GetBrandsIncome() ([]BrandsIncomeModel, error) 
 		((p.report_date::date + INTERVAL '1 day' + INTERVAL '8 hours')::timestamp)::date as 日期,
 		count(distinct(p.player_code)) as 活躍人數, 
 		TO_CHAR(sum(p.round_count), 'FM999,999,999,999') as 當日訂單數量,
-		 ROUND(sum(p.win_loss_amount * er.rate_to_usd),2) as 當日營收美金,
-		sum(ROUND(sum(p.win_loss_amount * er.rate_to_usd),2)) OVER (PARTITION BY b.code ORDER BY ((p.report_date::date + INTERVAL '1 day' + INTERVAL '8 hours')::timestamp)::date ASC) as 當月累計營收美金
+		TO_CHAR(ROUND(sum(p.win_loss_amount * er.rate_to_usd),2), 'FM999,999,999,999.99')  as 當日營收美金,
+		TO_CHAR(sum(ROUND(sum(p.win_loss_amount * er.rate_to_usd),2)) 
+				OVER (PARTITION BY b.code ORDER BY ((p.report_date::date + INTERVAL '1 day' + INTERVAL '8 hours')::timestamp)::date ASC), 'FM999,999,999,999.99') 
+				as 當月累計營收美金
 	FROM report.player_aggregates p
 	JOIN dbo.brands b ON b.id = p.brand_id
 	JOIN dbo.brand_currencies bc ON b.id = bc.brand_id
@@ -110,6 +112,6 @@ type BrandsIncomeModel struct {
 	Date                 time.Time `json:"date"`
 	ActiveUserCount      int       `json:"active_user_count"`
 	DailyOrderCount      string    `json:"daily_order_count"`
-	DailyRevenueUSD      float64   `json:"daily_revenue_usd"`
-	CumulativeRevenueUSD float64   `json:"cumulative_revenue_usd"`
+	DailyRevenueUSD      string    `json:"daily_revenue_usd"`
+	CumulativeRevenueUSD string    `json:"cumulative_revenue_usd"`
 }
