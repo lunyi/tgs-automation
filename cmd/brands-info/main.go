@@ -120,7 +120,6 @@ func sendMessage(token string, rooms []string, message string) error {
 func getToken(config util.LetsTalkConfig) (string, error) {
 	apiURL := "https://message.biatalk.cc/bot/v3/sign-token"
 
-	// Create the request payload
 	payload := map[string]string{
 		"id":    config.AccountId,
 		"token": config.ApiKey,
