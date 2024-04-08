@@ -138,6 +138,8 @@ func getRooms(token string) ([]Room, error) {
 	// Now, apiResponse contains the unmarshalled data and you can use it
 	fmt.Printf("Response Status: %d\n", apiResponse.Status)
 	fmt.Printf("Message: %s\n", apiResponse.Message)
+	fmt.Printf("totalCount: %v\n", apiResponse.TotalCount)
+	fmt.Printf("rooms: %v\n", apiResponse.Rooms)
 
 	// Continue with your logic, possibly returning something based on apiResponse
 	return apiResponse.Rooms, nil
