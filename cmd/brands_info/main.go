@@ -37,6 +37,9 @@ func main() {
 		log.LogInfo("Token:" + token)
 	}
 	var rooms []Room
+
+	log.LogInfo("Room Count:" + fmt.Sprintf("%d", len(rooms)))
+
 	rooms, err = getRooms(token)
 	if err != nil {
 		for _, room := range rooms {
