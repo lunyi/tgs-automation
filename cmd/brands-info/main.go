@@ -20,7 +20,7 @@ func main() {
 		panic(err)
 	}
 
-	message := ""
+	message := "日期: " + fmt.Sprintf("%v", brands[0].Date) + "<br>"
 
 	for _, brand := range brands {
 		message += "<br>" + brand.PlatformCode + "<br>" +
