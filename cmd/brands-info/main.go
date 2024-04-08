@@ -104,7 +104,7 @@ func sendMessage(token string, rooms string, message string) error {
 
 	// Print the struct to verify
 	fmt.Printf("%+v\n", apiResponse)
-
+	return nil
 }
 
 func getToken() (string, error) {
