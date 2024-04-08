@@ -43,35 +43,53 @@ func (s *GetBrandsIncomeService) GetBrandsIncome() ([]BrandsIncomeModel, error) 
 		SELECT 
 			'PHP' AS currency_code, 
 			0.0177 AS rate_to_usd
-		UNION ALL SELECT 'HKD', 0.1277
-		UNION ALL SELECT 'VND_1000', 0.0398
+		UNION ALL 
+		SELECT 'HKD', 0.1277
+		UNION ALL 
+		SELECT 'VND_1000', 0.0398
+	), SubQuery AS (
+		SELECT 
+			b.code as 平台,
+			bc.currency_code as 幣別,
+			((p.report_date::date + INTERVAL '1 day' + INTERVAL '8 hours')::timestamp)::date as 日期,
+			count(distinct p.player_code) as 活躍人數, 
+			SUM(p.round_count) as 當日訂單數量_raw,
+			ROUND(SUM(p.win_loss_amount * er.rate_to_usd), 2) as 當日營收美金_raw
+		FROM report.player_aggregates p
+		JOIN dbo.brands b ON b.id = p.brand_id
+		JOIN dbo.brand_currencies bc ON b.id = bc.brand_id
+		LEFT JOIN ExchangeRates er ON bc.currency_code = er.currency_code
+		WHERE 
+			p.report_date >= DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '8 hours'  
+			AND p.report_date < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' + INTERVAL '8 hours'  
+			AND p.bet_amount > 0
+			AND b.code NOT IN ('Sky8', 'GPI')
+		GROUP BY 
+			b.code,
+			bc.currency_code,
+			((p.report_date::date + INTERVAL '1 day' + INTERVAL '8 hours')::timestamp)::date
 	)
 	
-	select a.* from (
 	SELECT 
-		b.code as 平台,
-		bc.currency_code as 幣別,
-		((p.report_date::date + INTERVAL '1 day' + INTERVAL '8 hours')::timestamp)::date as 日期,
-		count(distinct(p.player_code)) as 活躍人數, 
-		TO_CHAR(sum(p.round_count), 'FM999,999,999,999') as 當日訂單數量,
-		TO_CHAR(ROUND(sum(p.win_loss_amount * er.rate_to_usd),2), 'FM999,999,999,999.99')  as 當日營收美金,
-		TO_CHAR(sum(ROUND(sum(p.win_loss_amount * er.rate_to_usd),2)) 
-				OVER (PARTITION BY b.code ORDER BY ((p.report_date::date + INTERVAL '1 day' + INTERVAL '8 hours')::timestamp)::date ASC), 'FM999,999,999,999.99') 
-				as 當月累計營收美金
-	FROM report.player_aggregates p
-	JOIN dbo.brands b ON b.id = p.brand_id
-	JOIN dbo.brand_currencies bc ON b.id = bc.brand_id
-	LEFT JOIN ExchangeRates er ON bc.currency_code = er.currency_code
-	WHERE 
-			p.report_date >= DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '8 hours'  
-		AND p.report_date < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' + INTERVAL '8 hours'  
-		AND p.bet_amount > 0
-		AND b.code NOT IN ('Sky8','GPI')
-	GROUP BY 
-		b.code,
-		bc.currency_code,
-		((p.report_date::date + INTERVAL '1 day' + INTERVAL '8 hours')::timestamp)::date) a
-		where a.日期 =  CURRENT_DATE - INTERVAL '1 day';
+		'Total' as 平台,
+		'' as 幣別,
+		CURRENT_DATE - INTERVAL '1 day' as 日期,
+		SUM(活躍人數),
+		TO_CHAR(SUM(當日訂單數量_raw), 'FM999,999,999,999') as 當日訂單數量,
+		TO_CHAR(SUM(當日營收美金_raw), 'FM999,999,999,999.99') as 當日營收美金
+	FROM SubQuery
+	WHERE 日期 = CURRENT_DATE - INTERVAL '1 day'
+	UNION ALL
+	SELECT 
+		平台,
+		幣別,
+		日期,
+		活躍人數,
+		TO_CHAR(當日訂單數量_raw, 'FM999,999,999,999') as 當日訂單數量,
+		TO_CHAR(當日營收美金_raw, 'FM999,999,999,999.99') as 當日營收美金
+	FROM SubQuery
+	WHERE 日期 = CURRENT_DATE - INTERVAL '1 day';
+	
 `
 
 	// Execute the query
