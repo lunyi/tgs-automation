@@ -6,6 +6,7 @@ stages:
 variables:
   ImageName: "pgtgs/expired_domain"
   MomoImageName: "pgtgs/momo-data"
+  BrandsImageName: "pgtgs/brands-info"
   Registry: "registry.hub.docker.com"
 
 build_job:
@@ -34,6 +35,8 @@ docker_build_job:
     - docker push ${ImageName}:${TAG}
     - docker build -t $MomoImageName:$TAG -f dockerfiles/Dockerfile.momo_data .
     - docker push ${MomoImageName}:${TAG}
+    - docker build -t $BrandsImageName:$TAG -f dockerfiles/Dockerfile.brands_info .
+    - docker push ${BrandsImageName}:${TAG}
 deploy_job:
   stage: deploy
   only:

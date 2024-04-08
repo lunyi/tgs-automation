@@ -1,0 +1,67 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: brands-info
+  namespace: devops
+spec:
+  concurrencyPolicy: Allow
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 600
+      backoffLimit: 3
+      parallelism: 1
+      suspend: false
+      template:
+        spec:
+          activeDeadlineSeconds: 3600
+          containers:
+          - image: pgtgs/brands-info:latest
+            imagePullPolicy: Always
+            name: brands-info
+            env:
+            - name: CONFIGPATH
+              value: /config/config
+            resources: {}
+            volumeMounts:
+            - mountPath: /config
+              name: tgs-config
+            - mountPath: /data
+              name: google-json
+          - name: fluent-bit-sidecar
+            image: fluent/fluent-bit:latest
+            env:
+            - name: ELASTICSEARCH_HOST
+              value: "elasticsearch-master.observability"
+            - name: ELASTICSEARCH_PORT
+              value: "80"
+            volumeMounts:
+            - name: fluent-bit-config
+              mountPath: /fluent-bit/etc
+            - name: log-volume
+              mountPath: /var/log/containers
+          dnsPolicy: ClusterFirst
+          imagePullSecrets:
+          - name: dockerhub
+          restartPolicy: OnFailure
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 300
+          volumes:
+          - configMap:
+              defaultMode: 420
+              name: tgs-config
+            name: tgs-config
+          - configMap:
+              defaultMode: 420
+              name: google-json
+            name: google-json
+          - name: fluent-bit-config
+            configMap:
+              name: fluent-bit-config
+          - name: log-volume
+            emptyDir: {}
+      ttlSecondsAfterFinished: 86400
+  schedule: 4 6 * * *
+  successfulJobsHistoryLimit: 3
+  suspend: false
