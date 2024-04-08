@@ -132,7 +132,7 @@ func getRooms(token string) ([]Room, error) {
 	err = json.Unmarshal(body, &apiResponse)
 	if err != nil {
 		fmt.Println("Error unmarshalling response body:", err)
-		return "", err // Assuming your function returns a string and an error
+		return nil, err // Assuming your function returns a string and an error
 	}
 
 	// Now, apiResponse contains the unmarshalled data and you can use it
