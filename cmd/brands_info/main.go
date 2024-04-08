@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cdnetwork/internal/log"
 	"cdnetwork/internal/util"
 	"cdnetwork/pkg/postgresql"
 	"fmt"
@@ -25,5 +26,5 @@ func main() {
 			`當月營收：` + fmt.Sprintf("%.2f", brand.CumulativeRevenueUSD) + `\n\n\n`
 
 	}
-	fmt.Sprintln(message)
+	log.LogInfo(message)
 }
