@@ -47,3 +47,4 @@ deploy_job:
     - echo "KUBECONFIG=$kubeconfig_devops"
   script:
     - kubectl set image cronjob/expired-domains expired-domain=${ImageName}:${TAG} --record -n devops
+    - kubectl set image cronjob/brands-info brands-info=${BrandsImageName}:${TAG} --record -n devops
