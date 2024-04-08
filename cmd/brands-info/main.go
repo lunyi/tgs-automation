@@ -55,7 +55,7 @@ func sendMessage(token string, rooms string, message string) error {
 	requestBody := map[string]interface{}{
 		"receivers": []string{rooms},
 		"msg": map[string]string{
-			"type": "text",
+			"type": "html",
 			"text": message,
 		},
 	}
