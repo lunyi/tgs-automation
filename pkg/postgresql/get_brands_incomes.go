@@ -63,7 +63,7 @@ func (s *GetBrandsIncomeService) GetBrandsIncome() ([]BrandsIncomeModel, error) 
 		JOIN dbo.brand_currencies bc ON b.id = bc.brand_id
 		LEFT JOIN ExchangeRates er ON bc.currency_code = er.currency_code
 		WHERE 
-			p.report_date >= DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '8 hours'  
+			p.report_date >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '1 day' + INTERVAL '8 hours'  
 			AND p.report_date < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' + INTERVAL '8 hours'  
 			AND p.bet_amount > 0
 			AND b.code NOT IN ('Sky8', 'GPI')
