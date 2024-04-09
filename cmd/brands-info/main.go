@@ -73,10 +73,21 @@ func getMessageFromBrandsRevenue(config util.PostgresqlConfig) string {
 		panic(err)
 	}
 
+	curMap := map[string]string{
+		"PHP":      "PHP - 菲律賓幣",
+		"HKD":      "HKD - 港幣",
+		"VND_1000": "VND_1000 - 越南盾",
+	}
+
 	message := "日期: " + fmt.Sprintf("%v", brands[0].Date.Format("2006-01-02")) + "<br>"
 
+	tempCurrencyCode := ""
 	for _, brand := range brands {
-		message += "<br><b>[" + brand.PlatformCode + "]</b><br>" +
+		if tempCurrencyCode != brand.CurrencyCode {
+			message += "<br><b>[" + curMap[brand.CurrencyCode] + "]</b><br>"
+			tempCurrencyCode = brand.CurrencyCode
+		}
+		message += "<br>" + brand.PlatformCode + "<br>" +
 			"當日營收：" + brand.DailyRevenueUSD + "<br>" +
 			"當日訂單數量：" + brand.DailyOrderCount + "<br>" +
 			"當日活躍人數：" + fmt.Sprintf("%d", brand.ActiveUserCount) + "<br>" +
