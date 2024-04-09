@@ -84,10 +84,10 @@ func getMessageFromBrandsRevenue(config util.PostgresqlConfig) string {
 	tempCurrencyCode := ""
 	for _, brand := range brands {
 		if tempCurrencyCode != brand.CurrencyCode {
-			message += "<br><b>[" + curMap[brand.CurrencyCode] + "]</b><br>"
+			message += "<br><b>[" + curMap[brand.CurrencyCode] + "]</b>"
 			tempCurrencyCode = brand.CurrencyCode
 		}
-		message += "<br>" + brand.PlatformCode + "<br>" +
+		message += "<br>[" + brand.PlatformCode + "]<br>" +
 			"當日營收：" + brand.DailyRevenueUSD + "<br>" +
 			"當日訂單數量：" + brand.DailyOrderCount + "<br>" +
 			"當日活躍人數：" + fmt.Sprintf("%d", brand.ActiveUserCount) + "<br>" +
