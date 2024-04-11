@@ -51,6 +51,7 @@ func init() {
 	}()
 }
 
+// 每日首存人數和註冊玩家資料
 func main() {
 	config := util.GetConfig()
 	app := postgresql.NewMomoDataInterface(config.Postgresql)
