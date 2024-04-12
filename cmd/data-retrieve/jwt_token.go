@@ -14,7 +14,7 @@ type Claims struct {
 
 // generateToken generates a JWT token
 func GenerateToken() (string, error) {
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().Add(60 * time.Minute)
 	claims := &Claims{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),

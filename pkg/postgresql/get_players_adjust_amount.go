@@ -74,7 +74,7 @@ func (s *GetPlayersAdjustAmountService) GetData(brandCode string, startDate stri
 
 type PlayerAdjustAmountData struct {
 	PlayerName    string    `json:"玩家用戶名"` // Username of the player
-	Amount        float64   `json:"活動紅利"`  // Bonus amount
+	Amount        float64   `json:"金額"`    // Bonus amount
 	BeforeBalance float64   `json:"派發前餘額"` // Balance before distribution
 	AfterBalance  float64   `json:"派發後餘額"` // Balance after distribution
 	ExecutionTime time.Time `json:"執行時間"`  // Time of record
