@@ -9,11 +9,14 @@ import (
 	"cdnetwork/pkg/postgresql"
 
 	"github.com/gin-gonic/gin"
+	"github.com/iris-contrib/swagger/swaggerFiles"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
 	router := gin.Default()
 	router.GET("/healthz", healthCheckHandler)
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.GET("/token", tokenHandler)
 	router.POST("/player_adjust", AuthMiddleware(), getPlayersAdjustAmount)
 

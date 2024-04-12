@@ -61,6 +61,7 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/iris-contrib/swagger v0.0.0-20230820002204-56b041d3471a // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
