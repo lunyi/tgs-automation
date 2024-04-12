@@ -2,7 +2,6 @@ package postgresql
 
 import (
 	"cdnetwork/internal/log"
-	"database/sql"
 	"fmt"
 	"time"
 
@@ -12,10 +11,10 @@ import (
 func (s *GetMomoDataService) GetMomoRegisteredPlayers(brandCode string, startDate string, endDate string, timezoneOffset string) ([]PlayerRegisterInfo, error) {
 	query := `
 select 
-	a.username as agent, 
-	PIR.host,
+    coalesce(a.username, '') AS agent,
+    coalesce(PIR.host,'') as host,
 	p.username as player,
-	p.real_name,
+	coalesce(p.real_name, '') as real_name,
 	p.registered_on
 	from dbo.players p
 	left join dbo.agents a on a.id = p.agent_id
@@ -42,12 +41,6 @@ select
 		if err := rows.Scan(&pi.Agent, &pi.Host, &pi.PlayerName, &pi.RealName, &pi.RegisteredOn); err != nil {
 			log.LogFatal(fmt.Sprintf("Error scanning row: %v", err))
 		}
-		if !pi.Agent.Valid {
-			pi.Agent.String = ""
-		}
-		if !pi.RealName.Valid {
-			pi.RealName.String = ""
-		}
 		players = append(players, pi)
 		//fmt.Printf("%+v\n", pi)
 	}
@@ -61,9 +54,9 @@ select
 }
 
 type PlayerRegisterInfo struct {
-	Agent        sql.NullString
+	Agent        string
 	Host         string // Use sql.NullString for nullable fields
 	PlayerName   string
-	RealName     sql.NullString
+	RealName     string
 	RegisteredOn time.Time
 }

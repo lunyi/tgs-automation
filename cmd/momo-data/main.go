@@ -162,7 +162,7 @@ func populateSheetFirstDeposit(headerRow *xlsx.Row, boldStyle *xlsx.Style, sheet
 
 	for _, player := range players {
 		row := sheet.AddRow()
-		row.AddCell().Value = player.(postgresql.PlayerFirstDeposit).Agent.String // Fix: Assert the type of player to postgresql.PlayerFirstDeposit
+		row.AddCell().Value = player.(postgresql.PlayerFirstDeposit).Agent
 		row.AddCell().Value = player.(postgresql.PlayerFirstDeposit).Host
 		row.AddCell().Value = player.(postgresql.PlayerFirstDeposit).PlayerName
 		row.AddCell().SetFloat(player.(postgresql.PlayerFirstDeposit).DailyDepositAmount)
@@ -182,10 +182,10 @@ func populateSheetPlayerRegistered(headerRow *xlsx.Row, boldStyle *xlsx.Style, s
 	// Populating data
 	for _, player := range players {
 		row := sheet.AddRow()
-		row.AddCell().Value = player.(postgresql.PlayerRegisterInfo).Agent.String
+		row.AddCell().Value = player.(postgresql.PlayerRegisterInfo).Agent
 		row.AddCell().Value = player.(postgresql.PlayerRegisterInfo).Host
 		row.AddCell().Value = player.(postgresql.PlayerRegisterInfo).PlayerName
-		row.AddCell().Value = player.(postgresql.PlayerRegisterInfo).RealName.String // Fix: Access the RealName field directly
+		row.AddCell().Value = player.(postgresql.PlayerRegisterInfo).RealName
 		row.AddCell().Value = player.(postgresql.PlayerRegisterInfo).RegisteredOn.Format(time.RFC3339)
 	}
 }

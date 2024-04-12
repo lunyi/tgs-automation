@@ -40,8 +40,8 @@ func (s *GetMomoDataService) Close() {
 func (s *GetMomoDataService) GetMomoFirstDepositePlayers(brandCode string, startDate string, endDate string, timezoneOffset string) ([]PlayerFirstDeposit, error) {
 	query := `
 SELECT 
-    a.username AS agent,
-    PIR.host,
+	coalesce(a.username, '') AS agent,
+	coalesce(PIR.host,'') as host,
     p.username AS playername, 
     pdp.daily_deposit_amount, 
     pdp.daily_deposit_count,
@@ -74,9 +74,6 @@ AND pdp.first_deposit_on >= $2 AND pdp.first_deposit_on < $3 order by 1 nulls fi
 		if err := rows.Scan(&pi.Agent, &pi.Host, &pi.PlayerName, &pi.DailyDepositAmount, &pi.DailyDepositCount, &pi.FirstDepositOn); err != nil {
 			log.LogFatal(fmt.Sprintf("Error scanning row: %v", err))
 		}
-		if !pi.Agent.Valid {
-			pi.Agent.String = ""
-		}
 		players = append(players, pi)
 		//fmt.Printf("%+v\n", pi)
 	}
@@ -90,8 +87,8 @@ AND pdp.first_deposit_on >= $2 AND pdp.first_deposit_on < $3 order by 1 nulls fi
 }
 
 type PlayerFirstDeposit struct {
-	Agent              sql.NullString
-	Host               string // Use sql.NullString for nullable fields
+	Agent              string
+	Host               string
 	PlayerName         string
 	DailyDepositAmount float64
 	DailyDepositCount  int
