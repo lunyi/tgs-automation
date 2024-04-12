@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"cdnetwork/internal/log"
 	"cdnetwork/internal/util"
 	"cdnetwork/pkg/postgresql"
 
@@ -13,10 +14,7 @@ import (
 func main() {
 	router := gin.Default()
 	router.GET("/healthz", healthCheckHandler)
-	// Public endpoint
 	router.GET("/token", tokenHandler)
-
-	// Protected endpoint
 	router.POST("/player_adjust", AuthMiddleware(), getPlayersAdjustAmount)
 
 	err := router.Run(":8080")
@@ -55,8 +53,13 @@ func getPlayersAdjustAmount(c *gin.Context) {
 		return
 	}
 
+	log.LogInfo(fmt.Sprintf("Request data: %+v", requestData))
+
 	// Call GetData method with parameters from the JSON body
 	data, err := app.GetData(requestData.BrandCode, requestData.StartDate, requestData.EndDate, requestData.TransType)
+
+	log.LogInfo(fmt.Sprintf("Data: %+v", data))
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get data", "details": err.Error()})
 		return
