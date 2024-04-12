@@ -52,7 +52,7 @@ func (s *GetPlayersAdjustAmountService) GetData(brandCode string, startDate stri
 	for rows.Next() {
 		var r PlayerAdjustAmountData
 		// Assuming the date in the database is stored in a compatible format; adjust the scan accordingly if it's not.
-		if err := rows.Scan(&r.玩家用戶名, &r.活動紅利, &r.派發前餘額, &r.派發後餘額, &r.執行時間, &r.執行者, &r.描述); err != nil {
+		if err := rows.Scan(&r.PlayerName, &r.Amount, &r.BeforeBalance, &r.ExecutionTime, &r.ExecutionTime, &r.Executor, &r.Description); err != nil {
 			log.LogFatal(err.Error())
 			return nil, err
 		}
@@ -73,11 +73,11 @@ func (s *GetPlayersAdjustAmountService) GetData(brandCode string, startDate stri
 }
 
 type PlayerAdjustAmountData struct {
-	玩家用戶名 string    `json:"玩家用戶名"` // Username of the player
-	活動紅利  float64   `json:"活動紅利"`  // Bonus amount
-	派發前餘額 float64   `json:"派發前餘額"` // Balance before distribution
-	派發後餘額 float64   `json:"派發後餘額"` // Balance after distribution
-	執行時間  time.Time `json:"執行時間"`  // Time of record
-	執行者   string    `json:"執行者"`   // Executor, who carried out the transaction
-	描述    string    `json:"描述"`    // Description of the transaction
+	PlayerName    string    `json:"玩家用戶名"` // Username of the player
+	Amount        float64   `json:"活動紅利"`  // Bonus amount
+	BeforeBalance float64   `json:"派發前餘額"` // Balance before distribution
+	AfterBalance  float64   `json:"派發後餘額"` // Balance after distribution
+	ExecutionTime time.Time `json:"執行時間"`  // Time of record
+	Executor      string    `json:"執行者"`   // Executor, who carried out the transaction
+	Description   string    `json:"描述"`    // Description of the transaction
 }
