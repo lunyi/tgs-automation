@@ -8,6 +8,8 @@ import (
 	"cdnetwork/internal/util"
 	"cdnetwork/pkg/postgresql"
 
+	_ "cdnetwork/cmd/data-retrieve/docs"
+
 	"github.com/gin-gonic/gin"
 	"github.com/iris-contrib/swagger/swaggerFiles"
 	ginSwagger "github.com/swaggo/gin-swagger"
