@@ -52,7 +52,7 @@ func (s *GetPlayersAdjustAmountService) GetData(brandCode string, startDate stri
 	for rows.Next() {
 		var r PlayerAdjustAmountData
 		// Assuming the date in the database is stored in a compatible format; adjust the scan accordingly if it's not.
-		if err := rows.Scan(&r.PlayerName, &r.Amount, &r.BeforeBalance, &r.ExecutionTime, &r.ExecutionTime, &r.Executor, &r.Description); err != nil {
+		if err := rows.Scan(&r.PlayerName, &r.Amount, &r.BeforeBalance, &r.AfterBalance, &r.ExecutionTime, &r.Executor, &r.Description); err != nil {
 			log.LogFatal(err.Error())
 			return nil, err
 		}
