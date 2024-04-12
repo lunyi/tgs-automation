@@ -47,6 +47,14 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+          - mountPath: /fluent-bit/etc
+            name: fluent-bit-config
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: tgs-config
+        name: tgs-config    
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
