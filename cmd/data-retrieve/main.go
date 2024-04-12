@@ -12,7 +12,7 @@ import (
 
 func main() {
 	router := gin.Default()
-
+	router.GET("/healthz", healthCheckHandler)
 	// Public endpoint
 	router.GET("/token", tokenHandler)
 
@@ -23,6 +23,10 @@ func main() {
 	if err != nil {
 		fmt.Println("Failed to start server:", err)
 	}
+}
+
+func healthCheckHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"status": "up"})
 }
 
 // tokenHandler creates and sends a new JWT token
