@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	"cdnetwork/internal/log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 )
@@ -18,6 +20,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		tokenString := header[len(BearerSchema):]
+		log.LogInfo("Token: " + tokenString)
 		token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 			return jwtKey, nil
 		})
