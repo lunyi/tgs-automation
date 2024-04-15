@@ -37,6 +37,9 @@ func main() {
 
 func exportPlayerAdjustFile(app postgresql.GetPlayersAdjustAmountInterface, brand string) error {
 	file := xlsx.NewFile()
+	start := time.Now().AddDate(0, 0, -8).Format("0102")
+	end := time.Now().AddDate(0, 0, -2).Format("0102")
+	filename := fmt.Sprintf("%s-%s_%s.xlsx", start, end, brand)
 
 	startDate := time.Now().AddDate(0, 0, -8).Format("20060102+8")
 	endDate := time.Now().AddDate(0, 0, -1).Format("20060102+8")
@@ -57,10 +60,6 @@ func exportPlayerAdjustFile(app postgresql.GetPlayersAdjustAmountInterface, bran
 		if err != nil {
 			log.LogFatal(err.Error())
 		}
-
-		startDate = time.Now().AddDate(0, 0, -8).Format("0102")
-		endDate = time.Now().AddDate(0, 0, -2).Format("0102")
-		filename := fmt.Sprintf("%s-%s_%s.xlsx", startDate, endDate, brand)
 
 		var data []interface{}
 		for _, p := range playerAdjustAmounts {
@@ -98,7 +97,7 @@ func createSheet(file *xlsx.File, players []interface{}, excelFilename string, p
 		return err
 	}
 
-	log.LogInfo("Player first deposit excel successfully.")
+	log.LogInfo(fmt.Sprintf("Player adjust excel %s successfully.", sheetName))
 	return nil
 }
 
