@@ -19,6 +19,11 @@ func main() {
 
 	config := util.GetConfig()
 
+	app1 := postgresql.NewPromotionTypesInterface(config.Postgresql)
+	defer app1.Close()
+	app1.GetPromotionTypes()
+
+	return
 	// Initialize the database connection or service interface
 	app := postgresql.NewGetPlayersAdjustAmountInterface(config.Postgresql)
 	defer app.Close()
