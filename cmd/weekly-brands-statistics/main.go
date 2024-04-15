@@ -21,7 +21,11 @@ func main() {
 
 	app1 := postgresql.NewPromotionTypesInterface(config.Postgresql)
 	defer app1.Close()
-	app1.GetPromotionTypes()
+	types, err := app1.GetPromotionTypes()
+	if err != nil {
+		log.LogFatal(err.Error())
+	}
+	log.LogInfo(fmt.Sprintf("Promotion types: %v", types))
 
 	return
 	// Initialize the database connection or service interface
