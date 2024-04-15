@@ -10,7 +10,7 @@
 package googlesheet
 
 import (
-	postgresql "cdnetwork/pkg/postgresql"
+	postgresql "tgs-automation/pkg/postgresql"
 	reflect "reflect"
 
 	gomock "go.uber.org/mock/gomock"

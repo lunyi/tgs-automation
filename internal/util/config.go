@@ -1,9 +1,9 @@
 package util
 
 import (
-	"cdnetwork/internal/log"
 	"fmt"
 	"os"
+	"tgs-automation/internal/log"
 
 	"gopkg.in/yaml.v3"
 )
@@ -12,7 +12,7 @@ type TgsConfig struct {
 	CloudflareToken  string             `yaml:"cloudflare_token"`
 	ChromeDriverPath string             `yaml:"chrome_driver_path"`
 	GoogleSheet      GoogleSheetConfig  `yaml:"google_sheet"`
-	Cdnetwork        CdnConfig          `yaml:"cdnetwork"`
+	CdnNetwork       CdnConfig          `yaml:"cdn_network`
 	Namecheap        NamecheapConfig    `yaml:"namecheap"`
 	Postgresql       PostgresqlConfig   `yaml:"postgresql"`
 	Telegram         TelegramConfig     `yaml:"telegram"`

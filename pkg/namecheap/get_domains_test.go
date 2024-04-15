@@ -2,12 +2,12 @@ package namecheap
 
 import (
 	"bytes"
-	"cdnetwork/internal/util"
-	"cdnetwork/test/mocks"
 	"encoding/xml"
 	"io/ioutil"
 	"net/http"
 	"testing"
+	"tgs-automation/internal/util"
+	"tgs-automation/test/mocks"
 	"time"
 
 	"github.com/stretchr/testify/assert"

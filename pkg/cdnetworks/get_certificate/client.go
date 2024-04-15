@@ -1,12 +1,12 @@
 package get_certificate
 
 import (
-	"cdnetwork/internal/auth"
-	"cdnetwork/pkg/cdnetworks/get_certificate/models"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"strings"
+	"tgs-automation/internal/auth"
+	"tgs-automation/pkg/tgs-automations/get_certificate/models"
 )
 
 func GetCertificate(domainName string) (string, error) {

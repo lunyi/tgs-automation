@@ -1,9 +1,9 @@
 package postgresql
 
 import (
-	"cdnetwork/internal/util"
-	"cdnetwork/pkg/namecheap"
 	"testing"
+	"tgs-automation/internal/util"
+	"tgs-automation/pkg/namecheap"
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"

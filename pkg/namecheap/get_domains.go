@@ -1,12 +1,12 @@
 package namecheap
 
 import (
-	"cdnetwork/internal/httpclient"
-	"cdnetwork/internal/util"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"strconv"
+	"tgs-automation/internal/httpclient"
+	"tgs-automation/internal/util"
 	"time"
 )
 

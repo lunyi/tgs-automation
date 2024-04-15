@@ -1,9 +1,9 @@
 package disable_domain
 
 import (
-	"cdnetwork/internal/auth"
-	"cdnetwork/pkg/cdnetworks/disable_domain/models"
 	"fmt"
+	"tgs-automation/internal/auth"
+	"tgs-automation/pkg/tgs-automations/disable_domain/models"
 )
 
 func DisableDomain(domainid string) {

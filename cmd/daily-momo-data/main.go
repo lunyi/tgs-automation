@@ -2,9 +2,6 @@ package main
 
 import (
 	"bytes"
-	"cdnetwork/internal/log"
-	"cdnetwork/internal/util"
-	"cdnetwork/pkg/postgresql"
 	"context"
 	"fmt"
 	"io"
@@ -17,6 +14,9 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"tgs-automation/internal/log"
+	"tgs-automation/internal/util"
+	"tgs-automation/pkg/postgresql"
 	"time"
 
 	"github.com/tealeg/xlsx"

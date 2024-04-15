@@ -1,9 +1,9 @@
 package namecheap
 
 import (
-	"cdnetwork/internal/log"
-	"cdnetwork/internal/util"
 	"fmt"
+	"tgs-automation/internal/log"
+	"tgs-automation/internal/util"
 	"time"
 
 	"github.com/tebeka/selenium"

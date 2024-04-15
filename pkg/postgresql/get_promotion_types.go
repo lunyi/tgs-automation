@@ -1,11 +1,11 @@
 package postgresql
 
 import (
-	"cdnetwork/internal/log"
-	"cdnetwork/internal/util"
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"tgs-automation/internal/log"
+	"tgs-automation/internal/util"
 
 	_ "github.com/lib/pq"
 )

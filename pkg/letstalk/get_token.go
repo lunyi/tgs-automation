@@ -2,11 +2,11 @@ package letstalk
 
 import (
 	"bytes"
-	"cdnetwork/internal/util"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"tgs-automation/internal/util"
 )
 
 func GetToken(config util.LetsTalkConfig) (string, error) {

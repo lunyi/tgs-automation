@@ -1,9 +1,9 @@
 package main
 
 import (
-	"cdnetwork/internal/log"
-	"cdnetwork/pkg/cli"
 	"fmt"
+	"tgs-automation/internal/log"
+	"tgs-automation/pkg/cli"
 
 	"github.com/spf13/cobra"
 )
@@ -20,7 +20,7 @@ func main() {
 
 	// var rootCmd = &cobra.Command{
 	// 	Use:   "cdnctl",
-	// 	Short: "cdnctl is a command-line tool for managing CDNetworks",
+	// 	Short: "cdnctl is a command-line tool for managing tgs-automations",
 	// 	Run: func(cmd *cobra.Command, args []string) {
 	// 		fmt.Println("Usage: cdnctl <command> [options]")
 	// 	},

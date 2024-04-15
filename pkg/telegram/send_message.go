@@ -1,10 +1,10 @@
 package telegram
 
 import (
-	"cdnetwork/internal/log"
-	"cdnetwork/internal/util"
 	"fmt"
 	"strconv"
+	"tgs-automation/internal/log"
+	"tgs-automation/internal/util"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )

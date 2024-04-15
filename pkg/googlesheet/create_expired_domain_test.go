@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"cdnetwork/internal/util"
-	"cdnetwork/pkg/postgresql"
+	"tgs-automation/internal/util"
+	"tgs-automation/pkg/postgresql"
 
 	"github.com/stretchr/testify/assert"
 	gomock "go.uber.org/mock/gomock"

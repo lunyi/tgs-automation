@@ -1,17 +1,17 @@
 package main
 
 import (
-	"cdnetwork/internal/httpclient"
-	"cdnetwork/internal/log"
-	"cdnetwork/internal/util"
-	"cdnetwork/pkg/googlesheet"
-	"cdnetwork/pkg/namecheap"
-	"cdnetwork/pkg/postgresql"
 	"context"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
+	"tgs-automation/internal/httpclient"
+	"tgs-automation/internal/log"
+	"tgs-automation/internal/util"
+	"tgs-automation/pkg/googlesheet"
+	"tgs-automation/pkg/namecheap"
+	"tgs-automation/pkg/postgresql"
 	"time"
 
 	"go.opentelemetry.io/otel"

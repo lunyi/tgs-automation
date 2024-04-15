@@ -1,11 +1,11 @@
 package postgresql
 
 import (
-	"cdnetwork/internal/log"
-	"cdnetwork/internal/util"
-	"cdnetwork/pkg/namecheap"
 	"database/sql"
 	"fmt"
+	"tgs-automation/internal/log"
+	"tgs-automation/internal/util"
+	"tgs-automation/pkg/namecheap"
 
 	_ "github.com/lib/pq"
 )

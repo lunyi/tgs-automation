@@ -7,7 +7,7 @@
 package main
 
 import (
-	"cdnetwork/internal/util"
+	"tgs-automation/internal/util"
 )
 
 // Injectors from wire.go:

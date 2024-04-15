@@ -1,8 +1,8 @@
 package postgresql
 
 import (
-	"cdnetwork/internal/log"
 	"fmt"
+	"tgs-automation/internal/log"
 	"time"
 
 	_ "github.com/lib/pq"

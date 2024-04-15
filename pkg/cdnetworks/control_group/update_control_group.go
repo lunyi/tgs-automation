@@ -1,10 +1,10 @@
 package control_group
 
 import (
-	"cdnetwork/internal/auth" // Import your auth package
-	"cdnetwork/pkg/cdnetworks/control_group/models"
 	"fmt"
 	"strings"
+	"tgs-automation/internal/auth" // Import your auth package
+	"tgs-automation/pkg/tgs-automations/control_group/models"
 )
 
 // ControlGroupManager represents a manager for control groups

@@ -1,14 +1,14 @@
 package main
 
 import (
-	"cdnetwork/internal/log"
-	"cdnetwork/internal/util"
-	"cdnetwork/pkg/letstalk"
-	"cdnetwork/pkg/postgresql"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
+	"tgs-automation/internal/log"
+	"tgs-automation/internal/util"
+	"tgs-automation/pkg/letstalk"
+	"tgs-automation/pkg/postgresql"
 )
 
 func main() {

@@ -1,10 +1,10 @@
 package enable_domain
 
 import (
-	"cdnetwork/internal/auth"
-	"cdnetwork/internal/log"
-	"cdnetwork/pkg/cdnetworks/enable_domain/models"
 	"fmt"
+	"tgs-automation/internal/auth"
+	"tgs-automation/internal/log"
+	"tgs-automation/pkg/tgs-automations/enable_domain/models"
 )
 
 func EnableDomain(domainId string) {

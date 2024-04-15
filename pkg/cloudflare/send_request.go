@@ -1,10 +1,10 @@
 package cloudflare
 
 import (
-	"cdnetwork/internal/log"
 	"fmt"
 	"net/http"
 	"strings"
+	"tgs-automation/internal/log"
 )
 
 func sendRequest(apiToken, httpMethod, endpoint string, body *strings.Reader) (*http.Response, error) {

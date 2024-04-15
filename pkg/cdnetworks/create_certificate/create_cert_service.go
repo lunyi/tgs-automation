@@ -1,9 +1,9 @@
 package create_certificate
 
 import (
-	"cdnetwork/internal/log"
-	"cdnetwork/internal/util"
 	"fmt"
+	"tgs-automation/internal/log"
+	"tgs-automation/internal/util"
 	"time"
 
 	"github.com/tebeka/selenium"
@@ -70,15 +70,15 @@ func (cm *CreateCDNCertService) CreateCertificate(domain string) error {
 }
 
 func (cm *CreateCDNCertService) login() error {
-	if err := goToURL(cm.wd, cm.config.Cdnetwork.CdnLoginUrl); err != nil {
+	if err := goToURL(cm.wd, cm.config.tgs-automation.CdnLoginUrl); err != nil {
 		return err
 	}
 
-	if err := sendKeysToElement(cm.wd, selenium.ByID, "js-accountinput", cm.config.Cdnetwork.CdnUserName); err != nil {
+	if err := sendKeysToElement(cm.wd, selenium.ByID, "js-accountinput", cm.config.tgs-automation.CdnUserName); err != nil {
 		return err
 	}
 
-	if err := sendKeysToElement(cm.wd, selenium.ByID, "js-pwdinput", cm.config.Cdnetwork.CdnPassword); err != nil {
+	if err := sendKeysToElement(cm.wd, selenium.ByID, "js-pwdinput", cm.config.tgs-automation.CdnPassword); err != nil {
 		return err
 	}
 
@@ -91,7 +91,7 @@ func (cm *CreateCDNCertService) login() error {
 }
 
 func (cm *CreateCDNCertService) createCertificate(domain string) error {
-	if err := goToURL(cm.wd, cm.config.Cdnetwork.CdnCertificateCreationUrl); err != nil {
+	if err := goToURL(cm.wd, cm.config.tgs-automation.CdnCertificateCreationUrl); err != nil {
 		return err
 	}
 

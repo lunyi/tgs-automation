@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"cdnetwork/internal/log"
+	"tgs-automation/internal/log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"

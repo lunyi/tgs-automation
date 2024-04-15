@@ -1,10 +1,10 @@
 package create_domain
 
 import (
-	"cdnetwork/internal/auth"
-	"cdnetwork/pkg/cdnetworks/create_domain/models"
 	"fmt"
 	"strings"
+	"tgs-automation/internal/auth"
+	"tgs-automation/pkg/tgs-automations/create_domain/models"
 )
 
 func CreateDomains(createDomainNames string, originSet string) {

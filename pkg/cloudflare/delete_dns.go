@@ -1,10 +1,10 @@
 package cloudflare
 
 import (
-	"cdnetwork/internal/util"
 	"errors"
 	"fmt"
 	"net/http"
+	"tgs-automation/internal/util"
 )
 
 func DeleteDNS(domain string) error {

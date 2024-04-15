@@ -1,12 +1,12 @@
 package cloudflare
 
 import (
-	"cdnetwork/internal/log"
-	"cdnetwork/internal/util"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"strings"
+	"tgs-automation/internal/log"
+	"tgs-automation/internal/util"
 )
 
 type DNSRecord struct {

@@ -1,12 +1,12 @@
 package util
 
 import (
-	"cdnetwork/internal/log"
-	"cdnetwork/internal/model"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"tgs-automation/internal/log"
+	"tgs-automation/internal/model"
 )
 
 func Call(requestMsg model.HttpRequestMsg) string {

@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"cdnetwork/internal/log"
-	"cdnetwork/internal/util"
-	"cdnetwork/pkg/postgresql"
+	"tgs-automation/internal/log"
+	"tgs-automation/internal/util"
+	"tgs-automation/pkg/postgresql"
 
-	_ "cdnetwork/cmd/data-retrieve/docs"
+	_ "tgs-automation/cmd/data-retrieve/docs"
 
 	"github.com/gin-gonic/gin"
 	"github.com/iris-contrib/swagger/swaggerFiles"

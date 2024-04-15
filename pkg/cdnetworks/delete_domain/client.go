@@ -1,12 +1,12 @@
 package delete_domain
 
 import (
-	"cdnetwork/internal/auth"
-	"cdnetwork/pkg/cdnetworks/delete_domain/models"
-	"cdnetwork/pkg/cdnetworks/get_domain_id"
 	"encoding/xml"
 	"fmt"
 	"strconv"
+	"tgs-automation/internal/auth"
+	"tgs-automation/pkg/tgs-automations/delete_domain/models"
+	"tgs-automation/pkg/tgs-automations/get_domain_id"
 )
 
 type Response struct {

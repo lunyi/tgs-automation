@@ -1,11 +1,11 @@
 package main
 
 import (
-	"cdnetwork/internal/util"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"tgs-automation/internal/util"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )

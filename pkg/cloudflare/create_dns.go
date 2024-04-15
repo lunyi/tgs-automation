@@ -1,13 +1,13 @@
 package cloudflare
 
 import (
-	"cdnetwork/internal/log"
-	"cdnetwork/internal/util"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"strings"
+	"tgs-automation/internal/log"
+	"tgs-automation/internal/util"
 )
 
 func CreateDNS(domain string) error {
@@ -22,8 +22,8 @@ func CreateDNS(domain string) error {
 
 	record := DNSRecord{
 		Type:    "CNAME",
-		Name:    domain,                      // Name of the record
-		Content: config.Cdnetwork.DnsContent, // IP address or content of the record
+		Name:    domain,                             // Name of the record
+		Content: config.tgs - automation.DnsContent, // IP address or content of the record
 		TTL:     1,
 		Proxied: false, // Whether the record is proxied through Cloudflare
 	}

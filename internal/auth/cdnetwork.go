@@ -1,15 +1,15 @@
 package auth
 
 import (
-	"cdnetwork/internal/constant"
-	"cdnetwork/internal/log"
-	"cdnetwork/internal/model"
-	"cdnetwork/internal/util"
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"tgs-automation/internal/constant"
+	"tgs-automation/internal/log"
+	"tgs-automation/internal/model"
+	"tgs-automation/internal/util"
 	"time"
 )
 
@@ -37,14 +37,14 @@ func TransferRequestMsg(parameter BasicConfig, config util.CdnConfig) model.Http
 func Invoke(url BasicConfig, jsonStr string) string {
 	config := util.GetConfig()
 
-	var requestMsg = TransferRequestMsg(url, config.Cdnetwork)
+	var requestMsg = TransferRequestMsg(url, config.CdnNetwork)
 
 	if url.Method == "POST" || url.Method == "PUT" || url.Method == "PATCH" || url.Method == "DELETE" {
 		requestMsg.Body = jsonStr
 	}
 
 	dateStr := getRfc1123Date()
-	authorization := "Basic " + authorization(config.Cdnetwork.CdnUserName, hmacsha1(dateStr, config.Cdnetwork.CdnApiKey))
+	authorization := "Basic " + authorization(config.CdnNetwork.CdnUserName, hmacsha1(dateStr, config.CdnNetwork.CdnApiKey))
 	log.LogInfo(fmt.Sprintf("authorization %s", authorization))
 	requestMsg.Headers["Date"] = dateStr
 	requestMsg.Headers["Host"] = requestMsg.Host

@@ -1,11 +1,11 @@
 package cloudflare
 
 import (
-	"cdnetwork/internal/log"
-	"cdnetwork/internal/util"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"tgs-automation/internal/log"
+	"tgs-automation/internal/util"
 )
 
 type ZoneResponse struct {

@@ -1,12 +1,12 @@
 package get_domain_id
 
 import (
-	"cdnetwork/internal/auth"
-	"cdnetwork/internal/log"
-	"cdnetwork/pkg/cdnetworks/get_domain_id/models"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"tgs-automation/internal/auth"
+	"tgs-automation/internal/log"
+	"tgs-automation/pkg/tgs-automations/get_domain_id/models"
 )
 
 type DomainSummary struct {

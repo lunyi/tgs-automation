@@ -2,12 +2,12 @@ package main
 
 // go install github.com/google/wire/cmd/wire@latest
 import (
-	"cdnetwork/internal/httpclient"
-	"cdnetwork/internal/util"
-	"cdnetwork/pkg/googlesheet"
-	"cdnetwork/pkg/namecheap"
-	"cdnetwork/pkg/postgresql"
 	"net/http"
+	"tgs-automation/internal/httpclient"
+	"tgs-automation/internal/util"
+	"tgs-automation/pkg/googlesheet"
+	"tgs-automation/pkg/namecheap"
+	"tgs-automation/pkg/postgresql"
 	"time"
 )
 

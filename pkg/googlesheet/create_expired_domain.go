@@ -2,13 +2,13 @@ package googlesheet
 
 import (
 	"bytes"
-	"cdnetwork/internal/log"
-	"cdnetwork/internal/util"
-	"cdnetwork/pkg/postgresql"
 	"context"
 	"fmt"
 	"html/template"
 	"io/ioutil"
+	"tgs-automation/internal/log"
+	"tgs-automation/internal/util"
+	"tgs-automation/pkg/postgresql"
 	"time"
 
 	"golang.org/x/oauth2/google"
