@@ -37,7 +37,6 @@ func (s *GetPlayersAdjustAmountService) Close() {
 }
 
 func (s *GetPlayersAdjustAmountService) GetData(brandCode string, startDate string, endDate string, transType int) ([]PlayerAdjustAmountData, error) {
-	defer s.Db.Close()
 	query := "select * from report.get_players_adjust_amount($1, $2, $3, $4);"
 
 	// Execute the query

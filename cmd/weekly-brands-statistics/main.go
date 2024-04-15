@@ -23,7 +23,7 @@ func main() {
 	app := postgresql.NewGetPlayersAdjustAmountInterface(config.Postgresql)
 	defer app.Close()
 
-	brands := []string{"MOPH", "POVN2"}
+	brands := []string{"MOPH", "MOVN2"}
 
 	// Displaying all elements in the slice
 	for _, brand := range brands {
@@ -59,8 +59,8 @@ func exportPlayerAdjustFile(app postgresql.GetPlayersAdjustAmountInterface, bran
 		}
 
 		startDate = time.Now().AddDate(0, 0, -8).Format("0102")
-		endDate = time.Now().AddDate(0, 0, -1).Format("0102")
-		filename := fmt.Sprintf("%s-%s-%s.xlsx", startDate, endDate, brand)
+		endDate = time.Now().AddDate(0, 0, -2).Format("0102")
+		filename := fmt.Sprintf("%s-%s_%s.xlsx", startDate, endDate, brand)
 
 		var data []interface{}
 		for _, p := range playerAdjustAmounts {
