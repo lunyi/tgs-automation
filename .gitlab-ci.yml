@@ -34,9 +34,9 @@ docker_build_job:
     - export TAG="latest"
     - docker build -t $ImageName:$TAG -f dockerfiles/Dockerfile.expired_domain .
     - docker push ${ImageName}:${TAG}
-    - docker build -t $MomoImageName:$TAG -f dockerfiles/Dockerfile.momo_data .
+    - docker build -t $MomoImageName:$TAG -f dockerfiles/Dockerfile.daily_momo_data .
     - docker push ${MomoImageName}:${TAG}
-    - docker build -t $BrandsImageName:$TAG -f dockerfiles/Dockerfile.brands_info .
+    - docker build -t $BrandsImageName:$TAG -f dockerfiles/Dockerfile.daily_brand_revenue .
     - docker push ${BrandsImageName}:${TAG}
     - docker build -t $DataRetrieceImageName:$TAG -f dockerfiles/Dockerfile.data_retrieve .
     - docker push ${DataRetrieceImageName}:${TAG}
