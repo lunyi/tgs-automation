@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"tgs-automation/internal/auth"
 	"tgs-automation/internal/log"
-	"tgs-automation/pkg/tgs-automations/get_domain_id/models"
+	"tgs-automation/pkg/cdnetworks/get_domain_id/models"
 )
 
 type DomainSummary struct {

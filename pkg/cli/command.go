@@ -1,15 +1,15 @@
 package cli
 
 import (
+	"tgs-automation/pkg/cdnetworks/control_group"
+	"tgs-automation/pkg/cdnetworks/create_certificate"
+	"tgs-automation/pkg/cdnetworks/create_domain"
+	"tgs-automation/pkg/cdnetworks/delete_domain"
+	"tgs-automation/pkg/cdnetworks/disable_domain"
+	"tgs-automation/pkg/cdnetworks/enable_domain"
+	"tgs-automation/pkg/cdnetworks/get_certificate"
+	"tgs-automation/pkg/cdnetworks/get_domain_id"
 	"tgs-automation/pkg/cloudflare"
-	"tgs-automation/pkg/tgs-automations/control_group"
-	"tgs-automation/pkg/tgs-automations/create_certificate"
-	"tgs-automation/pkg/tgs-automations/create_domain"
-	"tgs-automation/pkg/tgs-automations/delete_domain"
-	"tgs-automation/pkg/tgs-automations/disable_domain"
-	"tgs-automation/pkg/tgs-automations/enable_domain"
-	"tgs-automation/pkg/tgs-automations/get_certificate"
-	"tgs-automation/pkg/tgs-automations/get_domain_id"
 	"time"
 )
 

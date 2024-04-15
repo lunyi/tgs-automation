@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"tgs-automation/internal/auth"
 	"tgs-automation/internal/log"
-	"tgs-automation/pkg/tgs-automations/enable_domain/models"
+	"tgs-automation/pkg/cdnetworks/enable_domain/models"
 )
 
 func EnableDomain(domainId string) {

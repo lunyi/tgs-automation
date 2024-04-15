@@ -70,15 +70,15 @@ func (cm *CreateCDNCertService) CreateCertificate(domain string) error {
 }
 
 func (cm *CreateCDNCertService) login() error {
-	if err := goToURL(cm.wd, cm.config.tgs-automation.CdnLoginUrl); err != nil {
+	if err := goToURL(cm.wd, cm.config.CdnNetwork.CdnLoginUrl); err != nil {
 		return err
 	}
 
-	if err := sendKeysToElement(cm.wd, selenium.ByID, "js-accountinput", cm.config.tgs-automation.CdnUserName); err != nil {
+	if err := sendKeysToElement(cm.wd, selenium.ByID, "js-accountinput", cm.config.CdnNetwork.CdnUserName); err != nil {
 		return err
 	}
 
-	if err := sendKeysToElement(cm.wd, selenium.ByID, "js-pwdinput", cm.config.tgs-automation.CdnPassword); err != nil {
+	if err := sendKeysToElement(cm.wd, selenium.ByID, "js-pwdinput", cm.config.CdnNetwork.CdnPassword); err != nil {
 		return err
 	}
 
@@ -91,7 +91,7 @@ func (cm *CreateCDNCertService) login() error {
 }
 
 func (cm *CreateCDNCertService) createCertificate(domain string) error {
-	if err := goToURL(cm.wd, cm.config.tgs-automation.CdnCertificateCreationUrl); err != nil {
+	if err := goToURL(cm.wd, cm.config.CdnNetwork.CdnCertificateCreationUrl); err != nil {
 		return err
 	}
 

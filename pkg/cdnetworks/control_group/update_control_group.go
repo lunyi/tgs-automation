@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"tgs-automation/internal/auth" // Import your auth package
-	"tgs-automation/pkg/tgs-automations/control_group/models"
+	"tgs-automation/pkg/cdnetworks/control_group/models"
 )
 
 // ControlGroupManager represents a manager for control groups

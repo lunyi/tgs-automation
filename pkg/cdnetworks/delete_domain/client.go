@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strconv"
 	"tgs-automation/internal/auth"
-	"tgs-automation/pkg/tgs-automations/delete_domain/models"
-	"tgs-automation/pkg/tgs-automations/get_domain_id"
+	"tgs-automation/pkg/cdnetworks/delete_domain/models"
+	"tgs-automation/pkg/cdnetworks/get_domain_id"
 )
 
 type Response struct {

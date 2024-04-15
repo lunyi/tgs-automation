@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"tgs-automation/internal/auth"
-	"tgs-automation/pkg/tgs-automations/create_domain/models"
+	"tgs-automation/pkg/cdnetworks/create_domain/models"
 )
 
 func CreateDomains(createDomainNames string, originSet string) {

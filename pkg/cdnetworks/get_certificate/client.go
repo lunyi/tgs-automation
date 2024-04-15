@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"tgs-automation/internal/auth"
-	"tgs-automation/pkg/tgs-automations/get_certificate/models"
+	"tgs-automation/pkg/cdnetworks/get_certificate/models"
 )
 
 func GetCertificate(domainName string) (string, error) {
