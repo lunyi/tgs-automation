@@ -27,8 +27,15 @@ func main() {
 	for _, brand := range brands {
 		file := xlsx.NewFile()
 		filename := fmt.Sprintf("%s-%s_%s.xlsx", start, end, brand)
+
 		exportPromotionDistributes(config, file, brand, filename, startDate, endDate)
 		exportPlayerAdjustFile(config, file, filename, brand, startDate, endDate)
+
+		err := file.Save(filename)
+		if err != nil {
+			log.LogFatal(fmt.Sprintf("Save failed:: %s", err))
+		}
+
 	}
 
 	sig := <-signals
@@ -36,7 +43,7 @@ func main() {
 	os.Exit(0)
 }
 
-func createSheet(file *xlsx.File, players []interface{}, excelFilename string, populate PopulatorFunc, sheetName string, dataType string) error {
+func setHeaderAndFillData(file *xlsx.File, players []interface{}, excelFilename string, populate PopulatorFunc, sheetName string, dataType string) error {
 
 	log.LogInfo(fmt.Sprintf("Creating filename %s, sheet %s", excelFilename, sheetName))
 
@@ -51,12 +58,6 @@ func createSheet(file *xlsx.File, players []interface{}, excelFilename string, p
 	headerRow := sheet.AddRow()
 
 	populate(headerRow, boldStyle, sheet, players, dataType)
-
-	err = file.Save(excelFilename)
-	if err != nil {
-		log.LogFatal(fmt.Sprintf("Save failed:: %s", err))
-		return err
-	}
 
 	log.LogInfo(fmt.Sprintf("Player adjust excel %s successfully.", sheetName))
 	return nil

@@ -37,7 +37,7 @@ func exportPlayerAdjustFile(config util.TgsConfig, file *xlsx.File, filename str
 			data = append(data, p)
 		}
 
-		err = createSheet(file, data, filename, populateSheetHeader, value.sheet, value.column)
+		err = setHeaderAndFillData(file, data, filename, populateSheetHeader, value.sheet, value.column)
 		if err != nil {
 			log.LogFatal(err.Error())
 		}

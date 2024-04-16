@@ -40,13 +40,13 @@ func exportPromotionDistributes(config util.TgsConfig, file *xlsx.File, brand st
 					d.PromotionType = p.Trans.Zh
 					d.PromotionSubType = s.Trans.Zh
 					result = append(result, d)
-					break
+					continue
 				}
 			}
 		}
 	}
 
-	createSheet(file, result, fileName, populatePromotionDistributionSheetHeader, "活動派發列表", "")
+	setHeaderAndFillData(file, result, fileName, populatePromotionDistributionSheetHeader, "活動派發列表", "")
 	return nil
 
 }
