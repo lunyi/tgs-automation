@@ -27,9 +27,9 @@ func main() {
 	end := time.Now().AddDate(0, 0, -2).Format("0102")
 
 	brands := []string{"MOPH", "MOVN2"}
-	file := xlsx.NewFile()
 
 	for _, brand := range brands {
+		file := xlsx.NewFile()
 		filename := fmt.Sprintf("%s-%s_%s.xlsx", start, end, brand)
 		//exportPromotionDistributes(config, file, brand, filename, startDate, endDate)
 		exportPlayerAdjustFile(app, file, filename, brand, startDate, endDate)
@@ -42,7 +42,7 @@ func main() {
 
 func createSheet(file *xlsx.File, players []interface{}, excelFilename string, populate PopulatorFunc, sheetName string, dataType string) error {
 
-	log.LogInfo(fmt.Sprintf("Creating sheet %s", sheetName))
+	log.LogInfo(fmt.Sprintf("Creating filename %s, sheet %s", excelFilename, sheetName))
 
 	sheet, err := file.AddSheet(sheetName)
 	if err != nil {
