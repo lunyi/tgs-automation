@@ -40,7 +40,7 @@ func exportPromotionDistributes(config util.TgsConfig, file *xlsx.File, brand st
 					d.PromotionType = p.Trans.Zh
 					d.PromotionSubType = s.Trans.Zh
 
-					log.LogInfo(fmt.Sprintf("中文: %v", p.Trans.Zh, s.Trans.Zh))
+					log.LogInfo(fmt.Sprintf("中文: %v, %v", p.Trans.Zh, s.Trans.Zh))
 					result = append(result, d)
 					continue
 				}
