@@ -32,7 +32,7 @@ func main() {
 	os.Exit(0)
 }
 
-func createSheet(file *xlsx.File, players []interface{}, excelFilename string, populate PopulatorFunc, sheetName string, dataType = "" string) error {
+func createSheet(file *xlsx.File, players []interface{}, excelFilename string, populate PopulatorFunc, sheetName string, dataType string) error {
 
 	sheet, err := file.AddSheet(sheetName)
 	if err != nil {
