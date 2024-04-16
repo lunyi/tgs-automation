@@ -10,6 +10,8 @@ ENV GO111MODULE=on
 WORKDIR /app
 # Copy go mod and sum files
 COPY . .
+# Optionally clear modcache
+RUN go clean -modcache
 # Copy the source from the current directory to the Working Directory inside the container
 RUN go mod download
 RUN go build -o main .

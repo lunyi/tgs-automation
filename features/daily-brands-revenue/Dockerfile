@@ -11,6 +11,8 @@ WORKDIR /app
 # Copy go mod and sum files
 COPY . .
 # Copy the source from the current directory to the Working Directory inside the container
+# Optionally clear modcache
+RUN go clean -modcache
 RUN go mod download
 RUN go build -o main .
 RUN ls -al .
