@@ -41,6 +41,8 @@ func exportPromotionDistributes(config util.TgsConfig, file *xlsx.File, brand st
 					d.PromotionSubType = s.Trans.Zh
 
 					log.LogInfo(fmt.Sprintf("中文: %v, %v", p.Trans.Zh, s.Trans.Zh))
+					log.LogInfo(fmt.Sprintf("轉換後: %v, %v", d.PromotionType, d.PromotionSubType))
+
 					result = append(result, d)
 					continue
 				}
