@@ -46,6 +46,12 @@ func exportPromotionDistributes(config util.TgsConfig, file *xlsx.File, brand st
 		}
 	}
 
+	log.LogInfo("===================================")
+
+	for _, d := range data {
+		log.LogInfo(fmt.Sprintf("PromotionDistribute: %v", d))
+	}
+
 	setHeaderAndFillData(file, result, fileName, populatePromotionDistributionSheetHeader, "活動派發列表", "")
 	return nil
 
