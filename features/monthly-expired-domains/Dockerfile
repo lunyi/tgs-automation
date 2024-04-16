@@ -11,7 +11,7 @@ WORKDIR /app
 COPY . .
 # Copy the source from the current directory to the Working Directory inside the container
 RUN go mod download
-RUN go build -o main ./monthly-expired-domains
+RUN go build -o main ./features/monthly-expired-domains
 RUN ls -al .
 
 # Expose port 8080 to the outside world
