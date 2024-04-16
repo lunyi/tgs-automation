@@ -4,10 +4,10 @@ stages:
   - deploy
 
 variables:
-  ImageName: "pgtgs/expired_domain"
-  MomoImageName: "pgtgs/momo-data"
+  ImageName: "pgtgs/expired_domains"
+  MomoImageName: "pgtgs/daily-momo-first-deposit"
   DataRetrieceImageName: "pgtgs/data-retrieve"
-  BrandsImageName: "pgtgs/brands-info"
+  BrandsImageName: "pgtgs/daily-brands-revenue"
   Registry: "registry.hub.docker.com"
 
 build_job:
@@ -38,7 +38,7 @@ docker_build_job:
     - docker push ${MomoImageName}:${TAG}
     - docker build -t $BrandsImageName:$TAG -f dockerfiles/Dockerfile.daily_brand_revenue .
     - docker push ${BrandsImageName}:${TAG}
-    - docker build -t $DataRetrieceImageName:$TAG -f dockerfiles/Dockerfile.data_retrieve .
+    - docker build -t $DataRetrieceImageName:$TAG -f dockerfiles/Dockerfile.data_retrieve_api .
     - docker push ${DataRetrieceImageName}:${TAG}
 deploy_job:
   stage: deploy

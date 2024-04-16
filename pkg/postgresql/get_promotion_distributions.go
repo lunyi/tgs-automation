@@ -52,7 +52,7 @@ func (s *GetPromotionDistributionService) GetData(brandCode string, startDate st
 	for rows.Next() {
 		var r PromotionDistribute
 		// Assuming the date in the database is stored in a compatible format; adjust the scan accordingly if it's not.
-		if err := rows.Scan(&r.Username, &r.PromotionName, &r.SubPromotionType, &r.CreatedOn, &r.BonusAmount, &r.SentOn); err != nil {
+		if err := rows.Scan(&r.Username, &r.PromotionName, &r.PromotionSubType, &r.CreatedOn, &r.BonusAmount, &r.SentOn); err != nil {
 			log.LogFatal(err.Error())
 			return nil, err
 		}

@@ -7,3 +7,6 @@
 /cmd/expired_domain/expired_domain.exe
 cmd/momo-data/momo-data.exe
 /cmd/momo-data/cdn.log
+**/*.exe
+/cmd/daily-momo-data/momo-data.exe
+/cmd/daily-momo-data/momo-data.exe
