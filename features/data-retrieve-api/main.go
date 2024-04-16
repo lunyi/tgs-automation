@@ -8,7 +8,7 @@ import (
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/postgresql"
 
-	_ "tgs-automation/cmd/data-retrieve/docs"
+	_ "tgs-automation/features/data-retrieve-api/docs"
 
 	"github.com/gin-gonic/gin"
 	"github.com/iris-contrib/swagger/swaggerFiles"
