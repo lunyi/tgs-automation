@@ -38,7 +38,7 @@ func (s *GetMomoDataService) Close() {
 }
 
 func (s *GetMomoDataService) GetFirstDepositedPlayers(brandCode string, startDate string, endDate string, timezoneOffset string) ([]PlayerFirstDeposit, error) {
-	query := "select * from report.get_first_deposite_players_by_brand($1, $2, $3);"
+	query := "select * from report.get_first_deposited_players_by_brand($1, $2, $3);"
 
 	log.LogInfo(fmt.Sprintf("Query: %s", query))
 	log.LogInfo(fmt.Sprintf("Brand: %s, StartDate: %s, EndDate: %s", brandCode, startDate, endDate))
