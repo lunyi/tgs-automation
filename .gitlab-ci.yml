@@ -28,8 +28,7 @@ build_job:
 build_template: &build_definition
   stage: docker-build-push
   script:
-    - echo "Building $IMAGE_NAME"
-    - cd features/$FEATURE_NAME
+    - echo "Building $FEATURE_NAME"
     - docker build -t $IMAGE_NAME -f features/$FEATURE_NAME/Dockerfile . 
     - docker push $IMAGE_NAME
   only:
