@@ -42,6 +42,8 @@ func main() {
 
 func createSheet(file *xlsx.File, players []interface{}, excelFilename string, populate PopulatorFunc, sheetName string, dataType string) error {
 
+	log.LogInfo(fmt.Sprintf("Creating sheet %s", sheetName))
+
 	sheet, err := file.AddSheet(sheetName)
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("AddSheet failed: %s", err))
