@@ -31,7 +31,7 @@ func main() {
 	for _, brand := range brands {
 		file := xlsx.NewFile()
 		filename := fmt.Sprintf("%s-%s_%s.xlsx", start, end, brand)
-		//exportPromotionDistributes(config, file, brand, filename, startDate, endDate)
+		exportPromotionDistributes(config, file, brand, filename, startDate, endDate)
 		exportPlayerAdjustFile(app, file, filename, brand, startDate, endDate)
 	}
 
