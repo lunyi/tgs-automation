@@ -52,7 +52,7 @@ func exportPromotionDistributes(config util.TgsConfig, file *xlsx.File, brand st
 
 	log.LogInfo("===================================")
 
-	for _, d := range data {
+	for _, d := range result {
 		log.LogInfo(fmt.Sprintf("PromotionDistribute: %v", d))
 	}
 
