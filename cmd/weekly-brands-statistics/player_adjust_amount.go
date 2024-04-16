@@ -40,7 +40,7 @@ func exportPlayerAdjustFile(app postgresql.GetPlayersAdjustAmountInterface, bran
 			data = append(data, p)
 		}
 
-		err = createSheet(file, data, filename, populateSheetHeader, value.column, value.sheet)
+		err = createSheet(file, data, filename, populateSheetHeader, value.sheet, value.column)
 		if err != nil {
 			log.LogFatal(err.Error())
 		}

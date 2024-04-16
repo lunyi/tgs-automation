@@ -52,7 +52,7 @@ func (s *GetPromotionDistributionService) GetData(brandCode string, startDate st
 	for rows.Next() {
 		var r PromotionDistribute
 		// Assuming the date in the database is stored in a compatible format; adjust the scan accordingly if it's not.
-		if err := rows.Scan(&r.Username, &r.PromotionName, &r.PromotionType, &r.CreatedOn, &r.BonusAmount, &r.SentOn); err != nil {
+		if err := rows.Scan(&r.Username, &r.PromotionName, &r.SubPromotionType, &r.CreatedOn, &r.BonusAmount, &r.SentOn); err != nil {
 			log.LogFatal(err.Error())
 			return nil, err
 		}
@@ -73,10 +73,11 @@ func (s *GetPromotionDistributionService) GetData(brandCode string, startDate st
 }
 
 type PromotionDistribute struct {
-	Username      string    `json:"username"`
-	PromotionName string    `json:"promotion_name"`
-	PromotionType string    `json:"promotion_type"`
-	CreatedOn     time.Time `json:"created_on"`
-	BonusAmount   float64   `json:"bonus_amount"`
-	SentOn        time.Time `json:"sent_on"`
+	Username         string    `json:"username"`
+	PromotionName    string    `json:"promotion_name"`
+	PromotionType    string    `json:"promotion_type"`
+	PromotionSubType string    `json:"promotion_sub_type"`
+	CreatedOn        time.Time `json:"created_on"`
+	BonusAmount      float64   `json:"bonus_amount"`
+	SentOn           time.Time `json:"sent_on"`
 }
