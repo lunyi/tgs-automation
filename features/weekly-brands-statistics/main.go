@@ -8,6 +8,7 @@ import (
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/postgresql"
+	"time"
 
 	"github.com/tealeg/xlsx"
 )
@@ -21,10 +22,19 @@ func main() {
 	defer app.Close()
 
 	brands := []string{"MOPH", "MOVN2"}
-
+	file := xlsx.NewFile()
 	// Displaying all elements in the slice
 	for _, brand := range brands {
-		exportPlayerAdjustFile(app, brand)
+
+		start := time.Now().AddDate(0, 0, -8).Format("0102")
+		end := time.Now().AddDate(0, 0, -2).Format("0102")
+		filename := fmt.Sprintf("%s-%s_%s.xlsx", start, end, brand)
+
+		startDate := time.Now().AddDate(0, 0, -8).Format("20060102+8")
+		endDate := time.Now().AddDate(0, 0, -1).Format("20060102+8")
+
+		exportPlayerAdjustFile(app, file, filename, brand, startDate, endDate)
+		exportPromotionDistributes(config, file, brand, filename, startDate, endDate)
 	}
 
 	sig := <-signals

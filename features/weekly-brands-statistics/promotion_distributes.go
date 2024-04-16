@@ -10,33 +10,42 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
-func exportPromotionDistributes(config util.TgsConfig, file *xlsx.File, fileName string) error {
+func exportPromotionDistributes(config util.TgsConfig, file *xlsx.File, brand string, fileName string, startDate string, endDate string) error {
 
-	app1 := postgresql.NewPromotionTypesInterface(config.Postgresql)
-	types, err := app1.GetPromotionTypes()
+	appPromotionTypes := postgresql.NewPromotionTypesInterface(config.Postgresql)
+	promotionTypes, err := appPromotionTypes.GetPromotionTypes()
 	if err != nil {
 		log.LogFatal(err.Error())
 	}
 
-	log.LogInfo(fmt.Sprintf("Promotion types: %v", types))
-	app1.Close()
+	log.LogInfo(fmt.Sprintf("Promotion types: %v", promotionTypes))
+	appPromotionTypes.Close()
 
-	app2 := postgresql.NewPromotionDistributionInterface(config.Postgresql)
+	appPromotionDistributions := postgresql.NewPromotionDistributionInterface(config.Postgresql)
 
-	startDate := time.Now().AddDate(0, 0, -8).Format("20060102+8")
-	endDate := time.Now().AddDate(0, 0, -1).Format("20060102+8")
-
-	data, err := app2.GetData("MOPH", startDate, endDate)
+	data, err := appPromotionDistributions.GetData(brand, startDate, endDate)
 
 	if err != nil {
 		log.LogFatal(err.Error())
+		return err
 	}
 
+	var result []interface{}
 	for _, d := range data {
 		log.LogInfo(fmt.Sprintf("PromotionDistribute: %v", d))
+		for _, p := range promotionTypes {
+			for _, s := range p.PromotionType {
+				if s.Name == d.PromotionSubType {
+					d.PromotionType = p.Trans.Zh
+					d.PromotionSubType = s.Trans.Zh
+					result = append(result, d)
+					break
+				}
+			}
+		}
 	}
 
-	//createSheet(file, data, fileName, populatePromotionDistributionSheetHeader, "活動派發列表", "")
+	createSheet(file, result, fileName, populatePromotionDistributionSheetHeader, "活動派發列表", "")
 	return nil
 
 }

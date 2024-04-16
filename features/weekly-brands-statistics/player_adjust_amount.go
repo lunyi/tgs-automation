@@ -9,14 +9,12 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
-func exportPlayerAdjustFile(app postgresql.GetPlayersAdjustAmountInterface, brand string) error {
-	file := xlsx.NewFile()
-	start := time.Now().AddDate(0, 0, -8).Format("0102")
-	end := time.Now().AddDate(0, 0, -2).Format("0102")
-	filename := fmt.Sprintf("%s-%s_%s.xlsx", start, end, brand)
-
-	startDate := time.Now().AddDate(0, 0, -8).Format("20060102+8")
-	endDate := time.Now().AddDate(0, 0, -1).Format("20060102+8")
+func exportPlayerAdjustFile(app postgresql.GetPlayersAdjustAmountInterface,
+	file *xlsx.File,
+	filename string,
+	brand string,
+	startDate string,
+	endDate string) error {
 
 	adjustType := []struct {
 		key    int
