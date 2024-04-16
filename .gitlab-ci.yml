@@ -1,15 +1,15 @@
 stages:
   - build-and-test
-  - docker-build
+  - docker-build-push
   - deploy
 
 variables:
-  ImageName: "pgtgs/expired_domains"
-  MomoImageName: "pgtgs/daily-momo-first-deposit"
-  DataRetrieceImageName: "pgtgs/data-retrieve"
-  BrandsImageName: "pgtgs/daily-brands-revenue"
-  Registry: "registry.hub.docker.com"
+  Registry: "pgtgs"
+  Tag: "latest"
 
+before_script:
+  - docker info
+  
 build_job:
   stage: build-and-test
   only:
@@ -23,31 +23,38 @@ build_job:
     - go mod download
     - go build ./...
     - go test ./...
-    - go build -o main ./cmd/expired_domain
 
-docker_build_job:
-  stage: docker-build
+
+build_template: &build_definition
+  stage: build
+  script:
+    - echo "Building $IMAGE_NAME"
+    - cd features/$FEATURE_NAME
+    - docker build -t $IMAGE_NAME .
+    - docker push $IMAGE_NAME
   only:
     - main
-  script:
-    - export TAG="$(date -d $CI_PIPELINE_CREATED_AT +%Y%m%d).$CI_PIPELINE_IID"
-    - export TAG="latest"
-    - docker build -t $ImageName:$TAG -f dockerfiles/Dockerfile.expired_domain .
-    - docker push ${ImageName}:${TAG}
-    - docker build -t $MomoImageName:$TAG -f dockerfiles/Dockerfile.daily_momo_data .
-    - docker push ${MomoImageName}:${TAG}
-    - docker build -t $BrandsImageName:$TAG -f dockerfiles/Dockerfile.daily_brand_revenue .
-    - docker push ${BrandsImageName}:${TAG}
-    - docker build -t $DataRetrieceImageName:$TAG -f dockerfiles/Dockerfile.data_retrieve_api .
-    - docker push ${DataRetrieceImageName}:${TAG}
-deploy_job:
-  stage: deploy
-  only:
-    - main
-  before_script:
-    - export TAG="latest"
-    - export KUBECONFIG=$kubeconfig_devops
-    - echo "KUBECONFIG=$kubeconfig_devops"
-  script:
-    - kubectl set image cronjob/expired-domains expired-domain=${ImageName}:${TAG} --record -n devops
-    - kubectl set image cronjob/brands-info brands-info=${BrandsImageName}:${TAG} --record -n devops
+
+build_monthly_expired_domains:
+  <<: *build_definition
+  variables:
+    FEATURE_NAME: "monthly_expired_domains"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
+    
+build_daily_brands_revenue:
+  <<: *build_definition
+  variables:
+    FEATURE_NAME: "daily-brands-revenue"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
+
+build_daily_momo_first_deposit:
+  <<: *build_definition
+  variables:
+    FEATURE_NAME: "daily-momo-first-deposit"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
+
+build_weekly_brands_statistics:
+  <<: *build_definition
+  variables:
+    FEATURE_NAME: "weekly-brands-statistics"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
