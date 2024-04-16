@@ -20,9 +20,7 @@ func exportPromotionDistributes(config util.TgsConfig, file *xlsx.File, brand st
 
 	log.LogInfo(fmt.Sprintf("Promotion types: %v", promotionTypes))
 	appPromotionTypes.Close()
-
 	appPromotionDistributions := postgresql.NewPromotionDistributionInterface(config.Postgresql)
-
 	data, err := appPromotionDistributions.GetData(brand, startDate, endDate)
 
 	if err != nil {
