@@ -33,6 +33,7 @@ func exportPromotionDistributes(config util.TgsConfig, file *xlsx.File, brand st
 		log.LogInfo(fmt.Sprintf("PromotionDistribute: %v", d.PromotionSubType))
 		for _, p := range promotionTypes {
 			for _, s := range p.PromotionType {
+				log.LogInfo(fmt.Sprintf("PromotionSubTypeName: %v", s.Name))
 				if s.Name == d.PromotionSubType {
 					d.PromotionType = p.Trans.Zh
 					d.PromotionSubType = s.Trans.Zh
