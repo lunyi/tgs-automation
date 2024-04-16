@@ -1,4 +1,3 @@
-# Start from the latest golang base image
 FROM golang:1.21.1
 # Add Maintainer Info
 LABEL maintainer="ly.lester@rayprosoft.com"
@@ -10,14 +9,13 @@ ENV GO111MODULE=on
 WORKDIR /app
 # Copy go mod and sum files
 COPY . .
-# Optionally clear modcache
-RUN go clean -modcache
 # Copy the source from the current directory to the Working Directory inside the container
 RUN go mod download
-RUN go build -o main .
+RUN go build -o main ./daily-momo-first-deposit
 RUN ls -al .
 
 # Expose port 8080 to the outside world
 EXPOSE 8080
 # Command to run the executable
 CMD ["./main"]
+

@@ -24,8 +24,10 @@ build_job:
     - go build ./...
     - go test ./...
 
-
-build_template: &build_definition
+build_monthly_expired_domains:
+  variables:
+    FEATURE_NAME: "monthly-expired-domains"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
   stage: docker-build-push
   script:
     - echo "Building $FEATURE_NAME"
@@ -35,12 +37,6 @@ build_template: &build_definition
   only:
     - main
 
-# build_monthly_expired_domains:
-#   <<: *build_definition
-#   variables:
-#     FEATURE_NAME: "monthly-expired-domains"
-#     IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
-    
 build_daily_brands_revenue:
   variables:
     FEATURE_NAME: "daily-brands-revenue"
@@ -55,14 +51,28 @@ build_daily_brands_revenue:
     - main
 
 
-# build_daily_momo_first_deposit:
-#   <<: *build_definition
-#   variables:
-#     FEATURE_NAME: "daily-momo-first-deposit"
-#     IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
+build_daily_momo_first_deposit:
+  variables:
+    FEATURE_NAME: "daily-momo-first-deposit"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
+  stage: docker-build-push
+  script:
+    - echo "Building $FEATURE_NAME"
+    - echo "Building $IMAGE_NAME"
+    - docker build -t $IMAGE_NAME -f features/$FEATURE_NAME/Dockerfile . 
+    - docker push $IMAGE_NAME
+  only:
+    - main
 
-# build_weekly_brands_statistics:
-#   <<: *build_definition
-#   variables:
-#     FEATURE_NAME: "weekly-brands-statistics"
-#     IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
+build_weekly_brands_statistics:
+  variables:
+    FEATURE_NAME: "weekly-brands-statistics"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
+  stage: docker-build-push
+  script:
+    - echo "Building $FEATURE_NAME"
+    - echo "Building $IMAGE_NAME"
+    - docker build -t $IMAGE_NAME -f features/$FEATURE_NAME/Dockerfile . 
+    - docker push $IMAGE_NAME
+  only:
+    - main

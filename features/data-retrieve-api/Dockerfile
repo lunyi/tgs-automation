@@ -17,7 +17,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o main ./cmd/data-retrieve-api
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o main ./features/data-retrieve-api
 
 # Start a new stage from scratch
 FROM alpine:latest
