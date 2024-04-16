@@ -5,7 +5,6 @@ import (
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/postgresql"
-	"time"
 
 	"github.com/tealeg/xlsx"
 )
@@ -62,7 +61,7 @@ func exportPromotionDistributes(config util.TgsConfig, file *xlsx.File, brand st
 }
 
 func populatePromotionDistributionSheetHeader(headerRow *xlsx.Row, boldStyle *xlsx.Style, sheet *xlsx.Sheet, players []interface{}, dataType string) {
-	headerTitles := []string{"用戶名", "活動名稱", "活動類型", "活動子類型", "派發時間", "領取金額"}
+	headerTitles := []string{"用戶名", "活动名称", "活动类型", "活动子类型", "创建时间", "派发时间", "领取金额", "状态"}
 	for _, title := range headerTitles {
 		cell := headerRow.AddCell()
 		cell.Value = title
@@ -76,7 +75,16 @@ func populatePromotionDistributionSheetHeader(headerRow *xlsx.Row, boldStyle *xl
 		row.AddCell().Value = player.(postgresql.PromotionDistribute).PromotionName
 		row.AddCell().Value = player.(postgresql.PromotionDistribute).PromotionType
 		row.AddCell().Value = player.(postgresql.PromotionDistribute).PromotionSubType
-		row.AddCell().Value = player.(postgresql.PromotionDistribute).SentOn.Format(time.RFC3339)
+		row.AddCell().Value = player.(postgresql.PromotionDistribute).CreatedOn.Format("15:04:05 02/01/2006")
 		row.AddCell().Value = fmt.Sprintf("%v", player.(postgresql.PromotionDistribute).BonusAmount)
+
+		sentOn := player.(postgresql.PromotionDistribute).SentOn
+		if !sentOn.IsZero() {
+			row.AddCell().Value = player.(postgresql.PromotionDistribute).SentOn.Format("15:04:05 02/01/2006")
+			row.AddCell().Value = "已派发"
+		} else {
+			row.AddCell().Value = ""
+			row.AddCell().Value = "未派发"
+		}
 	}
 }

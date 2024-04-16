@@ -79,5 +79,5 @@ type PromotionDistribute struct {
 	PromotionSubType string    `json:"promotion_sub_type"`
 	CreatedOn        time.Time `json:"created_on"`
 	BonusAmount      float64   `json:"bonus_amount"`
-	SentOn           time.Time `json:"sent_on"`
+	SentOn           time.Time `json:"sent_on,omitempty"`
 }
