@@ -24,55 +24,36 @@ build_job:
     - go build ./...
     - go test ./...
 
+.docker_build_template: &docker_defaults  # Define a reusable template
+  stage: docker-build-push
+  script:
+    - echo "Building $FEATURE_NAME"
+    - echo "Building $IMAGE_NAME"
+    - docker build -t $IMAGE_NAME -f features/$FEATURE_NAME/Dockerfile . 
+    - docker push $IMAGE_NAME
+  only:
+    - main
+
 build_monthly_expired_domains:
+  extends: .docker_build_template
   variables:
     FEATURE_NAME: "monthly-expired-domains"
     IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
-  stage: docker-build-push
-  script:
-    - echo "Building $FEATURE_NAME"
-    - echo "Building $IMAGE_NAME"
-    - docker build -t $IMAGE_NAME -f features/$FEATURE_NAME/Dockerfile . 
-    - docker push $IMAGE_NAME
-  only:
-    - main
 
 build_daily_brands_revenue:
+  extends: .docker_build_template
   variables:
     FEATURE_NAME: "daily-brands-revenue"
     IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
-  stage: docker-build-push
-  script:
-    - echo "Building $FEATURE_NAME"
-    - echo "Building $IMAGE_NAME"
-    - docker build -t $IMAGE_NAME -f features/$FEATURE_NAME/Dockerfile . 
-    - docker push $IMAGE_NAME
-  only:
-    - main
-
 
 build_daily_momo_first_deposit:
+  extends: .docker_build_template
   variables:
     FEATURE_NAME: "daily-momo-first-deposit"
     IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
-  stage: docker-build-push
-  script:
-    - echo "Building $FEATURE_NAME"
-    - echo "Building $IMAGE_NAME"
-    - docker build -t $IMAGE_NAME -f features/$FEATURE_NAME/Dockerfile . 
-    - docker push $IMAGE_NAME
-  only:
-    - main
 
 build_weekly_brands_statistics:
+  extends: .docker_build_template
   variables:
     FEATURE_NAME: "weekly-brands-statistics"
     IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
-  stage: docker-build-push
-  script:
-    - echo "Building $FEATURE_NAME"
-    - echo "Building $IMAGE_NAME"
-    - docker build -t $IMAGE_NAME -f features/$FEATURE_NAME/Dockerfile . 
-    - docker push $IMAGE_NAME
-  only:
-    - main
