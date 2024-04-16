@@ -8,21 +8,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func (s *GetMomoDataService) GetMomoRegisteredPlayers(brandCode string, startDate string, endDate string, timezoneOffset string) ([]PlayerRegisterInfo, error) {
-	query := `
-select 
-    coalesce(a.username, '') AS agent,
-    coalesce(PIR.host,'') as host,
-	p.username as player,
-	coalesce(p.real_name, '') as real_name,
-	p.registered_on
-	from dbo.players p
-	left join dbo.agents a on a.id = p.agent_id
-	left join dbo.player_ip_records AS PIR ON p.player_code = PIR.player_code
-			AND PIR.ip_type = 1
-	where p.brand_id = (select id from dbo.brands where code = $1) 
-	and p.registered_on >= $2 and p.registered_on < $3
-	order by 1 nulls first,2,3`
+func (s *GetMomoDataService) GetRegisteredPlayers(brandCode string, startDate string, endDate string, timezoneOffset string) ([]PlayerRegisterInfo, error) {
+	query := "select * from report.get_registered_players_by_brand($1, $2, $3);"
 
 	log.LogInfo(fmt.Sprintf("Query: %s", query))
 	log.LogInfo(fmt.Sprintf("Brand: %s, StartDate: %s, EndDate: %s", brandCode, startDate, endDate))

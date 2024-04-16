@@ -87,7 +87,7 @@ func main() {
 }
 
 func createExcelPlayerRegistered(app postgresql.GetMomoDataInterface, brand string, yesterday string, today string, prefilename string) string {
-	playerRegistered, err := app.GetMomoRegisteredPlayers(brand, yesterday, today, "+08:00")
+	playerRegistered, err := app.GetRegisteredPlayers(brand, yesterday, today, "+08:00")
 	if err != nil {
 		log.LogFatal(err.Error())
 	}
@@ -107,7 +107,7 @@ func createExcelPlayerRegistered(app postgresql.GetMomoDataInterface, brand stri
 }
 
 func createExcelPlayerFirstDeposit(app postgresql.GetMomoDataInterface, brand string, yesterday string, today string, prefilename string) string {
-	playerFirstDeposit, err := app.GetMomoFirstDepositePlayers(brand, yesterday, today, "+08:00")
+	playerFirstDeposit, err := app.GetFirstDepositedPlayers(brand, yesterday, today, "+08:00")
 	if err != nil {
 		log.LogFatal(err.Error())
 	}

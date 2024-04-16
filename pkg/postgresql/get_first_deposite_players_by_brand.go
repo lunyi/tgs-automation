@@ -11,8 +11,8 @@ import (
 )
 
 type GetMomoDataInterface interface {
-	GetMomoFirstDepositePlayers(brandCode string, startDate string, endDate string, timezoneOffset string) ([]PlayerFirstDeposit, error)
-	GetMomoRegisteredPlayers(brandCode string, startDate string, endDate string, timezoneOffset string) ([]PlayerRegisterInfo, error)
+	GetFirstDepositedPlayers(brandCode string, startDate string, endDate string, timezoneOffset string) ([]PlayerFirstDeposit, error)
+	GetRegisteredPlayers(brandCode string, startDate string, endDate string, timezoneOffset string) ([]PlayerRegisterInfo, error)
 	Close()
 }
 
@@ -37,25 +37,8 @@ func (s *GetMomoDataService) Close() {
 	s.Db.Close()
 }
 
-func (s *GetMomoDataService) GetMomoFirstDepositePlayers(brandCode string, startDate string, endDate string, timezoneOffset string) ([]PlayerFirstDeposit, error) {
-	query := `
-SELECT 
-	coalesce(a.username, '') AS agent,
-	coalesce(PIR.host,'') as host,
-    p.username AS playername, 
-    pdp.daily_deposit_amount, 
-    pdp.daily_deposit_count,
-    pdp.first_deposit_on
-FROM 
-    dbo.player_daily_payment_statistics pdp
-JOIN dbo.players p ON p.player_code = pdp.player_code
-LEFT JOIN
-    dbo.player_ip_records AS PIR ON P.player_code = PIR.player_code
-        AND PIR.ip_type = 1
-LEFT JOIN dbo.agents a ON a.id = p.agent_id
-WHERE p.brand_id = (SELECT id FROM dbo.brands WHERE code=$1)
-AND pdp.first_deposit_on >= $2 AND pdp.first_deposit_on < $3 order by 1 nulls first,2,3
-`
+func (s *GetMomoDataService) GetFirstDepositedPlayers(brandCode string, startDate string, endDate string, timezoneOffset string) ([]PlayerFirstDeposit, error) {
+	query := "select * from report.get_first_deposite_players_by_brand($1, $2, $3);"
 
 	log.LogInfo(fmt.Sprintf("Query: %s", query))
 	log.LogInfo(fmt.Sprintf("Brand: %s, StartDate: %s, EndDate: %s", brandCode, startDate, endDate))
