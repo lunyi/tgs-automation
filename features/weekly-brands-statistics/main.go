@@ -7,7 +7,6 @@ import (
 	"syscall"
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
-	"tgs-automation/pkg/postgresql"
 	"time"
 
 	"github.com/tealeg/xlsx"
@@ -16,10 +15,7 @@ import (
 func main() {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
-
 	config := util.GetConfig()
-	app := postgresql.NewGetPlayersAdjustAmountInterface(config.Postgresql)
-	defer app.Close()
 
 	startDate := time.Now().AddDate(0, 0, -8).Format("20060102+8")
 	endDate := time.Now().AddDate(0, 0, -1).Format("20060102+8")
@@ -32,7 +28,7 @@ func main() {
 		file := xlsx.NewFile()
 		filename := fmt.Sprintf("%s-%s_%s.xlsx", start, end, brand)
 		exportPromotionDistributes(config, file, brand, filename, startDate, endDate)
-		exportPlayerAdjustFile(app, file, filename, brand, startDate, endDate)
+		exportPlayerAdjustFile(config, file, filename, brand, startDate, endDate)
 	}
 
 	sig := <-signals

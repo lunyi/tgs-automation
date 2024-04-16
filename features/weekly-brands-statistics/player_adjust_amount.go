@@ -3,18 +3,17 @@ package main
 import (
 	"fmt"
 	"tgs-automation/internal/log"
+	"tgs-automation/internal/util"
 	"tgs-automation/pkg/postgresql"
 	"time"
 
 	"github.com/tealeg/xlsx"
 )
 
-func exportPlayerAdjustFile(app postgresql.GetPlayersAdjustAmountInterface,
-	file *xlsx.File,
-	filename string,
-	brand string,
-	startDate string,
-	endDate string) error {
+func exportPlayerAdjustFile(config util.TgsConfig, file *xlsx.File, filename string, brand string, startDate string, endDate string) error {
+
+	app := postgresql.NewGetPlayersAdjustAmountInterface(config.Postgresql)
+	defer app.Close()
 
 	adjustType := []struct {
 		key    int
