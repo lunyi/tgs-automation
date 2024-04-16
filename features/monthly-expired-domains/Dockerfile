@@ -12,7 +12,7 @@ WORKDIR /app
 COPY . .
 # Copy the source from the current directory to the Working Directory inside the container
 RUN go mod download
-RUN go build -o main ./cmd/expired_domain
+RUN go build -o main .
 
 RUN ls -al .
 

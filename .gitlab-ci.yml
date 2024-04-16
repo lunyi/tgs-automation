@@ -38,7 +38,7 @@ build_template: &build_definition
 build_monthly_expired_domains:
   <<: *build_definition
   variables:
-    FEATURE_NAME: "monthly_expired_domains"
+    FEATURE_NAME: "monthly-expired-domains"
     IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
     
 build_daily_brands_revenue:
