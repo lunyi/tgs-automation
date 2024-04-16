@@ -65,9 +65,9 @@ func (s *GetPlayersAdjustAmountService) GetData(brandCode string, startDate stri
 	}
 
 	// Example of printing out the reports
-	for _, player := range players {
-		fmt.Printf("%+v\n", player)
-	}
+	// for _, player := range players {
+	// 	fmt.Printf("%+v\n", player)
+	// }
 	return players, nil
 }
 

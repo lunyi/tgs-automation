@@ -30,7 +30,7 @@ func exportPromotionDistributes(config util.TgsConfig, file *xlsx.File, brand st
 
 	var result []interface{}
 	for _, d := range data {
-		log.LogInfo(fmt.Sprintf("PromotionDistribute: %v", d))
+		//log.LogInfo(fmt.Sprintf("PromotionDistribute: %v", d))
 		for _, p := range promotionTypes {
 			for _, s := range p.PromotionType {
 				if s.Name == d.PromotionSubType {

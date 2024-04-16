@@ -66,9 +66,9 @@ func (s *GetPromotionDistributionService) GetData(brandCode string, startDate st
 	}
 
 	// Example of printing out the reports
-	for _, player := range promotionDistributes {
-		fmt.Printf("%+v\n", player)
-	}
+	// for _, player := range promotionDistributes {
+	// 	fmt.Printf("%+v\n", player)
+	// }
 	return promotionDistributes, nil
 }
 
