@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: expired-domains
+  name: monthly-expired-domains
   namespace: devops
 spec:
   concurrencyPolicy: Allow
@@ -16,9 +16,9 @@ spec:
         spec:
           activeDeadlineSeconds: 3600
           containers:
-          - image: pgtgs/expired_domain:latest
+          - image: pgtgs/monthly-expired-domains:latest
             imagePullPolicy: Always
-            name: expired-domain
+            name: monthly-expired-domains
             env:
             - name: CONFIGPATH
               value: /config/config
