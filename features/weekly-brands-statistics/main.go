@@ -19,6 +19,8 @@ func main() {
 
 	startDate := time.Now().AddDate(0, 0, -8).Format("20060102+8")
 	endDate := time.Now().AddDate(0, 0, -1).Format("20060102+8")
+	log.LogInfo(fmt.Sprintf("startDate: %s, endDate: %s", startDate, endDate))
+
 	filenameStart := time.Now().AddDate(0, 0, -8).Format("060102")
 	filenameEnd := time.Now().AddDate(0, 0, -2).Format("0102")
 

@@ -5,7 +5,6 @@ import (
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/postgresql"
-	"time"
 
 	"github.com/tealeg/xlsx"
 )
@@ -65,13 +64,6 @@ func populatePromotionDistributionSheetHeader(headerRow *xlsx.Row, boldStyle *xl
 		cell.SetStyle(boldStyle)
 	}
 
-	// Load the +8 time zone location
-	loc, err := time.LoadLocation("Asia/Shanghai") // or "Asia/Singapore", "Australia/Perth" depending on exact location
-	if err != nil {
-		fmt.Println("Error loading location:", err)
-		return
-	}
-
 	// Populating data
 	for _, player := range players {
 		row := sheet.AddRow()
@@ -79,21 +71,17 @@ func populatePromotionDistributionSheetHeader(headerRow *xlsx.Row, boldStyle *xl
 		row.AddCell().Value = player.(postgresql.PromotionDistribute).PromotionName
 		row.AddCell().Value = player.(postgresql.PromotionDistribute).PromotionType
 		row.AddCell().Value = player.(postgresql.PromotionDistribute).PromotionSubType
-		createdOn := player.(postgresql.PromotionDistribute).CreatedOn
-		createdOn = createdOn.In(loc)
 
-		row.AddCell().Value = createdOn.Format("15:04:05 02/01/2006")
-		row.AddCell().Value = fmt.Sprintf("%v", player.(postgresql.PromotionDistribute).BonusAmount)
+		row.AddCell().Value = player.(postgresql.PromotionDistribute).CreatedOn
 
-		sentOn := player.(postgresql.PromotionDistribute).SentOn
+		senton := player.(postgresql.PromotionDistribute).SentOn
+		row.AddCell().Value = senton
+		row.AddCell().Value = fmt.Sprintf("%.2f", player.(postgresql.PromotionDistribute).BonusAmount)
 
-		if !sentOn.IsZero() {
-			sentOn := sentOn.In(loc)
-			row.AddCell().Value = sentOn.Format("15:04:05 02/01/2006")
-			row.AddCell().Value = "已派发"
-		} else {
-			row.AddCell().Value = ""
+		if senton == "" {
 			row.AddCell().Value = "未派发"
+		} else {
+			row.AddCell().Value = "已派发"
 		}
 	}
 }
