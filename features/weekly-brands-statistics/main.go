@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/postgresql"
@@ -39,12 +41,13 @@ func initializeReports() {
 		err := file.Save(params.Filename)
 
 		log.LogInfo(fmt.Sprintf("Sending file %s to telegram", params.Filename))
-		telegram.SendFile(config.MomoTelegram.Token, params.Filename, fmt.Sprintf("%d", brand.ChatID))
+		telegram.SendFile(config.MomoTelegram.Token, fmt.Sprintf("%d", brand.ChatID), params.Filename)
 
 		if err != nil {
 			log.LogFatal(fmt.Sprintf("Save failed:: %s", err))
 		}
 	}
+	deleteFiles()
 	services.PromotionSvc.Close()
 	services.PlayersAdjustSvc.Close()
 }
@@ -112,5 +115,30 @@ func CreateBrandStatSvc(config util.PostgresqlConfig) BrandStatSvc {
 		PlayersAdjustSvc:       postgresql.NewGetPlayersAdjustAmountInterface(config),
 		BonusPlayerCountSvc:    postgresql.BonusPlayerCountService{Config: config},
 		WithdrawPlayerCountSvc: postgresql.WithdrawPlayerCountService{Config: config},
+	}
+}
+
+func deleteFiles() {
+	patterns := []string{
+		"./*.xlsx",
+		"./*.zip",
+	}
+
+	for _, pattern := range patterns {
+		// Use filepath.Glob to find all files that match the pattern
+		matches, err := filepath.Glob(pattern)
+		if err != nil {
+			log.LogFatal(err.Error())
+		}
+
+		// Loop through the matching files and delete them
+		for _, match := range matches {
+			err := os.Remove(match)
+			if err != nil {
+				log.LogInfo(fmt.Sprintf("Failed to delete %s: %s", match, err))
+			} else {
+				log.LogInfo(fmt.Sprintf("Deleted %s", match))
+			}
+		}
 	}
 }
