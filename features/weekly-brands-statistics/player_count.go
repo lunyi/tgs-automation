@@ -12,16 +12,18 @@ func exportPlayerCount(pcp postgresql.PlayerCountProvider, file *xlsx.File, file
 
 	count, err := pcp.GetPlayerCount(brand, startDate, endDate)
 
+	if err != nil {
+		log.LogFatal(err.Error())
+		return err
+	}
 	var players []interface{}
 	players = append(players, count)
 
+	err = setHeaderAndFillData(file, players, filename, populatePlayerCount, columnName, columnName)
 	if err != nil {
-		err = setHeaderAndFillData(file, players, filename, populatePlayerCount, columnName, columnName)
-		if err != nil {
-			log.LogFatal(err.Error())
-		}
+		log.LogFatal(err.Error())
+		return err
 	}
-
 	return nil
 }
 
