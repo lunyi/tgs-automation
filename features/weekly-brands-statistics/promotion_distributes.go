@@ -32,13 +32,8 @@ func exportPromotionDistributes(config util.TgsConfig, file *xlsx.File, brand st
 		for _, p := range promotionTypes {
 			for _, s := range p.PromotionType {
 				if s.Name == d.PromotionSubType {
-
-					log.LogInfo("==========")
 					d.PromotionType = p.Trans.Zh
 					d.PromotionSubType = s.Trans.Zh
-
-					log.LogInfo(fmt.Sprintf("轉換後: %v, %v", d.PromotionType, d.PromotionSubType))
-
 					result = append(result, d)
 					continue
 				}
