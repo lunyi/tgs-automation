@@ -10,8 +10,6 @@ import (
 )
 
 func exportPlayerAdjustFile(app postgresql.GetPlayersAdjustAmountInterface, params BrandStatParams) error {
-	defer app.Close()
-
 	adjustType := []struct {
 		key    int
 		column string

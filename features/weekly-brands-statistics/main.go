@@ -34,6 +34,7 @@ func initializeReports() {
 		}
 	}
 	services.PromotionSvc.Close()
+	services.PlayersAdjustSvc.Close()
 }
 
 func processReport(file *xlsx.File, brand string, startDate string, endDate string, services BrandStatSvc) BrandStatParams {
