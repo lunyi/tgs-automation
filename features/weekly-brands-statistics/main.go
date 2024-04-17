@@ -38,6 +38,7 @@ func initializeReports() {
 		params := processReport(file, brand.Code, startDate, endDate, services)
 		err := file.Save(params.Filename)
 
+		log.LogInfo(fmt.Sprintf("Sending file %s to telegram", params.Filename))
 		telegram.SendFile(config.MomoTelegram.Token, params.Filename, fmt.Sprintf("%d", brand.ChatID))
 
 		if err != nil {
@@ -48,8 +49,7 @@ func initializeReports() {
 	services.PlayersAdjustSvc.Close()
 }
 
-func processReport(file *xlsx.File, brand string, startDate string, 
-	endDate string, services BrandStatSvc) BrandStatParams {
+func processReport(file *xlsx.File, brand string, startDate string, endDate string, services BrandStatSvc) BrandStatParams {
 	params := CreateBrandStatParams(file, brand, startDate, endDate)
 	exportPlayerCount(&services.BonusPlayerCountSvc, params, "領取紅利人數")
 	exportPromotionDistributes(services.PromotionSvc, params)
