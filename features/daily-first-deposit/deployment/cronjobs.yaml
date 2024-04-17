@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: daily-momo-first-deposit
+  name: daily-first-deposit
   namespace: devops
 spec:
   concurrencyPolicy: Allow
@@ -19,9 +19,9 @@ spec:
           - env:
             - name: CONFIGPATH
               value: /config/config
-            image: pgtgs/daily-momo-first-deposit:latest
+            image: pgtgs/daily-first-deposit:latest
             imagePullPolicy: Always
-            name: daily-momo-first-deposit
+            name: daily-first-deposit
             resources: {}
             terminationMessagePath: /dev/termination-log
             terminationMessagePolicy: File
@@ -71,6 +71,6 @@ spec:
               type: Directory
             name: varlog
       ttlSecondsAfterFinished: 86400
-  schedule: 8 7 * * *
+  schedule: 0 0 * * *
   successfulJobsHistoryLimit: 3
   suspend: false

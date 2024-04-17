@@ -46,10 +46,10 @@ build_daily_brands_revenue:
     FEATURE_NAME: "daily-brands-revenue"
     IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
 
-build_daily_momo_first_deposit:
+build_daily_first_deposit:
   extends: .docker_build_template
   variables:
-    FEATURE_NAME: "daily-momo-first-deposit"
+    FEATURE_NAME: "daily-first-deposit"
     IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
 
 build_weekly_brands_statistics:
