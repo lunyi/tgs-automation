@@ -6,6 +6,7 @@ import (
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/postgresql"
 	"tgs-automation/pkg/signalhandler"
+	"tgs-automation/pkg/telegram"
 	"time"
 
 	"github.com/tealeg/xlsx"
@@ -22,13 +23,23 @@ func initializeReports() {
 	endDate := time.Now().AddDate(0, 0, -1).Format("20060102+8")
 	log.LogInfo(fmt.Sprintf("startDate: %s, endDate: %s", startDate, endDate))
 
-	brands := []string{"MOPH", "MOVN2"}
+	brands := []struct {
+		Code   string
+		ChatID int64
+	}{
+		{"MOVN2", config.MomoTelegram.Movn2ChatId},
+		{"MOPH", config.MomoTelegram.MophChatId},
+	}
+
 	services := CreateBrandStatSvc(config.Postgresql)
 
 	for _, brand := range brands {
 		file := xlsx.NewFile()
-		params := processReport(file, brand, startDate, endDate, services)
+		params := processReport(file, brand.Code, startDate, endDate, services)
 		err := file.Save(params.Filename)
+
+		telegram.SendFile(config.MomoTelegram.Token, params.Filename, fmt.Sprintf("%d", brand.ChatID))
+
 		if err != nil {
 			log.LogFatal(fmt.Sprintf("Save failed:: %s", err))
 		}
@@ -37,7 +48,8 @@ func initializeReports() {
 	services.PlayersAdjustSvc.Close()
 }
 
-func processReport(file *xlsx.File, brand string, startDate string, endDate string, services BrandStatSvc) BrandStatParams {
+func processReport(file *xlsx.File, brand string, startDate string, 
+	endDate string, services BrandStatSvc) BrandStatParams {
 	params := CreateBrandStatParams(file, brand, startDate, endDate)
 	exportPlayerCount(&services.BonusPlayerCountSvc, params, "領取紅利人數")
 	exportPromotionDistributes(services.PromotionSvc, params)

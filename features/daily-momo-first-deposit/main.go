@@ -1,22 +1,17 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"io"
 	log2 "log"
-	"mime/multipart"
-	"net/http"
 	"os"
-	"os/signal"
 	"path/filepath"
 	"strings"
-	"sync"
-	"syscall"
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/postgresql"
+	"tgs-automation/pkg/signalhandler"
+	"tgs-automation/pkg/telegram"
 	"time"
 
 	"github.com/tealeg/xlsx"
@@ -53,6 +48,9 @@ func init() {
 
 // 每日首存人數和註冊玩家資料
 func main() {
+
+	go signalhandler.StartListening()
+
 	config := util.GetConfig()
 	app := postgresql.NewMomoDataInterface(config.Postgresql)
 	defer app.Close()
@@ -69,9 +67,6 @@ func main() {
 		{"MOPH", config.MomoTelegram.MophChatId},
 	}
 
-	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
-
 	for _, brand := range brands {
 		playerFirstDepositFile := createExcelPlayerFirstDeposit(app, brand.Code, yesterday, today, prefilename)
 		playerRegisteredFile := createExcelPlayerRegistered(app, brand.Code, yesterday, today, prefilename)
@@ -81,9 +76,6 @@ func main() {
 		fmt.Println("-----")
 	}
 	deleteFiles()
-	sig := <-signals
-	log.LogInfo(fmt.Sprintf("Received signal: %v, initiating shutdown", sig))
-	os.Exit(0)
 }
 
 func createExcelPlayerRegistered(app postgresql.GetMomoDataInterface, brand string, yesterday string, today string, prefilename string) string {
@@ -191,62 +183,8 @@ func populateSheetPlayerRegistered(headerRow *xlsx.Row, boldStyle *xlsx.Style, s
 }
 
 func sendFilesToTelegram(filePaths []string, botToken, chatID string) {
-	var wg sync.WaitGroup
-
-	// Iterate over the file paths and send each file in a separate goroutine
 	for _, filePath := range filePaths {
-		wg.Add(1) // Increment the WaitGroup counter
-		go sendFileToTelegram(botToken, chatID, filePath, &wg)
-	}
-
-	wg.Wait()
-}
-
-func sendFileToTelegram(botToken, chatID, filePath string, wg *sync.WaitGroup) {
-	defer wg.Done() // Notify the WaitGroup that we're done after this function completes
-
-	var requestBody bytes.Buffer
-	multipartWriter := multipart.NewWriter(&requestBody)
-
-	// Add the chat ID to the form-data
-	_ = multipartWriter.WriteField("chat_id", chatID)
-
-	// Open the file to send
-	file, err := os.Open(filePath)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	// Create a form file part
-	part, err := multipartWriter.CreateFormFile("document", filepath.Base(file.Name()))
-	if err != nil {
-		panic(err)
-	}
-	_, err = io.Copy(part, file)
-	if err != nil {
-		panic(err)
-	}
-
-	// Important to close the writer or the request will be missing the terminating boundary.
-	multipartWriter.Close()
-
-	// Create and send the request
-	req, err := http.NewRequest("POST", "https://api.telegram.org/bot"+botToken+"/sendDocument", &requestBody)
-	if err != nil {
-		panic(err)
-	}
-	req.Header.Set("Content-Type", multipartWriter.FormDataContentType())
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		panic("failed to send document")
+		telegram.SendFile(botToken, chatID, filePath)
 	}
 }
 
