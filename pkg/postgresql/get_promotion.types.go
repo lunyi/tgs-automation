@@ -10,7 +10,6 @@ import (
 )
 
 func (s *GetPromotionService) GetPromotionTypes() ([]Category, error) {
-	defer s.Db.Close()
 	query := "SELECT value FROM dbo.settings where key = 'PromotionTypes'"
 
 	var value string

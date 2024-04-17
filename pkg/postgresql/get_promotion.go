@@ -10,6 +10,7 @@ import (
 type GetPromotionInterface interface {
 	GetPromotionDistributions(brand string, startDate string, endDate string) ([]PromotionDistribute, error)
 	GetPromotionTypes() ([]Category, error)
+	Close()
 }
 
 type GetPromotionService struct {
@@ -17,6 +18,9 @@ type GetPromotionService struct {
 	Config util.PostgresqlConfig
 }
 
+func (s *GetPromotionService) Close() {
+	s.Db.Close()
+}
 func NewPromotionInterface(config util.PostgresqlConfig) GetPromotionInterface {
 	db, err := NewDataAccessLayer(config)
 

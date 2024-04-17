@@ -10,6 +10,7 @@ import (
 
 func exportPromotionDistributes(app postgresql.GetPromotionInterface, params BrandStatParams) error {
 	promotionTypes, err := app.GetPromotionTypes()
+	defer app.Close()
 	if err != nil {
 		log.LogFatal(err.Error())
 	}

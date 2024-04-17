@@ -8,7 +8,6 @@ import (
 )
 
 func (s *GetPromotionService) GetPromotionDistributions(brandCode string, startDate string, endDate string) ([]PromotionDistribute, error) {
-	defer s.Db.Close()
 	query := "select * from report.get_promotion_distributions($1, $2, $3);"
 
 	// Execute the query
