@@ -19,14 +19,14 @@ func main() {
 
 	startDate := time.Now().AddDate(0, 0, -8).Format("20060102+8")
 	endDate := time.Now().AddDate(0, 0, -1).Format("20060102+8")
-	start := time.Now().AddDate(0, 0, -8).Format("0102")
-	end := time.Now().AddDate(0, 0, -2).Format("0102")
+	filenameStart := time.Now().AddDate(0, 0, -8).Format("060102")
+	filenameEnd := time.Now().AddDate(0, 0, -2).Format("0102")
 
 	brands := []string{"MOPH", "MOVN2"}
 
 	for _, brand := range brands {
 		file := xlsx.NewFile()
-		filename := fmt.Sprintf("%s-%s_%s.xlsx", start, end, brand)
+		filename := fmt.Sprintf("%s-%s_%s.xlsx", filenameStart, filenameEnd, brand)
 
 		exportPromotionDistributes(config, file, brand, filename, startDate, endDate)
 		exportPlayerAdjustFile(config, file, filename, brand, startDate, endDate)
@@ -35,7 +35,6 @@ func main() {
 		if err != nil {
 			log.LogFatal(fmt.Sprintf("Save failed:: %s", err))
 		}
-
 	}
 
 	sig := <-signals

@@ -30,17 +30,14 @@ func exportPromotionDistributes(config util.TgsConfig, file *xlsx.File, brand st
 
 	var result []interface{}
 	for _, d := range data {
-		log.LogInfo(fmt.Sprintf("PromotionDistribute: %v", d.PromotionSubType))
 		for _, p := range promotionTypes {
 			for _, s := range p.PromotionType {
-				log.LogInfo(fmt.Sprintf("PromotionSubTypeName: %v", s.Name))
 				if s.Name == d.PromotionSubType {
 
 					log.LogInfo("==========")
 					d.PromotionType = p.Trans.Zh
 					d.PromotionSubType = s.Trans.Zh
 
-					log.LogInfo(fmt.Sprintf("中文: %v, %v", p.Trans.Zh, s.Trans.Zh))
 					log.LogInfo(fmt.Sprintf("轉換後: %v, %v", d.PromotionType, d.PromotionSubType))
 
 					result = append(result, d)
@@ -58,7 +55,6 @@ func exportPromotionDistributes(config util.TgsConfig, file *xlsx.File, brand st
 
 	setHeaderAndFillData(file, result, fileName, populatePromotionDistributionSheetHeader, "活動派發列表", "")
 	return nil
-
 }
 
 func populatePromotionDistributionSheetHeader(headerRow *xlsx.Row, boldStyle *xlsx.Style, sheet *xlsx.Sheet, players []interface{}, dataType string) {
