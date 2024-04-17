@@ -1,41 +1,13 @@
 package postgresql
 
 import (
-	"database/sql"
 	"fmt"
 	"tgs-automation/internal/log"
-	"tgs-automation/internal/util"
 
 	_ "github.com/lib/pq"
 )
 
-type GetPromotionDistributionsInterface interface {
-	GetData(brand string, startDate string, endDate string) ([]PromotionDistribute, error)
-	Close()
-}
-
-type GetPromotionDistributionService struct {
-	Db     *sql.DB
-	Config util.PostgresqlConfig
-}
-
-func NewPromotionDistributionInterface(config util.PostgresqlConfig) GetPromotionDistributionsInterface {
-	db, err := NewDataAccessLayer(config)
-
-	if err != nil {
-		panic(err)
-	}
-	return &GetPromotionDistributionService{
-		Db:     db,
-		Config: config,
-	}
-}
-
-func (s *GetPromotionDistributionService) Close() {
-	s.Db.Close()
-}
-
-func (s *GetPromotionDistributionService) GetData(brandCode string, startDate string, endDate string) ([]PromotionDistribute, error) {
+func (s *GetPromotionService) GetPromotionDistributions(brandCode string, startDate string, endDate string) ([]PromotionDistribute, error) {
 	defer s.Db.Close()
 	query := "select * from report.get_promotion_distributions($1, $2, $3);"
 

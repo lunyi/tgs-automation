@@ -3,24 +3,19 @@ package main
 import (
 	"fmt"
 	"tgs-automation/internal/log"
-	"tgs-automation/internal/util"
 	"tgs-automation/pkg/postgresql"
 
 	"github.com/tealeg/xlsx"
 )
 
-func exportPromotionDistributes(config util.TgsConfig, file *xlsx.File, brand string, fileName string, startDate string, endDate string) error {
-
-	appPromotionTypes := postgresql.NewPromotionTypesInterface(config.Postgresql)
-	promotionTypes, err := appPromotionTypes.GetPromotionTypes()
+func exportPromotionDistributes(app postgresql.GetPromotionInterface, params BrandStatParams) error {
+	promotionTypes, err := app.GetPromotionTypes()
 	if err != nil {
 		log.LogFatal(err.Error())
 	}
 
 	log.LogInfo(fmt.Sprintf("Promotion types: %v", promotionTypes))
-	appPromotionTypes.Close()
-	appPromotionDistributions := postgresql.NewPromotionDistributionInterface(config.Postgresql)
-	data, err := appPromotionDistributions.GetData(brand, startDate, endDate)
+	data, err := app.GetPromotionDistributions(params.Brand, params.StartDate, params.EndDate)
 
 	if err != nil {
 		log.LogFatal(err.Error())
@@ -47,7 +42,7 @@ func exportPromotionDistributes(config util.TgsConfig, file *xlsx.File, brand st
 		log.LogInfo(fmt.Sprintf("PromotionDistribute: %v", d))
 	}
 
-	setHeaderAndFillData(file, result, fileName, populatePromotionDistributionSheetHeader, "活動派發列表", "")
+	setHeaderAndFillData(params.File, result, params.Filename, populatePromotionDistributionSheetHeader, "活動派發列表", "")
 	return nil
 }
 

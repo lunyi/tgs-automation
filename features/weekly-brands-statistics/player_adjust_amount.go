@@ -3,16 +3,13 @@ package main
 import (
 	"fmt"
 	"tgs-automation/internal/log"
-	"tgs-automation/internal/util"
 	"tgs-automation/pkg/postgresql"
 	"time"
 
 	"github.com/tealeg/xlsx"
 )
 
-func exportPlayerAdjustFile(config util.TgsConfig, file *xlsx.File, filename string, brand string, startDate string, endDate string) error {
-
-	app := postgresql.NewGetPlayersAdjustAmountInterface(config.Postgresql)
+func exportPlayerAdjustFile(app postgresql.GetPlayersAdjustAmountInterface, params BrandStatParams) error {
 	defer app.Close()
 
 	adjustType := []struct {
@@ -26,7 +23,7 @@ func exportPlayerAdjustFile(config util.TgsConfig, file *xlsx.File, filename str
 	}
 
 	for _, value := range adjustType {
-		playerAdjustAmounts, err := app.GetData(brand, startDate, endDate, value.key)
+		playerAdjustAmounts, err := app.GetData(params.Brand, params.StartDate, params.EndDate, value.key)
 
 		if err != nil {
 			log.LogFatal(err.Error())
@@ -37,7 +34,7 @@ func exportPlayerAdjustFile(config util.TgsConfig, file *xlsx.File, filename str
 			data = append(data, p)
 		}
 
-		err = setHeaderAndFillData(file, data, filename, populateSheetHeader, value.sheet, value.column)
+		err = setHeaderAndFillData(params.File, data, params.Filename, populateSheetHeader, value.sheet, value.column)
 		if err != nil {
 			log.LogFatal(err.Error())
 		}

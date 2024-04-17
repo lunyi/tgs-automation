@@ -5,38 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"tgs-automation/internal/log"
-	"tgs-automation/internal/util"
 
 	_ "github.com/lib/pq"
 )
 
-type GetPromotionTypesInterface interface {
-	GetPromotionTypes() ([]Category, error)
-	Close()
-}
-
-type GetPromotionTypesService struct {
-	Db     *sql.DB
-	Config util.PostgresqlConfig
-}
-
-func NewPromotionTypesInterface(config util.PostgresqlConfig) GetPromotionTypesInterface {
-	db, err := NewDataAccessLayer(config)
-
-	if err != nil {
-		panic(err)
-	}
-	return &GetPromotionTypesService{
-		Db:     db,
-		Config: config,
-	}
-}
-
-func (s *GetPromotionTypesService) Close() {
-	s.Db.Close()
-}
-
-func (s *GetPromotionTypesService) GetPromotionTypes() ([]Category, error) {
+func (s *GetPromotionService) GetPromotionTypes() ([]Category, error) {
 	defer s.Db.Close()
 	query := "SELECT value FROM dbo.settings where key = 'PromotionTypes'"
 

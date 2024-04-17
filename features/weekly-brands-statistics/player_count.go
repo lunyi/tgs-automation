@@ -8,9 +8,9 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
-func exportPlayerCount(pcp postgresql.PlayerCountProvider, file *xlsx.File, filename string, brand string, startDate string, endDate string, columnName string) error {
+func exportPlayerCount(pcp postgresql.PlayerCountProvider, params BrandStatParams, columnName string) error {
 
-	count, err := pcp.GetPlayerCount(brand, startDate, endDate)
+	count, err := pcp.GetPlayerCount(params.Brand, params.StartDate, params.EndDate)
 
 	if err != nil {
 		log.LogFatal(err.Error())
@@ -19,7 +19,7 @@ func exportPlayerCount(pcp postgresql.PlayerCountProvider, file *xlsx.File, file
 	var players []interface{}
 	players = append(players, count)
 
-	err = setHeaderAndFillData(file, players, filename, populatePlayerCount, columnName, columnName)
+	err = setHeaderAndFillData(params.File, players, params.Filename, populatePlayerCount, columnName, columnName)
 	if err != nil {
 		log.LogFatal(err.Error())
 		return err

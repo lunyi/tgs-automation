@@ -2,19 +2,15 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/letstalk"
 	"tgs-automation/pkg/postgresql"
+	"tgs-automation/pkg/signalhandler"
 )
 
 func main() {
-	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
-
+	go signalhandler.StartListening()
 	config := util.GetConfig()
 
 	message := getMessageFromBrandsRevenue(config.Postgresql)
@@ -23,10 +19,6 @@ func main() {
 	if err != nil {
 		log.LogError("sendMessageToLetsTalk Error;" + err.Error())
 	}
-
-	sig := <-signals
-	log.LogInfo(fmt.Sprintf("Received signal: %v, initiating shutdown", sig))
-	os.Exit(0)
 }
 
 func sendMessageToLetsTalk(config util.LetsTalkConfig, message string) error {
