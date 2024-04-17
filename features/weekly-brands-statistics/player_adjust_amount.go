@@ -10,7 +10,7 @@ import (
 )
 
 func exportPlayerAdjustFile(app postgresql.GetPlayersAdjustAmountInterface, params BrandStatParams) error {
-	adjustType := []struct {
+	adjustTypes := []struct {
 		key    int
 		column string
 		sheet  string
@@ -20,19 +20,19 @@ func exportPlayerAdjustFile(app postgresql.GetPlayersAdjustAmountInterface, para
 		{2, "公司調帳", "公司調帳"},
 	}
 
-	for _, value := range adjustType {
-		playerAdjustAmounts, err := app.GetData(params.Brand, params.StartDate, params.EndDate, value.key)
+	for _, adjustType := range adjustTypes {
+		playerAdjustAmounts, err := app.GetData(params.Brand, params.StartDate, params.EndDate, adjustType.key)
 
 		if err != nil {
 			log.LogFatal(err.Error())
 		}
 
-		var data []interface{}
+		data := make([]interface{}, 0, len(playerAdjustAmounts))
 		for _, p := range playerAdjustAmounts {
 			data = append(data, p)
 		}
 
-		err = setHeaderAndFillData(params.File, data, params.Filename, populateSheetHeader, value.sheet, value.column)
+		err = setHeaderAndFillData(params.File, data, params.Filename, populateSheetHeader, adjustType.sheet, adjustType.column)
 		if err != nil {
 			log.LogFatal(err.Error())
 		}
