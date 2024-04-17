@@ -33,6 +33,7 @@ func initializeReports() {
 			log.LogFatal(fmt.Sprintf("Save failed:: %s", err))
 		}
 	}
+	services.PromotionSvc.Close()
 }
 
 func processReport(file *xlsx.File, brand string, startDate string, endDate string, services BrandStatSvc) BrandStatParams {
