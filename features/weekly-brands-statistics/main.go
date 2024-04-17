@@ -7,6 +7,7 @@ import (
 	"syscall"
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
+	"tgs-automation/pkg/postgresql"
 	"time"
 
 	"github.com/tealeg/xlsx"
@@ -26,11 +27,16 @@ func main() {
 
 	brands := []string{"MOPH", "MOVN2"}
 
+	bonusPlayerSvc := &postgresql.BonusPlayerCountService{Config: config.Postgresql}
+	withdrawPlayerSvc := &postgresql.WithdrawPlayerCountService{Config: config.Postgresql}
+
 	for _, brand := range brands {
 		file := xlsx.NewFile()
 		filename := fmt.Sprintf("%s-%s_%s.xlsx", filenameStart, filenameEnd, brand)
 
+		exportPlayerCount(bonusPlayerSvc, file, filename, brand, startDate, endDate, "領取紅利人數")
 		exportPromotionDistributes(config, file, brand, filename, startDate, endDate)
+		exportPlayerCount(withdrawPlayerSvc, file, filename, brand, startDate, endDate, "提款人數")
 		exportPlayerAdjustFile(config, file, filename, brand, startDate, endDate)
 
 		err := file.Save(filename)

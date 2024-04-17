@@ -2,7 +2,7 @@
 -- Description: This function retrieves daily revenue aggregates for brands, 
 --              adjusting for different currencies and consolidating data by platform.
 
--DROP FUNCTION IF EXISTS report.get_daily_brands_revenue();
+--DROP FUNCTION IF EXISTS report.get_daily_brands_revenue();
 
 CREATE OR REPLACE FUNCTION report.get_daily_brands_revenue()
 RETURNS TABLE(
