@@ -10,11 +10,18 @@ import (
 )
 
 func main() {
-	go signalhandler.StartListening()
+	signalhandler.StartListening(main_work)
+}
+
+func main_work() {
 	config := util.GetConfig()
 
-	message := getMessageFromBrandsRevenue(config.Postgresql)
-	err := sendMessageToLetsTalk(config.LetsTalk, message)
+	message, err := getMessageFromBrandsRevenue(config.Postgresql)
+	if err != nil {
+		log.LogError("getMessageFromBrandsRevenue Error;" + err.Error())
+	}
+
+	err = sendMessageToLetsTalk(config.LetsTalk, message)
 
 	if err != nil {
 		log.LogError("sendMessageToLetsTalk Error;" + err.Error())
@@ -56,13 +63,14 @@ func sendMessageToLetsTalk(config util.LetsTalkConfig, message string) error {
 	return nil
 }
 
-func getMessageFromBrandsRevenue(config util.PostgresqlConfig) string {
+func getMessageFromBrandsRevenue(config util.PostgresqlConfig) (string, error) {
 	app := postgresql.NewDailyBrandsRevenueInterface(config)
 
 	brands, err := app.GetDailyBrandsRevenue()
 	if err != nil {
 		log.LogError("GetDailyBrandsRevenue Error:" + err.Error())
-		panic(err)
+		return "", err
+
 	}
 
 	curMap := map[string]string{
@@ -86,5 +94,5 @@ func getMessageFromBrandsRevenue(config util.PostgresqlConfig) string {
 			"當月營收：$ " + brand.CumulativeRevenueUSD + "<br>"
 	}
 	log.LogInfo(message)
-	return message
+	return message, nil
 }
