@@ -15,8 +15,7 @@ import (
 )
 
 func main() {
-	go signalhandler.StartListening()
-	initializeReports()
+	signalhandler.StartListening(initializeReports)
 }
 
 func initializeReports() {

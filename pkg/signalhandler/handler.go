@@ -9,11 +9,13 @@ import (
 	"tgs-automation/internal/log"
 )
 
+type initFunc func()
+
 // StartListening starts listening for OS signals to gracefully shutdown the application.
-func StartListening() {
+func StartListening(init initFunc) {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
-
+	init()
 	sig := <-signals
 	log.LogInfo(fmt.Sprintf("Received signal: %v", sig)) // Remove the second argument 'sig'
 	os.Exit(0)
