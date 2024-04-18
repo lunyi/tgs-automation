@@ -48,9 +48,10 @@ func init() {
 
 // 每日首存人數和註冊玩家資料
 func main() {
+	signalhandler.StartListening(main_work)
+}
 
-	signalhandler.StartListening()
-
+func main_work() {
 	config := util.GetConfig()
 	app := postgresql.NewMomoDataInterface(config.Postgresql)
 	defer app.Close()
