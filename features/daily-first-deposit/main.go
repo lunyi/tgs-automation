@@ -49,7 +49,7 @@ func init() {
 // 每日首存人數和註冊玩家資料
 func main() {
 
-	go signalhandler.StartListening()
+	signalhandler.StartListening()
 
 	config := util.GetConfig()
 	app := postgresql.NewMomoDataInterface(config.Postgresql)
