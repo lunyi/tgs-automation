@@ -5,12 +5,13 @@ import (
 	"fmt"
 	log2 "log"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/postgresql"
-	"tgs-automation/pkg/signalhandler"
 	"tgs-automation/pkg/telegram"
 	"time"
 
@@ -48,10 +49,16 @@ func init() {
 
 // 每日首存人數和註冊玩家資料
 func main() {
-	signalhandler.StartListening(main_work)
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	go Run(ctx)
+
+	<-ctx.Done() // Wait for signal
+	log.LogInfo("Shutting down...")
 }
 
-func main_work() {
+func Run(ctx context.Context) {
 	config := util.GetConfig()
 	app := postgresql.NewMomoDataInterface(config.Postgresql)
 	defer app.Close()

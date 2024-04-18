@@ -1,13 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/postgresql"
-	"tgs-automation/pkg/signalhandler"
 	"tgs-automation/pkg/telegram"
 	"time"
 
@@ -15,10 +17,16 @@ import (
 )
 
 func main() {
-	signalhandler.StartListening(initializeReports)
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	go Run(ctx)
+
+	<-ctx.Done() // Wait for signal
+	log.LogInfo("Shutting down...")
 }
 
-func initializeReports() {
+func Run(ctx context.Context) {
 	config := util.GetConfig()
 	startDate := time.Now().AddDate(0, 0, -8).Format("20060102+8")
 	endDate := time.Now().AddDate(0, 0, -1).Format("20060102+8")

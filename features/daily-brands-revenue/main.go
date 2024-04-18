@@ -1,19 +1,27 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"os/signal"
+	"syscall"
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/letstalk"
 	"tgs-automation/pkg/postgresql"
-	"tgs-automation/pkg/signalhandler"
 )
 
 func main() {
-	signalhandler.StartListening(main_work)
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	go Run(ctx)
+
+	<-ctx.Done() // Wait for signal
+	log.LogInfo("Shutting down...")
 }
 
-func main_work() {
+func Run(ctx context.Context) {
 	config := util.GetConfig()
 
 	message, err := getMessageFromBrandsRevenue(config.Postgresql)
