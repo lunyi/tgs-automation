@@ -9,16 +9,22 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
-func exportPlayerAdjustFile(app postgresql.GetPlayersAdjustAmountInterface, params BrandStatParams) error {
-	adjustTypes := []struct {
-		key    int
-		column string
-		sheet  string
-	}{
+type AdjustType struct {
+	key    int
+	column string
+	sheet  string
+}
+
+func getAdjustTypes() []AdjustType {
+	return []AdjustType{
 		{4, "反水金額", "反水"},
 		{5400, "優惠調帳", "優惠調帳"},
 		{2, "公司調帳", "公司調帳"},
 	}
+}
+func exportPlayerAdjustFile(app postgresql.GetPlayersAdjustAmountInterface, params BrandStatParams) error {
+
+	adjustTypes := getAdjustTypes()
 
 	for _, adjustType := range adjustTypes {
 		playerAdjustAmounts, err := app.GetData(params.Brand, params.StartDate, params.EndDate, adjustType.key)
