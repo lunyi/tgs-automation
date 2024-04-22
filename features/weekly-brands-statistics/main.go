@@ -27,9 +27,9 @@ func main() {
 }
 
 type BrandTelegramChannel struct {
-	Code     string
-	ChatID   int64
-	FullData bool
+	Code      string
+	ChatID    int64
+	IsAllData bool
 }
 
 func getBrandTelegramChannels(config util.TgsConfig) []BrandTelegramChannel {
@@ -45,19 +45,12 @@ func Run(ctx context.Context) {
 	endDate := time.Now().AddDate(0, 0, -1).Format("20060102+8")
 	log.LogInfo(fmt.Sprintf("startDate: %s, endDate: %s", startDate, endDate))
 
-	brands := []struct {
-		Code   string
-		ChatID int64
-	}{
-		{"MOVN2", config.MomoTelegram.Movn2ChatId},
-		{"MOPH", config.MomoTelegram.MophChatId},
-	}
-
+	brands := getBrandTelegramChannels(config)
 	services := CreateBrandStatSvc(config.Postgresql)
 
 	for _, brand := range brands {
 		file := xlsx.NewFile()
-		params := processReport(file, brand.Code, startDate, endDate, services)
+		params := processReport(file, brand.Code, startDate, endDate, services, brand.IsAllData)
 		err := file.Save(params.Filename)
 
 		log.LogInfo(fmt.Sprintf("Sending file %s to telegram", params.Filename))
@@ -72,10 +65,12 @@ func Run(ctx context.Context) {
 	services.PlayersAdjustSvc.Close()
 }
 
-func processReport(file *xlsx.File, brand string, startDate string, endDate string, services BrandStatSvc) BrandStatParams {
+func processReport(file *xlsx.File, brand string, startDate string, endDate string, services BrandStatSvc, IsAllData bool) BrandStatParams {
 	params := CreateBrandStatParams(file, brand, startDate, endDate)
-	exportPlayerCount(&services.BonusPlayerCountSvc, params, "領取紅利人數")
-	exportPromotionDistributes(services.PromotionSvc, params)
+	if IsAllData {
+		exportPlayerCount(&services.BonusPlayerCountSvc, params, "領取紅利人數")
+		exportPromotionDistributes(services.PromotionSvc, params)
+	}
 	exportPlayerCount(&services.WithdrawPlayerCountSvc, params, "提款人數")
 	exportPlayerAdjustFile(services.PlayersAdjustSvc, params)
 	return params
