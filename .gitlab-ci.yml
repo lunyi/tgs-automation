@@ -33,6 +33,24 @@ build_job:
     - docker push $IMAGE_NAME
   only:
     - main
+  after_script:
+    - |
+      curl --location --request POST $Telegram_Bot_Url \
+        --header 'Content-Type: application/json' \
+        --data-binary @- << EOF
+      {
+        "chat_id": $Telegram_Chat_Id,
+        "text": "
+      專案: $CI_PROJECT_NAME
+      服務: $HelmTemplateFolderName
+      分支: $CI_COMMIT_BRANCH
+      Pipeline: $CI_PIPELINE_URL
+      Commit: $CI_PROJECT_URL/-/commit/$CI_COMMIT_SHA
+      作者: $GITLAB_USER_LOGIN",
+        "parse_mode": "HTML"
+      }
+      EOF
+
 
 build_monthly_expired_domains:
   extends: .docker_build_template
