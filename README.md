@@ -14,7 +14,7 @@ sudo docker build -f dockerfiles/Dockerfile.brands_info -t pgtgs/brands-info:lat
 
 ## 設定檔內容
 
-https://docs.google.com/document/d/1jrtj5QaYJO8cz2yo8-RZ3oSBm4bY9u3fbgfAomcl3DE
+https://drive.google.com/file/d/1WdX_zc0YMXPvhuDa2KwWqOJMfqJHbA5-/view
 
 ## Getting started
 

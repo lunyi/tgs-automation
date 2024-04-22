@@ -42,7 +42,6 @@ build_job:
         "chat_id": $Telegram_Chat_Id,
         "text": "
       專案: $CI_PROJECT_NAME
-      服務: $HelmTemplateFolderName
       分支: $CI_COMMIT_BRANCH
       Pipeline: $CI_PIPELINE_URL
       Commit: $CI_PROJECT_URL/-/commit/$CI_COMMIT_SHA
