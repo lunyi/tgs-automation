@@ -26,6 +26,19 @@ func main() {
 	log.LogInfo("Shutting down...")
 }
 
+type BrandTelegramChannel struct {
+	Code     string
+	ChatID   int64
+	FullData bool
+}
+
+func getBrandTelegramChannels(config util.TgsConfig) []BrandTelegramChannel {
+	return []BrandTelegramChannel{
+		{"MOVN2", config.MomoTelegram.Movn2ChatId, false},
+		{"MOPH", config.MomoTelegram.MophChatId, true},
+	}
+}
+
 func Run(ctx context.Context) {
 	config := util.GetConfig()
 	startDate := time.Now().AddDate(0, 0, -8).Format("20060102+8")
