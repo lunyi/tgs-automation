@@ -19,6 +19,13 @@ type TgsConfig struct {
 	AwsS3            AwsS3Config        `yaml:"aws_s3"`
 	MomoTelegram     MomoTelegramConfig `yaml:"momo_telegram"`
 	LetsTalk         LetsTalkConfig     `yaml:"letstalk"`
+	Dockerhub        DockerhubConfig    `yaml:"dockerhub"`
+}
+
+type DockerhubConfig struct {
+	BaseUrl  string `yaml:"base_url"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
 }
 
 type MomoTelegramConfig struct {
