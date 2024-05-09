@@ -41,8 +41,8 @@ func getBrandTelegramChannels(config util.TgsConfig) []BrandTelegramChannel {
 
 func Run(ctx context.Context) {
 	config := util.GetConfig()
-	startDate := time.Now().AddDate(0, 0, -8).Format("20060102+8")
-	endDate := time.Now().AddDate(0, 0, -1).Format("20060102+8")
+	startDate := time.Now().AddDate(0, 0, -7).Format("20060102+8")
+	endDate := time.Now().AddDate(0, 0, 0).Format("20060102+8")
 	log.LogInfo(fmt.Sprintf("startDate: %s, endDate: %s", startDate, endDate))
 
 	brands := getBrandTelegramChannels(config)
