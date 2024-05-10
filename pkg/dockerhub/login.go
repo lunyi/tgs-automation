@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
 )
 
@@ -24,6 +25,7 @@ type LoginResponse struct {
 
 // Login attempts to authenticate a user and retrieve an authentication token.
 func Login(config util.DockerhubConfig) (string, error) {
+	log.LogInfo(fmt.Sprintf("config: %v", config))
 	credentials := LoginCredentials{
 		Username: config.Username,
 		Password: config.Password,

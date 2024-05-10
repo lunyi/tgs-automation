@@ -8,13 +8,13 @@ spec:
   failedJobsHistoryLimit: 5
   jobTemplate:
     spec:
-      activeDeadlineSeconds: 86400
+      activeDeadlineSeconds: 30
       backoffLimit: 3
       parallelism: 1
       suspend: false
       template:
         spec:
-          activeDeadlineSeconds: 86400
+          activeDeadlineSeconds: 30
           containers:
           - env:
             - name: CONFIGPATH
@@ -70,7 +70,7 @@ spec:
               path: /var/log
               type: Directory
             name: varlog
-      ttlSecondsAfterFinished: 86400
+      ttlSecondsAfterFinished: 600
   schedule: 0 0 * * *
   successfulJobsHistoryLimit: 3
   suspend: false
