@@ -74,3 +74,4 @@ spec:
   schedule: 0 0 * * *
   successfulJobsHistoryLimit: 3
   suspend: false
+
