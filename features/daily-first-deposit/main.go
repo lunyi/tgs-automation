@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	log2 "log"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -15,6 +14,7 @@ import (
 	"tgs-automation/pkg/telegram"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/tealeg/xlsx"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/jaeger"
@@ -23,34 +23,34 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.9.0"
 )
 
-func init() {
-	// Initialize Jaeger exporter to send traces to
+func setupTracer() (*trace.TracerProvider, error) {
 	exporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint("http://0.0.0.0:4317")))
 	if err != nil {
-		log.LogFatal(fmt.Sprintf("Failed to create Jaeger exporter: %v", err))
+		return nil, err
 	}
-
-	// Create a new tracer provider with a batch span processor and the Jaeger exporter
 	tp := trace.NewTracerProvider(
 		trace.WithBatcher(exporter),
-		// Add resource attributes like service name
 		trace.WithResource(resource.NewWithAttributes(semconv.SchemaURL, semconv.ServiceNameKey.String("YourServiceName"))),
 	)
 	otel.SetTracerProvider(tp)
-
-	// Ensure all spans are flushed before the application exits
-	defer func() {
-		if err := tp.Shutdown(context.Background()); err != nil {
-			log2.Fatalf("Failed to shutdown TracerProvider: %v", err)
-			log.LogFatal(fmt.Sprintf("Failed to shutdown TracerProvider: %v", err))
-		}
-	}()
+	return tp, nil
 }
 
 // 每日首存人數和註冊玩家資料
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
+
+	tracerProvider, err := setupTracer()
+	if err != nil {
+		log.LogFatal(fmt.Sprintf("Error setting up tracer: %v", err))
+		return
+	}
+	defer func() {
+		if err := tracerProvider.Shutdown(ctx); err != nil {
+			log.LogFatal(fmt.Sprintf("Failed to shutdown TracerProvider: %v", err))
+		}
+	}()
 
 	go Run(ctx)
 
@@ -60,12 +60,13 @@ func main() {
 
 func Run(ctx context.Context) {
 	config := util.GetConfig()
-	app := postgresql.NewMomoDataInterface(config.Postgresql)
-	defer app.Close()
+	momoDataInterface := postgresql.NewMomoDataInterface(config.Postgresql)
+	defer momoDataInterface.Close()
 
-	today := time.Now().Format("2006-01-02") // Today's date in "YYYY-MM-DD" format
-	yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
-	prefilename := time.Now().AddDate(0, 0, -1).Format("0102")
+	now := time.Now()
+	today := now.Format("2006-01-02") // Today's date in "YYYY-MM-DD" format
+	yesterday := now.AddDate(0, 0, -1).Format("2006-01-02")
+	prefilename := now.AddDate(0, 0, -1).Format("0102")
 
 	brands := []struct {
 		Code   string
@@ -76,14 +77,20 @@ func Run(ctx context.Context) {
 	}
 
 	for _, brand := range brands {
-		playerFirstDepositFile := createExcelPlayerFirstDeposit(app, brand.Code, yesterday, today, prefilename)
-		playerRegisteredFile := createExcelPlayerRegistered(app, brand.Code, yesterday, today, prefilename)
+		playerFirstDepositFile := createExcelPlayerFirstDeposit(momoDataInterface, brand.Code, yesterday, today, prefilename)
+		playerRegisteredFile := createExcelPlayerRegistered(momoDataInterface, brand.Code, yesterday, today, prefilename)
 		filenames := []string{playerFirstDepositFile, playerRegisteredFile}
 
-		sendFilesToTelegram(filenames, config.MomoTelegram.Token, fmt.Sprintf("%d", brand.ChatID))
+		err := sendFilesToTelegram(filenames, config.MomoTelegram.Token, fmt.Sprintf("%d", brand.ChatID))
+		if err != nil {
+			log.LogFatal(fmt.Sprintf("Failed to send files to Telegram: %v", err))
+		}
 		fmt.Println("-----")
 	}
-	deleteFiles()
+	err := deleteFiles()
+	if err != nil {
+		log.LogFatal(fmt.Sprintf("Failed to delete files: %v", err))
+	}
 }
 
 func createExcelPlayerRegistered(app postgresql.GetMomoDataInterface, brand string, yesterday string, today string, prefilename string) string {
@@ -126,25 +133,20 @@ func createExcelPlayerFirstDeposit(app postgresql.GetMomoDataInterface, brand st
 	return playerFirstDepositFile
 }
 
-type PopulatorFunc func(*xlsx.Row, *xlsx.Style, *xlsx.Sheet, []interface{})
-
 func createExcel(players []interface{}, excelFilename string, populate PopulatorFunc) error {
-	file := xlsx.NewFile()
-	sheet, err := file.AddSheet("PlayerInfo")
+	file, sheet, err := initializeExcel("PlayerInfo")
 	if err != nil {
-		log.LogFatal(fmt.Sprintf("AddSheet failed: %s", err))
+		log.LogFatal(fmt.Sprintf("Initialize Excel failed: %s", err))
 		return err
 	}
 
-	boldStyle := xlsx.NewStyle()
-	boldStyle.Font.Bold = true
-	headerRow := sheet.AddRow()
-	// Populating data
-	populate(headerRow, boldStyle, sheet, players)
-	// Save the file to the disk
-	err = file.Save(excelFilename)
-	if err != nil {
-		log.LogFatal(fmt.Sprintf("Save failed:: %s", err))
+	if err := populateExcelData(sheet, players, populate); err != nil {
+		log.LogFatal(fmt.Sprintf("Populate Excel data failed: %s", err))
+		return err
+	}
+
+	if err := saveExcelFile(file, excelFilename); err != nil {
+		log.LogFatal(fmt.Sprintf("Save Excel file failed: %s", err))
 		return err
 	}
 
@@ -190,33 +192,39 @@ func populateSheetPlayerRegistered(headerRow *xlsx.Row, boldStyle *xlsx.Style, s
 	}
 }
 
-func sendFilesToTelegram(filePaths []string, botToken, chatID string) {
+func sendFilesToTelegram(filePaths []string, botToken, chatID string) error {
+	var allErrors *multierror.Error
+
 	for _, filePath := range filePaths {
-		telegram.SendFile(botToken, chatID, filePath)
+		if err := telegram.SendFile(botToken, chatID, filePath); err != nil {
+			// Log each error, but continue processing other files
+			log.LogInfo(fmt.Sprintf("Failed to send file %s: %v", filePath, err))
+			allErrors = multierror.Append(allErrors, fmt.Errorf("failed to send file %s: %w", filePath, err))
+		}
 	}
+
+	return allErrors.ErrorOrNil() // Returns nil if no errors were added
 }
 
-func deleteFiles() {
-	patterns := []string{
-		"./*.xlsx",
-		"./*.zip",
-	}
+func deleteFiles() error {
+	patterns := []string{"./*.xlsx", "./*.zip"}
+	var allErrors *multierror.Error
 
 	for _, pattern := range patterns {
 		// Use filepath.Glob to find all files that match the pattern
 		matches, err := filepath.Glob(pattern)
 		if err != nil {
-			log.LogFatal(err.Error())
+			allErrors = multierror.Append(allErrors, fmt.Errorf("error matching files with pattern %s: %w", pattern, err))
+			continue
 		}
 
 		// Loop through the matching files and delete them
 		for _, match := range matches {
-			err := os.Remove(match)
-			if err != nil {
-				log.LogInfo(fmt.Sprintf("Failed to delete %s: %s", match, err))
-			} else {
-				log.LogInfo(fmt.Sprintf("Deleted %s", match))
+			if err := os.Remove(match); err != nil {
+				allErrors = multierror.Append(allErrors, fmt.Errorf("failed to delete %s: %w", match, err))
 			}
 		}
 	}
+
+	return allErrors.ErrorOrNil() // Returns nil if no errors were added
 }

@@ -27,23 +27,24 @@ func (tb *TelegramBot) SendMessage(chatID int64, text string) error {
 	return err
 }
 
-func SendMessage(msg string) {
+func SendMessage(msg string) error {
 
 	config := util.GetConfig()
 
 	bot, err := NewTelegramBot(config.Telegram.TelegramBotToken)
 	if err != nil {
-		log.LogFatal(err.Error())
+		return err
 	}
 
 	bot.Bot.Debug = true
 
-	log.LogError(fmt.Sprintf("Authorized on account %s", bot.Bot.Self.UserName))
+	log.LogInfo(fmt.Sprintf("Authorized on account %s", bot.Bot.Self.UserName))
 
 	chatid, _ := strconv.Atoi(config.Telegram.TelegramChatId)
 	chatID := int64(chatid)
 
 	if err := bot.SendMessage(chatID, msg); err != nil {
-		log.LogFatal(err.Error())
+		return err
 	}
+	return nil
 }
