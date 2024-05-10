@@ -1,4 +1,4 @@
-FROM golang:1.21.1
+FROM golang:1.22.3
 # Add Maintainer Info
 LABEL maintainer="ly.lester@rayprosoft.com"
 
