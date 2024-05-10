@@ -2,8 +2,8 @@ FROM golang:1.22.3
 # Add Maintainer Info
 LABEL maintainer="ly.lester@rayprosoft.com"
 
-ENV GOPROXY=http://192.168.50.245:3000,direct
-ENV GO111MODULE=on
+# ENV GOPROXY=http://192.168.50.245:3000,direct
+# ENV GO111MODULE=on
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
