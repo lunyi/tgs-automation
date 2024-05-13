@@ -15,7 +15,7 @@ func getBrandToken(brandId string, namespace string) (string, error) {
 	defer cancel()
 
 	//url := fmt.Sprintf("http://brand-cert-api.%v/cert/%v", namespace, brandId)
-	url := fmt.Sprintf("http://https://stg-brand-cert.rpgp.cc/cert/%v", brandId)
+	url := fmt.Sprintf("https://stg-brand-cert.rpgp.cc/cert/%v", brandId)
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return "", fmt.Errorf("創建請求失敗: %v", err)
