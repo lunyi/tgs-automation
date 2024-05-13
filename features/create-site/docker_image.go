@@ -61,13 +61,12 @@ func getTemplateNumber(template string) (int, error) {
 	regexPattern := `^[tT][0-9]`
 	regex, err := regexp.Compile(regexPattern)
 	if err != nil {
-
-		return -1, fmt.Errorf("error compiling regex:", err)
+		return -1, fmt.Errorf("error compiling regex: %v", err)
 	}
 	num, err := strconv.Atoi(template[1:])
 
 	if err != nil {
-		return -1, fmt.Errorf("error getting a number:", err)
+		return -1, fmt.Errorf("error getting a number: %v", err)
 	}
 	log.LogInfo(fmt.Sprintf("checking regex: %v", regex))
 	return num, nil
