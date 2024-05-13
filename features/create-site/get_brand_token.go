@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"tgs-automation/internal/log"
 	"time"
 )
 
@@ -16,6 +17,9 @@ func getBrandToken(brandId string, namespace string) (string, error) {
 
 	//url := fmt.Sprintf("http://brand-cert-api.%v/cert/%v", namespace, brandId)
 	url := fmt.Sprintf("https://stg-brand-cert.rpgp.cc/cert/%v", brandId)
+
+	log.LogInfo(fmt.Sprintf("Requesting brand token from %v", url)
+
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return "", fmt.Errorf("創建請求失敗: %v", err)
