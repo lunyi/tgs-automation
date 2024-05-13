@@ -81,7 +81,7 @@ func createBrandReport(brand BrandTelegramChannel, startDate string, endDate str
 	telegram.SendFile(config.MomoTelegram.Token, fmt.Sprintf("%d", brand.ChatID), filename)
 
 	if err != nil {
-		return fmt.Errorf("sending file failed: %s", err)
+		return fmt.Errorf("telegram sending file failed: %s", err)
 	}
 	return nil
 }
