@@ -13,6 +13,7 @@ import (
 	"tgs-automation/pkg/telegram"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/tealeg/xlsx"
 )
 
@@ -41,39 +42,76 @@ func getBrandTelegramChannels(config util.TgsConfig) []BrandTelegramChannel {
 
 func Run(ctx context.Context) {
 	config := util.GetConfig()
-	startDate := time.Now().AddDate(0, 0, -8).Format("20060102+8")
-	endDate := time.Now().AddDate(0, 0, -1).Format("20060102+8")
+	now := time.Now()
+	startDate := now.AddDate(0, 0, -7).Format("20060102+8")
+	endDate := now.AddDate(0, 0, 0).Format("20060102+8")
 	log.LogInfo(fmt.Sprintf("startDate: %s, endDate: %s", startDate, endDate))
 
 	brands := getBrandTelegramChannels(config)
 	services := CreateBrandStatSvc(config.Postgresql)
+	defer closeServices(services)
 
 	for _, brand := range brands {
-		file := xlsx.NewFile()
-		params := processReport(file, brand.Code, startDate, endDate, services, brand.IsAllData)
-		err := file.Save(params.Filename)
-
-		log.LogInfo(fmt.Sprintf("Sending file %s to telegram", params.Filename))
-		telegram.SendFile(config.MomoTelegram.Token, fmt.Sprintf("%d", brand.ChatID), params.Filename)
-
+		err := createBrandReport(brand, startDate, endDate, services, config)
 		if err != nil {
-			log.LogFatal(fmt.Sprintf("Save failed:: %s", err))
+			log.LogError(fmt.Sprintf("Failed to create report: %v", err))
 		}
 	}
-	deleteFiles()
+
+	err := deleteFiles()
+	if err != nil {
+		log.LogError(fmt.Sprintf("Failed to delete files: %v", err))
+	}
+}
+
+func createBrandReport(brand BrandTelegramChannel, startDate string, endDate string, services BrandStatSvc, config util.TgsConfig) error {
+	file := xlsx.NewFile()
+	filename, err := processReport(file, brand.Code, startDate, endDate, services, brand.IsAllData)
+
+	if err != nil {
+		return fmt.Errorf("Failed to process report: %v", err)
+	}
+
+	err = file.Save(filename)
+	if err != nil {
+		return fmt.Errorf("Save failed:: %s", err)
+	}
+
+	log.LogInfo(fmt.Sprintf("Sending file %s to telegram", filename))
+	telegram.SendFile(config.MomoTelegram.Token, fmt.Sprintf("%d", brand.ChatID), filename)
+
+	if err != nil {
+		return fmt.Errorf("Sending file failed:: %s", err)
+	}
+	return nil
+}
+
+func closeServices(services BrandStatSvc) {
 	services.PromotionSvc.Close()
 	services.PlayersAdjustSvc.Close()
 }
 
-func processReport(file *xlsx.File, brand string, startDate string, endDate string, services BrandStatSvc, IsAllData bool) BrandStatParams {
+func processReport(file *xlsx.File, brand string, startDate string, endDate string, services BrandStatSvc, IsAllData bool) (string, error) {
 	params := CreateBrandStatParams(file, brand, startDate, endDate)
 	if IsAllData {
-		exportPlayerCount(&services.BonusPlayerCountSvc, params, "領取紅利人數")
-		exportPromotionDistributes(services.PromotionSvc, params)
+		err := exportPlayerCount(&services.BonusPlayerCountSvc, params, "領取紅利人數")
+		if err != nil {
+			return "", err
+		}
+		err = exportPromotionDistributes(services.PromotionSvc, params)
+		if err != nil {
+			return "", err
+		}
 	}
-	exportPlayerCount(&services.WithdrawPlayerCountSvc, params, "提款人數")
-	exportPlayerAdjustFile(services.PlayersAdjustSvc, params)
-	return params
+	err := exportPlayerCount(&services.WithdrawPlayerCountSvc, params, "提款人數")
+	if err != nil {
+		return "", err
+	}
+	err = exportPlayerAdjustFile(services.PlayersAdjustSvc, params)
+	if err != nil {
+		return "", err
+	}
+	return params.Filename, nil
 }
 
 func setHeaderAndFillData(file *xlsx.File, players []interface{}, excelFilename string, populate PopulatorFunc, sheetName string, dataType string) error {
@@ -104,8 +142,9 @@ type BrandStatParams struct {
 }
 
 func CreateBrandStatParams(file *xlsx.File, brand string, startDate string, endDate string) BrandStatParams {
-	filenameStart := time.Now().AddDate(0, 0, -8).Format("060102")
-	filenameEnd := time.Now().AddDate(0, 0, -2).Format("0102")
+	now := time.Now()
+	filenameStart := now.AddDate(0, 0, -7).Format("060102")
+	filenameEnd := now.AddDate(0, 0, -1).Format("0102")
 	filename := fmt.Sprintf("%s-%s_%s.xlsx", filenameStart, filenameEnd, brand)
 	return BrandStatParams{
 		File:      file,
@@ -133,27 +172,25 @@ func CreateBrandStatSvc(config util.PostgresqlConfig) BrandStatSvc {
 	}
 }
 
-func deleteFiles() {
-	patterns := []string{
-		"./*.xlsx",
-		"./*.zip",
-	}
+func deleteFiles() error {
+	patterns := []string{"./*.xlsx", "./*.zip"}
+	var allErrors *multierror.Error
 
 	for _, pattern := range patterns {
 		// Use filepath.Glob to find all files that match the pattern
 		matches, err := filepath.Glob(pattern)
 		if err != nil {
-			log.LogFatal(err.Error())
+			allErrors = multierror.Append(allErrors, fmt.Errorf("error matching files with pattern %s: %w", pattern, err))
+			continue
 		}
 
 		// Loop through the matching files and delete them
 		for _, match := range matches {
-			err := os.Remove(match)
-			if err != nil {
-				log.LogInfo(fmt.Sprintf("Failed to delete %s: %s", match, err))
-			} else {
-				log.LogInfo(fmt.Sprintf("Deleted %s", match))
+			if err := os.Remove(match); err != nil {
+				allErrors = multierror.Append(allErrors, fmt.Errorf("failed to delete %s: %w", match, err))
 			}
 		}
 	}
+
+	return allErrors.ErrorOrNil() // Returns nil if no errors were added
 }
