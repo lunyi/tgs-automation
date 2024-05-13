@@ -69,19 +69,19 @@ func createBrandReport(brand BrandTelegramChannel, startDate string, endDate str
 	filename, err := processReport(file, brand.Code, startDate, endDate, services, brand.IsAllData)
 
 	if err != nil {
-		return fmt.Errorf("Failed to process report: %v", err)
+		return fmt.Errorf("processReport failed: %s", err)
 	}
 
 	err = file.Save(filename)
 	if err != nil {
-		return fmt.Errorf("Save failed:: %s", err)
+		return fmt.Errorf("save failed: %s", err)
 	}
 
 	log.LogInfo(fmt.Sprintf("Sending file %s to telegram", filename))
 	telegram.SendFile(config.MomoTelegram.Token, fmt.Sprintf("%d", brand.ChatID), filename)
 
 	if err != nil {
-		return fmt.Errorf("Sending file failed:: %s", err)
+		return fmt.Errorf("sending file failed: %s", err)
 	}
 	return nil
 }
