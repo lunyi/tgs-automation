@@ -23,5 +23,12 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	fmt.Println("Brand ID:", brandId)
+	token, err := getBrandToken(brandId, "staging")
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("Token:", token)
 }
