@@ -53,6 +53,7 @@ func getLobbyInfo(c *gin.Context) {
 	}
 
 	log.LogInfo(fmt.Sprintf("Request: %v", request))
+	log.LogInfo(fmt.Sprintf("Request lobbyTemplate: %v", request.lobbyTemplate))
 
 	// Fetch Docker image
 	dockerhubService := NewDockerImageService(config.Dockerhub)
