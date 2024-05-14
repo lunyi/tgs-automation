@@ -3,10 +3,10 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
+	"strings"
 	"text/template"
 	"tgs-automation/internal/log"
 
@@ -40,7 +40,7 @@ func runKubectlApply(lobby *LobbyInfo, request CreateSiteRequest) (int, map[stri
 // 準備環境變量映射
 func prepareEnv(lobby *LobbyInfo, request CreateSiteRequest) map[string]string {
 	return map[string]string{
-		"lobby":  fmt.Sprintf("lobby-%v", request.BrandCode),
+		"lobby":  fmt.Sprintf("lobby-%v", strings.ToLower(request.BrandCode)),
 		"image":  lobby.DockerImage,
 		"lang":   "en-US",
 		"domain": request.Domain,
@@ -66,11 +66,6 @@ func applyTemplate(templateContent []byte, envMap map[string]string) ([]byte, er
 	}
 
 	return buf.Bytes(), nil
-}
-
-// 寫入到文件
-func writeToFile(filename string, data []byte) error {
-	return ioutil.WriteFile(filename, data, 0644)
 }
 
 // 執行 kubectl
