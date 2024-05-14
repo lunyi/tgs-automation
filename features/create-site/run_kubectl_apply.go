@@ -26,6 +26,9 @@ func runKubectlApply(lobby *LobbyInfo, request CreateSiteRequest) (int, map[stri
 		return logAndReturnError("Error executing template", err)
 	}
 
+	fmt.Println("target.yaml: ")
+	fmt.Println(string(config))
+
 	if err := os.WriteFile("target.yaml", config, 0644); err != nil {
 		return logAndReturnError("Error writing file", err)
 	}
