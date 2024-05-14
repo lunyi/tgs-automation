@@ -53,11 +53,14 @@ func getLobbyInfo(c *gin.Context) {
 	}
 
 	log.LogInfo(fmt.Sprintf("Request: %v", request))
-	log.LogInfo(fmt.Sprintf("Request lobbyTemplate: %v", request.lobbyTemplate))
+	log.LogInfo(fmt.Sprintf("Request lobbyTemplate: %v", request.LobbyTemplate))
+	log.LogInfo(fmt.Sprintf("Request brand code: %v", request.BrandCode))
+	log.LogInfo(fmt.Sprintf("Request lobbyTemplate: %v", request.Domain))
+	log.LogInfo(fmt.Sprintf("Request namespace: %v", request.NameSpace))
 
 	// Fetch Docker image
 	dockerhubService := NewDockerImageService(config.Dockerhub)
-	image, err := dockerhubService.FetchDockerImage(request.lobbyTemplate)
+	image, err := dockerhubService.FetchDockerImage(request.LobbyTemplate)
 
 	if err != nil {
 		log.LogError(fmt.Sprintf("Error fetching docker image %v", err))
@@ -89,7 +92,7 @@ func getLobbyInfo(c *gin.Context) {
 
 type CreateSiteRequest struct {
 	BrandCode     string `json:"brandCode"`
-	lobbyTemplate string `json:"lobbyTemplate"`
+	LobbyTemplate string `json:"lobbyTemplate"`
 	Domain        string `json:"domain"`
 	NameSpace     string `json:"namespace"`
 }
