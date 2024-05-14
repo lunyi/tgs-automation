@@ -25,7 +25,7 @@ func main() {
 	}
 
 	fmt.Println("Brand ID:", brandId)
-	token, err := getBrandToken(brandId, "staging")
+	token, err := getBrandToken(brandId, "staging", config.ApiUrl.BrandCert)
 
 	if err != nil {
 		fmt.Println(err)

@@ -21,6 +21,11 @@ type TgsConfig struct {
 	MomoTelegram     MomoTelegramConfig `yaml:"momo_telegram"`
 	LetsTalk         LetsTalkConfig     `yaml:"letstalk"`
 	Dockerhub        DockerhubConfig    `yaml:"dockerhub"`
+	ApiUrl           ApiUrl             `yaml:"api_url"`
+}
+
+type ApiUrl struct {
+	BrandCert string `yaml:"brand_cert"`
 }
 
 type DockerhubConfig struct {

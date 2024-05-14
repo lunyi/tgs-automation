@@ -11,12 +11,12 @@ import (
 
 var client = &http.Client{Timeout: 10 * time.Second}
 
-func getBrandToken(brandId string, namespace string) (string, error) {
+func getBrandToken(brandId, namespace, brandCertUrl string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	//url := fmt.Sprintf("http://brand-cert-api.%v/cert/%v", namespace, brandId)
-	url := fmt.Sprintf("https://stg-brand-cert.rpgp.cc/cert/%v", brandId)
+	url := fmt.Sprintf("%v%v", brandCertUrl, brandId)
 
 	log.LogInfo(fmt.Sprintf("Requesting brand token from %v", url))
 
