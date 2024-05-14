@@ -1,0 +1,54 @@
+autoscaling:
+  enabled: false
+replicaCount: 2
+
+image:
+  repository: ${image}
+  pullPolicy: IfNotPresent
+  tag: ${tag}
+
+imagePullSecrets: 
+- name: dockerhub
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+brandToken: ${token}
+lobbyName: ${brand}
+domains:
+  - domain: ${domain}
+    lobbyName: ${brand}
+
+nodeSelector:
+  dedicated: frontend
+
+tolerations:
+- effect: NoSchedule
+  key: dedicated
+  operator: Equal
+  value: frontend
+
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app.kubernetes.io/instance
+          operator: In
+          values:
+          - ${brand}
+      topologyKey: kubernetes.io/hostname
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 256Mi
+  requests:
+    cpu: 50m
+    memory: 128Mi
