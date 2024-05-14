@@ -16,7 +16,7 @@ import (
 // 主處理函數，重構以增強可讀性和可維護性
 func runKubectlApply(lobby *LobbyInfo, request CreateSiteRequest) (int, map[string]any) {
 	envMap := prepareEnv(lobby, request)
-	templateContent, err := os.ReadFile(fmt.Sprintf("lobby-%v.yaml", request.NameSpace))
+	templateContent, err := os.ReadFile(fmt.Sprintf("./deployment/lobby/lobby-%v.yaml", request.NameSpace))
 	if err != nil {
 		return logAndReturnError("Error reading template file", err)
 	}
