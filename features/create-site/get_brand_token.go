@@ -20,7 +20,7 @@ func getBrandToken(brandId string, namespace string) (string, error) {
 
 	log.LogInfo(fmt.Sprintf("Requesting brand token from %v", url))
 
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "POST", url, nil)
 	if err != nil {
 		return "", fmt.Errorf("創建請求失敗: %v", err)
 	}
