@@ -40,7 +40,7 @@ func runKubectlApply(lobby *LobbyInfo, request CreateSiteRequest) (int, map[stri
 // 準備環境變量映射
 func prepareEnv(lobby *LobbyInfo, request CreateSiteRequest) map[string]string {
 	return map[string]string{
-		"lobby":  fmt.Sprintf("lobby-%v", strings.ToLower(request.BrandCode)),
+		"lobby":  fmt.Sprintf("lobby-%v-%v", strings.ToLower(request.BrandCode), strings.ToLower(request.LobbyTemplate)),
 		"image":  lobby.DockerImage,
 		"lang":   "en-US",
 		"domain": request.Domain,
