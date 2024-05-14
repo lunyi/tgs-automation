@@ -19,7 +19,7 @@ func main() {
 	}
 	fmt.Println("Image:", image)
 
-	brandId, err := postgresql.GetBrandId(config.Postgresql, "MOPH")
+	brandId, err := postgresql.GetBrandId(config.CreateSiteDb, "MOPH")
 	if err != nil {
 		fmt.Println(err)
 	}

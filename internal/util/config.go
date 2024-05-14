@@ -15,6 +15,7 @@ type TgsConfig struct {
 	CdnNetwork       CdnConfig          `yaml:"cdn_network`
 	Namecheap        NamecheapConfig    `yaml:"namecheap"`
 	Postgresql       PostgresqlConfig   `yaml:"postgresql"`
+	CreateSiteDb     PostgresqlConfig   `yaml:"create_site_db"`
 	Telegram         TelegramConfig     `yaml:"telegram"`
 	AwsS3            AwsS3Config        `yaml:"aws_s3"`
 	MomoTelegram     MomoTelegramConfig `yaml:"momo_telegram"`
