@@ -43,11 +43,12 @@ func runKubectlApply(lobby *LobbyInfo, request CreateSiteRequest) (int, map[stri
 // 準備環境變量映射
 func prepareEnv(lobby *LobbyInfo, request CreateSiteRequest) map[string]string {
 	return map[string]string{
-		"lobby":  fmt.Sprintf("lobby-%v-%v", strings.ToLower(request.BrandCode), strings.ToLower(request.LobbyTemplate)),
-		"image":  lobby.DockerImage,
-		"lang":   "en-US",
-		"domain": request.Domain,
-		"token":  lobby.BrandToken,
+		"lobby":    fmt.Sprintf("lobby-%v-%v", strings.ToLower(request.BrandCode), strings.ToLower(request.LobbyTemplate)),
+		"image":    lobby.DockerImage,
+		"lang":     "en-US",
+		"domain":   request.Domain,
+		"token":    lobby.BrandToken,
+		"currency": "USD",
 	}
 }
 
@@ -56,9 +57,24 @@ func logAndReturnError(message string, err error) (int, map[string]any) {
 	return http.StatusInternalServerError, gin.H{"error": message, "details": err.Error()}
 }
 
+// preprocessTemplate 將 $var 變量替換為 {{.Var}}，以適配 Go 的模板語法
+func preprocessTemplate(content []byte) string {
+	// 將 $var 替換為 {{.Var}}
+	// 注意這裡的替換邏輯可能需要根據實際情況調整以避免錯誤替換
+	s := string(content)
+	s = strings.ReplaceAll(s, "$lobby", "{{.lobby}}")
+	s = strings.ReplaceAll(s, "$domain", "{{.domain}}")
+	s = strings.ReplaceAll(s, "$image", "{{.image}}")
+	s = strings.ReplaceAll(s, "$token", "{{.token}}")
+	s = strings.ReplaceAll(s, "$currency", "{{.currency}}")
+	s = strings.ReplaceAll(s, "$lang", "{{.lang}}")
+	return s
+}
+
 // 應用模板
 func applyTemplate(templateContent []byte, envMap map[string]string) ([]byte, error) {
-	tmpl, err := template.New("config").Parse(string(templateContent))
+	modifiedTemplate := preprocessTemplate(templateContent)
+	tmpl, err := template.New("config").Parse(modifiedTemplate)
 	if err != nil {
 		return nil, err
 	}
