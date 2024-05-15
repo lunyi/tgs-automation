@@ -15,18 +15,17 @@ import (
 
 // 主處理函數，重構以增強可讀性和可維護性
 func runKubectlApply(lobby *LobbyInfo, request CreateSiteRequest) (int, map[string]any) {
-	envMap := prepareEnv(lobby, request)
+	envMap := prepareKubectlEnv(lobby, request)
 	templateContent, err := os.ReadFile(fmt.Sprintf("./deployment/lobby/lobby-%v.yaml", request.NameSpace))
 	if err != nil {
 		return logAndReturnError("Error reading template file", err)
 	}
 
-	config, err := applyTemplate(templateContent, envMap)
+	config, err := applyKubectlTemplate(templateContent, envMap)
 	if err != nil {
 		return logAndReturnError("Error executing template", err)
 	}
 
-	fmt.Println("target.yaml: ")
 	fmt.Println(string(config))
 
 	if err := os.WriteFile("target.yaml", config, 0644); err != nil {
@@ -41,7 +40,7 @@ func runKubectlApply(lobby *LobbyInfo, request CreateSiteRequest) (int, map[stri
 }
 
 // 準備環境變量映射
-func prepareEnv(lobby *LobbyInfo, request CreateSiteRequest) map[string]string {
+func prepareKubectlEnv(lobby *LobbyInfo, request CreateSiteRequest) map[string]string {
 	return map[string]string{
 		"lobby":    fmt.Sprintf("lobby-%v-%v", strings.ToLower(request.BrandCode), strings.ToLower(request.LobbyTemplate)),
 		"image":    lobby.DockerImage,
@@ -58,7 +57,7 @@ func logAndReturnError(message string, err error) (int, map[string]any) {
 }
 
 // preprocessTemplate 將 $var 變量替換為 {{.Var}}，以適配 Go 的模板語法
-func preprocessTemplate(content []byte) string {
+func preprocesskubectlTemplate(content []byte) string {
 	// 將 $var 替換為 {{.Var}}
 	// 注意這裡的替換邏輯可能需要根據實際情況調整以避免錯誤替換
 	s := string(content)
@@ -72,8 +71,8 @@ func preprocessTemplate(content []byte) string {
 }
 
 // 應用模板
-func applyTemplate(templateContent []byte, envMap map[string]string) ([]byte, error) {
-	modifiedTemplate := preprocessTemplate(templateContent)
+func applyKubectlTemplate(templateContent []byte, envMap map[string]string) ([]byte, error) {
+	modifiedTemplate := preprocesskubectlTemplate(templateContent)
 	tmpl, err := template.New("config").Parse(modifiedTemplate)
 	if err != nil {
 		return nil, err

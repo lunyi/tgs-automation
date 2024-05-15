@@ -41,7 +41,7 @@ spec:
         - name: CURRENCY
           value: $currency
         - name: BRAND
-          value: PGG
+          value: $brand
         - name: DEFAULT_LANGUAGE
           value: $lang
         - name: THEME
