@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"tgs-automation/features/create-site/sites"
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
 
@@ -50,20 +51,20 @@ func createLobbyHandler(c *gin.Context) {
 		return
 	}
 
-	httpCode, response := getLobbyInfo(request, config)
+	httpCode, response := sites.GetLobbyInfo(request, config)
 
 	if httpCode != http.StatusOK {
 		c.JSON(httpCode, response["lobby"])
 		return
 	}
 
-	lobbyInfo, err := convertToLobbyInfo(response)
+	lobbyInfo, err := sites.ConvertToLobbyInfo(response)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not convert lobby info", "details": err.Error()})
 		return
 	}
 
-	httpCode, response = runKubectlApply(lobbyInfo, request)
+	httpCode, response = sites.RunKubectlApply(lobbyInfo, request)
 	if httpCode != http.StatusOK {
 		c.JSON(httpCode, response)
 		return
@@ -72,19 +73,12 @@ func createLobbyHandler(c *gin.Context) {
 	c.JSON(httpCode, response)
 }
 
-func parseRequestBody(c *gin.Context) (CreateSiteRequest, error) {
-	var request CreateSiteRequest
+func parseRequestBody(c *gin.Context) (sites.CreateSiteRequest, error) {
+	var request sites.CreateSiteRequest
 	if err := c.BindJSON(&request); err != nil {
 		log.LogError(fmt.Sprintf("Error parsing request body: %v", err))
 		return request, err
 	}
 	log.LogInfo(fmt.Sprintf("Request: %v", request))
 	return request, nil
-}
-
-type CreateSiteRequest struct {
-	BrandCode     string `json:"brandCode"`
-	LobbyTemplate string `json:"lobbyTemplate"`
-	Domain        string `json:"domain"`
-	NameSpace     string `json:"namespace"`
 }

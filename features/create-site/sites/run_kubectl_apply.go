@@ -1,4 +1,4 @@
-package main
+package sites
 
 import (
 	"bytes"
@@ -14,7 +14,7 @@ import (
 )
 
 // 主處理函數，重構以增強可讀性和可維護性
-func runKubectlApply(lobby *LobbyInfo, request CreateSiteRequest) (int, map[string]any) {
+func RunKubectlApply(lobby *LobbyInfo, request CreateSiteRequest) (int, map[string]any) {
 	envMap := prepareKubectlEnv(lobby, request)
 	templateContent, err := os.ReadFile(fmt.Sprintf("./deployment/lobby/lobby-%v.yaml", request.NameSpace))
 	if err != nil {

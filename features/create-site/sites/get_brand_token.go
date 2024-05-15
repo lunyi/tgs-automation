@@ -1,4 +1,4 @@
-package main
+package sites
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 
 var client = &http.Client{Timeout: 10 * time.Second}
 
-func getBrandToken(brandId, namespace, brandCertUrl string) (string, error) {
+func GetBrandToken(brandId, namespace, brandCertUrl string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 

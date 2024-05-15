@@ -1,4 +1,4 @@
-package main
+package sites
 
 import (
 	"encoding/json"
@@ -16,7 +16,14 @@ type LobbyInfo struct {
 	DockerImage string
 }
 
-func getLobbyInfo(request CreateSiteRequest, config util.TgsConfig) (int, map[string]any) {
+type CreateSiteRequest struct {
+	BrandCode     string `json:"brandCode"`
+	LobbyTemplate string `json:"lobbyTemplate"`
+	Domain        string `json:"domain"`
+	NameSpace     string `json:"namespace"`
+}
+
+func GetLobbyInfo(request CreateSiteRequest, config util.TgsConfig) (int, map[string]any) {
 	// Fetch Docker image
 	dockerhubService := NewDockerImageService(config.Dockerhub)
 	image, err := dockerhubService.FetchDockerImage(request.LobbyTemplate)
@@ -36,7 +43,7 @@ func getLobbyInfo(request CreateSiteRequest, config util.TgsConfig) (int, map[st
 	fmt.Println("Brand ID:", brandId)
 
 	// Get brand token
-	token, err := getBrandToken(brandId, "staging", config.ApiUrl.BrandCert)
+	token, err := GetBrandToken(brandId, "staging", config.ApiUrl.BrandCert)
 	if err != nil {
 		log.LogError(fmt.Sprintf("Error getting brand token %v", err))
 		return http.StatusInternalServerError, gin.H{"error": "Could not get brand token", "details": err.Error()}
@@ -48,7 +55,7 @@ func getLobbyInfo(request CreateSiteRequest, config util.TgsConfig) (int, map[st
 	return http.StatusOK, gin.H{"lobby": lobby}
 }
 
-func convertToLobbyInfo(response map[string]any) (*LobbyInfo, error) {
+func ConvertToLobbyInfo(response map[string]any) (*LobbyInfo, error) {
 	// 將 map 轉換為 JSON
 	jsonData, err := json.Marshal(response)
 	if err != nil {
