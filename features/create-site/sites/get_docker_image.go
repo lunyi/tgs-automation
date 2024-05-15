@@ -50,7 +50,7 @@ func getDockerImageByLobbyTemplate(lobbyTemplate string) (string, error) {
 	}
 
 	lobbyTemplate = strings.ToLower(lobbyTemplate)
-	if templateNumber <= 21 {
+	if templateNumber <= 16 {
 		return fmt.Sprintf("lobby-%s", lobbyTemplate), nil
 	}
 	return fmt.Sprintf("tgs-web-%s", strings.ToLower(lobbyTemplate)), nil
