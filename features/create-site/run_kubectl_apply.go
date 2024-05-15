@@ -47,7 +47,8 @@ func prepareKubectlEnv(lobby *LobbyInfo, request CreateSiteRequest) map[string]s
 		"lang":     "en-US",
 		"domain":   request.Domain,
 		"token":    lobby.BrandToken,
-		"currency": "USD",
+		"currency": "CNY",
+		"brand":    request.BrandCode,
 	}
 }
 
@@ -67,6 +68,7 @@ func preprocesskubectlTemplate(content []byte) string {
 	s = strings.ReplaceAll(s, "$token", "{{.token}}")
 	s = strings.ReplaceAll(s, "$currency", "{{.currency}}")
 	s = strings.ReplaceAll(s, "$lang", "{{.lang}}")
+	s = strings.ReplaceAll(s, "$brand", "{{.brand}}")
 	return s
 }
 

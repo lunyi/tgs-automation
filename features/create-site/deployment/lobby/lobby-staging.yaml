@@ -31,13 +31,13 @@ spec:
         - name: CURRENCY
           value: $currency
         - name: BRAND
-          value: PGG
+          value: $brand
         - name: DEFAULT_LANGUAGE
-          value: $lang
+          value: zh-CN
         - name: WAPTEMPLATE
           value: "11"
         - name: THEME
-          value: wapT11
+          value: red
         - name: SOURCE_URL
           value: https://images.srvptt.com/
         image: $image
