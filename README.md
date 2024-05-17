@@ -10,6 +10,8 @@ kubectl delete cm tgs-config -n devops
 
 kubectl create configmap tgs-config --from-file=config=config.yaml -n devops
 
+kubectl create configmap kubeconfig --from-file=dev=dev-config.yaml --from-file=staging=staging-config.yaml --from-file=prod=prod-config.yaml -n devops
+
 sudo docker build -f dockerfiles/Dockerfile.brands_info -t pgtgs/brands-info:latest .
 
 ## 設定檔內容
