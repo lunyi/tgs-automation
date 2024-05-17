@@ -58,7 +58,7 @@ build_monthly_expired_domains:
     IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
   only:
     changes:
-      - features/$FEATURE_NAME/**/*
+      - features/monthly-expired-domains/**/*
 
 build_daily_brands_revenue:
   extends: .docker_build_template
@@ -76,7 +76,7 @@ build_daily_first_deposit:
     IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
   only:
     changes:
-      - features/$FEATURE_NAME/**/*
+      - features/daily-first-deposit/**/*
 
 build_weekly_brands_statistics:
   extends: .docker_build_template
@@ -85,7 +85,7 @@ build_weekly_brands_statistics:
     IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
   only:
     changes:
-      - features/$FEATURE_NAME/**/*
+      - features/weekly-brands-statistics/**/*
 
 build_create_site:
   extends: .docker_build_template
