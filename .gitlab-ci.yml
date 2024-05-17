@@ -74,3 +74,9 @@ build_weekly_brands_statistics:
   variables:
     FEATURE_NAME: "weekly-brands-statistics"
     IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
+
+build_create_site:
+  extends: .docker_build_template
+  variables:
+    FEATURE_NAME: "create-site"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
