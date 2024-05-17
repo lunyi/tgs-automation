@@ -16,7 +16,7 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func ValidateAPIKey(apiKey string) bool {
+func validateAPIKey(apiKey string) bool {
 	return apiKey == os.Getenv("API_KEY")
 }
 
@@ -27,12 +27,12 @@ func TokenHandler(c *gin.Context) {
 		return
 	}
 
-	if !ValidateAPIKey(apiKey) {
+	if !validateAPIKey(apiKey) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
 		return
 	}
 
-	tokenString, err := GenerateToken(apiKey)
+	tokenString, err := generateToken(apiKey)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
 		return
@@ -42,7 +42,7 @@ func TokenHandler(c *gin.Context) {
 }
 
 // generateToken generates a JWT token
-func GenerateToken(apiKey string) (string, error) {
+func generateToken(apiKey string) (string, error) {
 	expirationTime := time.Now().Add(10 * time.Minute)
 	claims := &Claims{
 		APIKey: apiKey,

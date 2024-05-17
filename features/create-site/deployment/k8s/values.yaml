@@ -113,3 +113,5 @@ affinity: {}
 env:
 - name: API_KEY
   value: "cUMN8gxEKwcyZshEmu88exNhR2rgmmQp"
+- name: CONFIGPATH
+  value: /config/config
