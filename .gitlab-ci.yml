@@ -67,7 +67,7 @@ build_daily_brands_revenue:
     IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
   only:
     changes:
-      - features/$FEATURE_NAME/**/*
+      - features/daily-brands-revenue/**/*
 
 build_daily_first_deposit:
   extends: .docker_build_template
