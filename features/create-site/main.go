@@ -17,7 +17,7 @@ func main() {
 	router := gin.Default()
 	router.GET("/healthz", healthCheckHandler)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	router.GET("/token", tokenHandler)
+	router.GET("/token", TokenHandler)
 	router.POST("/site", AuthMiddleware(), sites.CreateSiteHandler)
 
 	err := router.Run(":8080")
@@ -28,14 +28,4 @@ func main() {
 
 func healthCheckHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "up"})
-}
-
-// tokenHandler creates and sends a new JWT token
-func tokenHandler(c *gin.Context) {
-	tokenString, err := GenerateToken()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"token": tokenString})
 }

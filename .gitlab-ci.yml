@@ -94,4 +94,4 @@ build_create_site:
     IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
   only:
     changes:
-      - features/$FEATURE_NAME/**/*
+      - features/create-site/**/*
