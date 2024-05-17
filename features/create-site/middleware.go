@@ -9,7 +9,6 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-// authMiddleware validates the JWT token
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		const BearerSchema = "Bearer "
