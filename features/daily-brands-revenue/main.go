@@ -88,7 +88,6 @@ func getMessageFromBrandsRevenue(config util.PostgresqlConfig) (string, error) {
 	}
 
 	message := "日期: " + fmt.Sprintf("%v", brands[0].Date.Format("2006-01-02")) + "<br>"
-
 	tempCurrencyCode := ""
 	for _, brand := range brands {
 		if tempCurrencyCode != brand.CurrencyCode {
