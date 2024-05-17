@@ -16,13 +16,6 @@ type LobbyInfo struct {
 	DockerImage string
 }
 
-type CreateSiteRequest struct {
-	BrandCode     string `json:"brandCode"`
-	LobbyTemplate string `json:"lobbyTemplate"`
-	Domain        string `json:"domain"`
-	NameSpace     string `json:"namespace"`
-}
-
 func GetLobbyInfo(request CreateSiteRequest, config util.TgsConfig) (int, map[string]any) {
 	// Fetch Docker image
 	dockerhubService := NewDockerImageService(config.Dockerhub)

@@ -32,12 +32,14 @@ spec:
           value: $currency
         - name: BRAND
           value: $brand
+        - name: BRANDNAME
+          value: $brand
         - name: DEFAULT_LANGUAGE
-          value: zh-CN
+          value: en-US
         - name: WAPTEMPLATE
-          value: "11"
+          value: $waptemplate
         - name: THEME
-          value: red
+          value: $theme
         - name: SOURCE_URL
           value: https://images.srvptt.com/
         image: $image
