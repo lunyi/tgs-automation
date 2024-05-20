@@ -31,8 +31,12 @@ build_job:
     - echo "Building $IMAGE_NAME"
     - docker build -t $IMAGE_NAME -f features/$FEATURE_NAME/Dockerfile . 
     - docker push $IMAGE_NAME
+    - echo $TAG > tag.txt
   only:
     - main
+  artifacts:
+    paths:
+      - tag.txt
   after_script:
     - |
       curl --location --request POST $Telegram_Bot_Url \
@@ -49,7 +53,6 @@ build_job:
         "parse_mode": "HTML"
       }
       EOF
-
 
 build_monthly_expired_domains:
   extends: .docker_build_template
@@ -89,9 +92,24 @@ build_weekly_brands_statistics:
 
 build_create_site:
   extends: .docker_build_template
+  before_script:
+    - export Tag=$(date +'%Y%m%d%H%M%S') 
+  script: 
+    - echo $TAG > tag.txt
   variables:
     FEATURE_NAME: "create-site"
     IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
+  only:
+    changes:
+      - features/create-site/**/*
+
+deploy_create_site:
+  stage: deploy
+  needs: ["build_create_site"]
+  script:
+    - export Tag=$(cat tag.txt) # 讀取之前保存的 TAG
+    - echo "Deploying image with tag: $Tag"
+    - kubectl set image deployment/create-site create-site="$Registry/$FEATURE_NAME:$Tag" # 更新 Kubernetes 部署
   only:
     changes:
       - features/create-site/**/*
