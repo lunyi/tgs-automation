@@ -5,7 +5,7 @@ stages:
 
 variables:
   Registry: "pgtgs"
-  Tag: "latest"
+  TAG: "latest"
 
 before_script:
   - docker info
@@ -58,7 +58,7 @@ build_monthly_expired_domains:
   extends: .docker_build_template
   variables:
     FEATURE_NAME: "monthly-expired-domains"
-    IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME:$TAG"
   only:
     changes:
       - features/monthly-expired-domains/**/*
@@ -67,7 +67,7 @@ build_daily_brands_revenue:
   extends: .docker_build_template
   variables:
     FEATURE_NAME: "daily-brands-revenue"
-    IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME:$TAG"
   only:
     changes:
       - features/daily-brands-revenue/**/*
@@ -76,7 +76,7 @@ build_daily_first_deposit:
   extends: .docker_build_template
   variables:
     FEATURE_NAME: "daily-first-deposit"
-    IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME:$TAG"
   only:
     changes:
       - features/daily-first-deposit/**/*
@@ -85,7 +85,7 @@ build_weekly_brands_statistics:
   extends: .docker_build_template
   variables:
     FEATURE_NAME: "weekly-brands-statistics"
-    IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME:$TAG"
   only:
     changes:
       - features/weekly-brands-statistics/**/*
@@ -93,12 +93,12 @@ build_weekly_brands_statistics:
 build_create_site:
   extends: .docker_build_template
   before_script:
-    - export Tag=$(date +'%Y%m%d%H%M%S') 
+    - export TAG=$(date +'%Y%m%d%H%M%S') 
   script: 
     - echo $TAG > tag.txt
   variables:
     FEATURE_NAME: "create-site"
-    IMAGE_NAME: "$Registry/$FEATURE_NAME:$Tag"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME:$TAG"
   only:
     changes:
       - features/create-site/**/*
@@ -107,9 +107,9 @@ deploy_create_site:
   stage: deploy
   needs: ["build_create_site"]
   script:
-    - export Tag=$(cat tag.txt) # 讀取之前保存的 TAG
-    - echo "Deploying image with tag: $Tag"
-    - kubectl set image deployment/create-site create-site="$Registry/$FEATURE_NAME:$Tag" # 更新 Kubernetes 部署
+    - export TAG=$(cat tag.txt) # 讀取之前保存的 TAG
+    - echo "Deploying image with tag: $TAG"
+    - kubectl set image deployment/create-site create-site="$Registry/$FEATURE_NAME:$TAG" # 更新 Kubernetes 部署
   only:
     changes:
       - features/create-site/**/*
