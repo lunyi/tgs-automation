@@ -108,6 +108,7 @@ deploy_create_site:
   needs: ["build_create_site"]
   before_script:
     - export KUBECONFIG="kubeconfig_devops"
+    - kubectl config view
   script:
     - export TAG=$(cat tag.txt) # 讀取之前保存的 TAG
     - echo "Deploying image with tag:$TAG"
