@@ -106,6 +106,8 @@ build_create_site:
 deploy_create_site:
   stage: deploy
   needs: ["build_create_site"]
+  before_script:
+    - export KUBECONFIG="kubeconfig_devops"
   script:
     - export TAG=$(cat tag.txt) # 讀取之前保存的 TAG
     - echo "Deploying image with tag:$TAG"
