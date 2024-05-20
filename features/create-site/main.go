@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"tgs-automation/features/create-site/sites"
+	"tgs-automation/features/create-site/controllers/sites"
+	"tgs-automation/internal/log"
 
 	_ "tgs-automation/features/data-retrieve-api/docs"
 
@@ -14,7 +15,14 @@ import (
 )
 
 func main() {
-	router := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: router,
+	}
+
 	router.ForwardedByClientIP = true
 	router.SetTrustedProxies([]string{"127.0.0.1", "10.139.0.0/16"})
 	router.GET("/healthz", healthCheckHandler)
@@ -22,9 +30,9 @@ func main() {
 	router.GET("/token", TokenHandler)
 	router.POST("/site", AuthMiddleware(), sites.CreateSiteHandler)
 
-	err := router.Run(":8080")
+	err := server.ListenAndServe()
 	if err != nil {
-		fmt.Println("Failed to start server:", err)
+		log.LogFatal(fmt.Sprintf("Failed to start server: %v", err))
 	}
 }
 
