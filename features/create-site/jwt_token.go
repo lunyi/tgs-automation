@@ -5,16 +5,11 @@ import (
 	"os"
 	"time"
 
+	"tgs-automation/features/create-site/models"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 )
-
-var jwtKey = []byte("secret_key")
-
-type Claims struct {
-	APIKey string `json:"api_key"`
-	jwt.StandardClaims
-}
 
 func validateAPIKey(apiKey string) bool {
 	return apiKey == os.Getenv("API_KEY")
@@ -44,7 +39,7 @@ func TokenHandler(c *gin.Context) {
 // generateToken generates a JWT token
 func generateToken(apiKey string) (string, error) {
 	expirationTime := time.Now().Add(10 * time.Minute)
-	claims := &Claims{
+	claims := &models.Claims{
 		APIKey: apiKey,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
@@ -52,7 +47,7 @@ func generateToken(apiKey string) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtKey)
+	tokenString, err := token.SignedString(models.JwtKey)
 
 	if err != nil {
 		return "", err

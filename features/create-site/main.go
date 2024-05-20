@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
-
 	"tgs-automation/features/create-site/controllers/sites"
+	"tgs-automation/features/create-site/middleware"
 	"tgs-automation/internal/log"
 
 	_ "tgs-automation/features/data-retrieve-api/docs"
@@ -28,7 +28,7 @@ func main() {
 	router.GET("/healthz", healthCheckHandler)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.GET("/token", TokenHandler)
-	router.POST("/site", AuthMiddleware(), sites.CreateSiteHandler)
+	router.POST("/site", middleware.AuthMiddleware(), sites.CreateSiteHandler)
 
 	err := server.ListenAndServe()
 	if err != nil {

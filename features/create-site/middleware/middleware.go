@@ -1,8 +1,9 @@
-package main
+package middleware
 
 import (
 	"net/http"
 
+	"tgs-automation/features/create-site/models"
 	"tgs-automation/internal/log"
 
 	"github.com/gin-gonic/gin"
@@ -20,8 +21,8 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		tokenString := header[len(BearerSchema):]
 		log.LogInfo("Token: " + tokenString)
-		token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-			return jwtKey, nil
+		token, err := jwt.ParseWithClaims(tokenString, &models.Claims{}, func(token *jwt.Token) (interface{}, error) {
+			return models.JwtKey, nil
 		})
 
 		if err != nil || !token.Valid {
