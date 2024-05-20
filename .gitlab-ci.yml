@@ -109,7 +109,7 @@ deploy_create_site:
   script:
     - export TAG=$(cat tag.txt) # 讀取之前保存的 TAG
     - echo "Deploying image with tag:$TAG"
-    - kubectl set image deployment/create-site create-site="$Registry/$FEATURE_NAME:$TAG" # 更新 Kubernetes 部署
+    - kubectl -n devops set image deployment/create-site create-site="$Registry/$FEATURE_NAME:$TAG" # 更新 Kubernetes 部署
   only:
     changes:
       - features/create-site/**/*
