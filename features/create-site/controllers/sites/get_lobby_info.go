@@ -36,7 +36,7 @@ func GetLobbyInfo(request CreateSiteRequest, config util.TgsConfig) (int, map[st
 	fmt.Println("Brand ID:", brandId)
 
 	// Get brand token
-	token, err := GetBrandToken(brandId, "staging", config.ApiUrl.BrandCert)
+	token, err := GetBrandToken(brandId, request.NameSpace, config.ApiUrl.BrandCert)
 	if err != nil {
 		log.LogError(fmt.Sprintf("Error getting brand token %v", err))
 		return http.StatusInternalServerError, gin.H{"error": "Could not get brand token", "details": err.Error()}
