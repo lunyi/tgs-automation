@@ -61,8 +61,15 @@ func SendMessage(token string, rooms []string, message string) error {
 		return err
 	}
 
+	fmt.Printf("===========apiRequest=========\n")
+	fmt.Printf("token: " + token + "\n")
+
+	for _, room := range rooms {
+		fmt.Printf("room: " + room + "\n")
+	}
+
 	// Print the struct to verify
-	fmt.Printf("===========apiResponse=========")
+	fmt.Printf("===========apiResponse=========\n")
 	fmt.Printf("%+v\n", apiResponse)
 	return nil
 }

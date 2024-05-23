@@ -1,0 +1,238 @@
+{
+	"info": {
+		"_postman_id": "66159365-3a89-4a30-bca4-cfa356ca4bd1",
+		"name": "LetsTalk",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48885"
+	},
+	"item": [
+		{
+			"name": "sign-token",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"id\" : \"361300604\",\n \"token\" : \"1q2w3e4r\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://message.biatalk.cc/bot/v3/sign-token",
+					"protocol": "https",
+					"host": [
+						"message",
+						"biatalk",
+						"cc"
+					],
+					"path": [
+						"bot",
+						"v3",
+						"sign-token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send-message",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImJvdElkIjoxMDAxMTAsImJvdE5hbWUiOiJkYWlseV9icmFuZHNfaW5mbyIsImFwaUtleSI6IlVVOGJhVTFLQVVtMWdxR2JzWGRjbGZhaWN1Njladm1zIiwicGhvdG8iOm51bGx9LCJpYXQiOjE3MTY0NDY2NjgsImV4cCI6MTcxNzA1MTQ2OH0.fSqxxjM3tEZMk4HSRVqQEz4sB6GzsKrPKNMezVcW35L2WT-Vli_6bl0kP4ytXEVrqbFSOJzM2b_Q5UgjPPKvlw"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"receiver\": \"4y_ppBo4LPQa8V5sGOrODKDJr80klinzvvoqcTHaNGZljLUOETpY0hGCD08bQfrm\",\n \"msg\" :\n {\n    \"type\": \"text\",\n    \"text\": \"test\"\n }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://message.biatalk.cc/bot/v3/message/chatroom",
+					"protocol": "https",
+					"host": [
+						"message",
+						"biatalk",
+						"cc"
+					],
+					"path": [
+						"bot",
+						"v3",
+						"message",
+						"chatroom"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "multicast",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImJvdElkIjoxMDAxMTAsImJvdE5hbWUiOiJkYWlseV9icmFuZHNfaW5mbyIsImFwaUtleSI6IlVVOGJhVTFLQVVtMWdxR2JzWGRjbGZhaWN1Njladm1zIiwicGhvdG8iOm51bGx9LCJpYXQiOjE3MTI1NTUxMDIsImV4cCI6MTcxMzE1OTkwMn0.1hP2Hjb2zvpR6hT3b42cg7w8NkvepvY_0EGMZwt69NhFSUfqTv2QfN7rbzp_JVy2_EUigwLb7kPi78e0_DgUPw",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"msg\" :\r\n {\r\n    \"type\": \"text\",\r\n    \"text\": \"test\"\r\n }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://message.biatalk.cc/bot/v3/message/multicast",
+					"protocol": "https",
+					"host": [
+						"message",
+						"biatalk",
+						"cc"
+					],
+					"path": [
+						"bot",
+						"v3",
+						"message",
+						"multicast"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_chatroom",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImJvdElkIjoxMDAxMTAsImJvdE5hbWUiOiJkYWlseV9icmFuZHNfaW5mbyIsImFwaUtleSI6IlVVOGJhVTFLQVVtMWdxR2JzWGRjbGZhaWN1Njladm1zIiwicGhvdG8iOm51bGx9LCJpYXQiOjE3MTI1NTUxMDIsImV4cCI6MTcxMzE1OTkwMn0.1hP2Hjb2zvpR6hT3b42cg7w8NkvepvY_0EGMZwt69NhFSUfqTv2QfN7rbzp_JVy2_EUigwLb7kPi78e0_DgUPw",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://message.biatalk.cc/bot/v3/chatroom/metadata",
+					"protocol": "https",
+					"host": [
+						"message",
+						"biatalk",
+						"cc"
+					],
+					"path": [
+						"bot",
+						"v3",
+						"chatroom",
+						"metadata"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "push to multi chatroom",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImJvdElkIjoxMDAxMTAsImJvdE5hbWUiOiJkYWlseV9icmFuZHNfaW5mbyIsImFwaUtleSI6IlVVOGJhVTFLQVVtMWdxR2JzWGRjbGZhaWN1Njladm1zIiwicGhvdG8iOm51bGx9LCJpYXQiOjE3MTI1NjM0MjUsImV4cCI6MTcxMzE2ODIyNX0.PkJGJXGnUHUxWOyTaqkcEDyu9yCPzISzFfl2OFCZ2nCyZbsC85uYt6CysT3lYQexU-jPkzOaoDcLdsfkABhgrQ",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"receivers\": [\"R1Uft8ymnQ4UOOrShrOq6NB10lTKLP4UQvLvQDF3fNFRr7diLMfl6B_XmIQkf3cU\"],\r\n    \"msg\":{\r\n        \"type\": \"text\",\r\n        \"text\": \"test2\"\r\n   }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://message.biatalk.cc/bot/v3/message/multi-chatroom",
+					"protocol": "https",
+					"host": [
+						"message",
+						"biatalk",
+						"cc"
+					],
+					"path": [
+						"bot",
+						"v3",
+						"message",
+						"multi-chatroom"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "push to chatroom",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImJvdElkIjoxMDAxMTAsImJvdE5hbWUiOiJkYWlseV9icmFuZHNfaW5mbyIsImFwaUtleSI6IlVVOGJhVTFLQVVtMWdxR2JzWGRjbGZhaWN1Njladm1zIiwicGhvdG8iOm51bGx9LCJpYXQiOjE3MTI1NTUxMDIsImV4cCI6MTcxMzE1OTkwMn0.1hP2Hjb2zvpR6hT3b42cg7w8NkvepvY_0EGMZwt69NhFSUfqTv2QfN7rbzp_JVy2_EUigwLb7kPi78e0_DgUPw",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n   \"msg\":{\r\n        \"type\": \"html\",\r\n        \"text\": \"King8 <br>當日營收：-13,656.83\"\r\n   },\r\n    \"receiver\": [\"R1Uft8ymnQ4UOOrShrOq6NB10lTKLP4UQvLvQDF3fNFRr7diLMfl6B_XmIQkf3cU\"]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://message.biatalk.cc/bot/v3/message/chatroom",
+					"protocol": "https",
+					"host": [
+						"message",
+						"biatalk",
+						"cc"
+					],
+					"path": [
+						"bot",
+						"v3",
+						"message",
+						"chatroom"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
