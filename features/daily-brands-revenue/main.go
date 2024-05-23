@@ -84,7 +84,7 @@ func getMessageFromBrandsRevenue(config util.PostgresqlConfig) (string, error) {
 
 	}
 
-	configFilePath := "/etc/config/currency-configmap" // Path to the mounted ConfigMap file
+	configFilePath := "/etc/config/currency.json" // Path to the mounted ConfigMap file
 	curMap, err := loadCurrencyConfig(configFilePath)
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("Error loading config file: %v", err))

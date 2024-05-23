@@ -28,6 +28,8 @@ spec:
               name: tgs-config
             - mountPath: /data
               name: google-json
+            - name: currency-mapping-config
+              mountPath: /etc/config
           - name: fluent-bit-sidecar
             image: fluent/fluent-bit:latest
             env:
@@ -38,8 +40,6 @@ spec:
             volumeMounts:
             - name: fluent-bit-config
               mountPath: /fluent-bit/etc
-            - name: currency-mapping-config
-              mountPath: /etc/config
             - name: log-volume
               mountPath: /var/log/containers
           dnsPolicy: ClusterFirst
