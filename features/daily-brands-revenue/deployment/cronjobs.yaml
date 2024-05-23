@@ -38,6 +38,8 @@ spec:
             volumeMounts:
             - name: fluent-bit-config
               mountPath: /fluent-bit/etc
+            - name: currency-mapping-config
+              mountPath: /etc/config
             - name: log-volume
               mountPath: /var/log/containers
           dnsPolicy: ClusterFirst
@@ -46,7 +48,7 @@ spec:
           restartPolicy: OnFailure
           schedulerName: default-scheduler
           securityContext: {}
-          terminationGracePeriodSeconds: 300
+          terminationGracePeriodSeconds: 600
           volumes:
           - configMap:
               defaultMode: 420
@@ -59,6 +61,9 @@ spec:
           - name: fluent-bit-config
             configMap:
               name: fluent-bit-config
+          - name: currency-mapping-config
+            configMap:
+              name: currency-mapping
           - name: log-volume
             emptyDir: {}
       ttlSecondsAfterFinished: 86400

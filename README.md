@@ -18,6 +18,34 @@ sudo docker build -f dockerfiles/Dockerfile.brands_info -t pgtgs/brands-info:lat
 
 https://drive.google.com/file/d/1WdX_zc0YMXPvhuDa2KwWqOJMfqJHbA5-/view
 
+## Create-Site Test 
+
+token=$(curl -s -X GET http://localhost:8080/token | jq -r '.token')
+
+#### 使用获取的 token 向 /site 端点发出 POST 请求
+curl -X POST http://localhost:8080/site \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $token" \
+  -d '{
+    "brandCode": "MOPH",
+    "lobbyTemplate": "t1",
+    "domain": "t23",
+    "namespace": "staging"
+  }'
+  
+  export template="t3"
+  
+curl -X POST http://localhost:8080/site \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $token" \
+  -d '{
+    "brandCode": "DSITE",
+    "lobbyTemplate": "t21",
+    "domain": "t21.pgdemo.xyz",
+    "namespace": "staging"
+  }'
+
+
 ## Getting started
 
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.

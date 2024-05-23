@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
+	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
@@ -81,10 +84,10 @@ func getMessageFromBrandsRevenue(config util.PostgresqlConfig) (string, error) {
 
 	}
 
-	curMap := map[string]string{
-		"PHP":      "PHP - 菲律賓幣",
-		"HKD":      "HKD - 港幣",
-		"VND_1000": "VND_1000 - 越南盾",
+	configFilePath := "/etc/config/currency-configmap" // Path to the mounted ConfigMap file
+	curMap, err := loadCurrencyConfig(configFilePath)
+	if err != nil {
+		log.LogFatal(fmt.Sprintf("Error loading config file: %v", err))
 	}
 
 	message := "日期: " + fmt.Sprintf("%v", brands[0].Date.Format("2006-01-02")) + "<br>"
@@ -103,4 +106,31 @@ func getMessageFromBrandsRevenue(config util.PostgresqlConfig) (string, error) {
 	}
 	log.LogInfo(message)
 	return message, nil
+}
+
+func loadCurrencyConfig(filePath string) (map[string]string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	currencyMap := make(map[string]string)
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		parts := strings.SplitN(line, ":", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		key := strings.TrimSpace(parts[0])
+		value := strings.TrimSpace(parts[1])
+		currencyMap[key] = value
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return currencyMap, nil
 }
