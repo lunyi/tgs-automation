@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 	"html/template"
-	"io/ioutil"
+	"os"
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/postgresql"
@@ -105,7 +105,7 @@ func CreateExpiredDomainExcel(
 }
 
 func (gs *GoogleSheetService) CreateSheetsService(key string) (*sheets.Service, error) {
-	creds, err := ioutil.ReadFile(key)
+	creds, err := os.ReadFile(key)
 	if err != nil {
 		message := fmt.Sprintf("Unable to read client secret file: %v", err)
 		log.LogFatal(message)
