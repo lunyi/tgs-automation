@@ -110,7 +110,7 @@ func getMessageFromBrandsRevenue(config util.PostgresqlConfig) (string, error) {
 			"當日營收：$ " + brand.DailyRevenueUSD + "<br>" +
 			"當月營收：$ " + brand.CumulativeRevenueUSD + "<br>"
 	}
-	return "", nil
+	return message, nil
 }
 
 // loadCurrencyConfig loads a currency configuration from a JSON file
