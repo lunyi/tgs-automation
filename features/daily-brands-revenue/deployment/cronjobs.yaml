@@ -67,6 +67,6 @@ spec:
           - name: log-volume
             emptyDir: {}
       ttlSecondsAfterFinished: 86400
-  schedule: 4 6 * * *
+  schedule: 45 1 * * *
   successfulJobsHistoryLimit: 3
   suspend: false

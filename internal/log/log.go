@@ -23,6 +23,10 @@ func init() {
 func LogInfo(msg string) {
 	fmt.Println("Info", msg)
 	log.Info(msg)
+	err := telegram.SendMessage("Info: " + msg)
+	if err != nil {
+		fmt.Println("Failed to send Telegram message:", err)
+	}
 }
 
 func LogTrace(msg string) {
