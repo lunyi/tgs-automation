@@ -62,6 +62,7 @@ func SendMessage(token string, rooms []string, message string) error {
 	}
 
 	// Print the struct to verify
+	fmt.Printf("===========apiResponse=========")
 	fmt.Printf("%+v\n", apiResponse)
 	return nil
 }
