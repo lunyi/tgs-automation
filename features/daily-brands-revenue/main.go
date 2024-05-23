@@ -72,6 +72,9 @@ func sendMessageToLetsTalk(config util.LetsTalkConfig, message string) error {
 		log.LogError("SendMessage Error:" + err.Error())
 		return err
 	}
+
+	log.LogInfo("SendMessage to letstalk successfully")
+
 	return nil
 }
 
@@ -107,7 +110,6 @@ func getMessageFromBrandsRevenue(config util.PostgresqlConfig) (string, error) {
 			"當日營收：$ " + brand.DailyRevenueUSD + "<br>" +
 			"當月營收：$ " + brand.CumulativeRevenueUSD + "<br>"
 	}
-	log.LogInfo(message)
 	return "", nil
 }
 
