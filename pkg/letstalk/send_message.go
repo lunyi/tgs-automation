@@ -63,6 +63,7 @@ func SendMessage(token string, rooms []string, message string) error {
 
 	fmt.Printf("===========apiRequest=========\n")
 	fmt.Printf("token: " + token + "\n")
+	fmt.Printf("message: " + message + "\n")
 
 	for _, room := range rooms {
 		fmt.Printf("room: " + room + "\n")
