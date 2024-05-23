@@ -1,12 +1,16 @@
 package telegram
 
 import (
-	"fmt"
 	"strconv"
-	"tgs-automation/internal/log"
+	"sync"
 	"tgs-automation/internal/util"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+)
+
+var (
+	telegramBotInstance *TelegramBot
+	once                sync.Once
 )
 
 type TelegramBot struct {
@@ -27,18 +31,27 @@ func (tb *TelegramBot) SendMessage(chatID int64, text string) error {
 	return err
 }
 
+func getTelegramBotInstance(token string) (*TelegramBot, error) {
+	var err error
+	once.Do(func() {
+		telegramBotInstance, err = NewTelegramBot(token)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return telegramBotInstance, nil
+}
+
 func SendMessage(msg string) error {
-
 	config := util.GetConfig()
-
-	bot, err := NewTelegramBot(config.Telegram.TelegramBotToken)
+	bot, err := getTelegramBotInstance(config.Telegram.TelegramBotToken)
 	if err != nil {
 		return err
 	}
 
 	bot.Bot.Debug = true
 
-	log.LogInfo(fmt.Sprintf("Authorized on account %s", bot.Bot.Self.UserName))
+	//log.Info(fmt.Sprintf("Authorized on account %s", bot.Bot.Self.UserName))
 
 	chatid, _ := strconv.Atoi(config.Telegram.TelegramChatId)
 	chatID := int64(chatid)

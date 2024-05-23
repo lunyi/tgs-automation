@@ -2,8 +2,8 @@ package util
 
 import (
 	"fmt"
+	"log"
 	"os"
-	"tgs-automation/internal/log"
 
 	"gopkg.in/yaml.v3"
 )
@@ -92,7 +92,7 @@ func GetConfig() TgsConfig {
 	data, err := os.ReadFile(os.Getenv("CONFIGPATH"))
 
 	if err != nil {
-		log.LogFatal(fmt.Sprintf("Fail to load config: %s  %v", os.Getenv("CONFIGPATH"), err))
+		log.Fatal(fmt.Sprintf("Fail to load config: %s  %v", os.Getenv("CONFIGPATH"), err))
 		panic(err)
 	}
 
@@ -100,7 +100,7 @@ func GetConfig() TgsConfig {
 	var config TgsConfig
 
 	if err := yaml.Unmarshal(data, &config); err != nil {
-		log.LogFatal(fmt.Sprintf("Fail to parse config: %v", err))
+		log.Fatal(fmt.Sprintf("Fail to parse config: %v", err))
 		panic(err)
 	}
 	return config

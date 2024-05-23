@@ -3,6 +3,7 @@ package log
 import (
 	"fmt"
 	"os"
+	"tgs-automation/pkg/telegram"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -32,9 +33,17 @@ func LogTrace(msg string) {
 func LogError(msg string) {
 	fmt.Println("Error", msg)
 	log.Error(msg)
+	err := telegram.SendMessage("Error: " + msg)
+	if err != nil {
+		fmt.Println("Failed to send Telegram message:", err)
+	}
 }
 
 func LogFatal(msg string) {
 	fmt.Println("Fatal", msg)
 	log.Fatal(msg)
+	err := telegram.SendMessage("Fatal: " + msg)
+	if err != nil {
+		fmt.Println("Failed to send Telegram message:", err)
+	}
 }

@@ -1,35 +1,46 @@
 package util
 
 import (
-	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"tgs-automation/internal/log"
 	"tgs-automation/internal/model"
+
+	log "github.com/sirupsen/logrus" // 假設 log 包使用的是 logrus
 )
 
 func Call(requestMsg model.HttpRequestMsg) string {
 	client := &http.Client{}
 	req, err := http.NewRequest(requestMsg.Method, requestMsg.Url, strings.NewReader(requestMsg.Body))
 	if err != nil {
-		log.LogError(err.Error())
+		log.Error("Error creating new request: ", err.Error())
+		return ""
 	}
-	for key := range requestMsg.Headers {
-		req.Header.Set(key, requestMsg.Headers[key])
+
+	for key, value := range requestMsg.Headers {
+		req.Header.Set(key, value)
 	}
+
 	resp, err := client.Do(req)
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			log.LogError(err.Error())
+	if err != nil {
+		log.Error("Error performing request: ", err.Error())
+		return ""
+	}
+	defer func() {
+		if resp.Body != nil {
+			err := resp.Body.Close()
+			if err != nil {
+				log.Error("Error closing response body: ", err.Error())
+			}
 		}
-	}(resp.Body)
+	}()
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		// handle error
-		log.LogError(err.Error())
+		log.Error("Error reading response body: ", err.Error())
+		return ""
 	}
-	log.LogInfo(string(body))
+
+	log.Info("Response body: ", string(body))
 	return string(body)
 }
