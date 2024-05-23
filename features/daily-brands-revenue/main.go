@@ -1,12 +1,12 @@
 package main
 
 import (
-	"bufio"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
@@ -32,6 +32,7 @@ func Run(ctx context.Context) {
 		log.LogError("getMessageFromBrandsRevenue Error;" + err.Error())
 	}
 
+	log.LogInfo("Message:" + message)
 	err = sendMessageToLetsTalk(config.LetsTalk, message)
 
 	if err != nil {
@@ -83,9 +84,11 @@ func getMessageFromBrandsRevenue(config util.PostgresqlConfig) (string, error) {
 		return "", err
 
 	}
-
+	log.LogInfo(fmt.Sprintf("Brands: %v", brands))
 	configFilePath := "/etc/config/currency.json" // Path to the mounted ConfigMap file
 	curMap, err := loadCurrencyConfig(configFilePath)
+	log.LogInfo(fmt.Sprintf("Currency HKD Map: %v", curMap["HKD"]))
+
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("Error loading config file: %v", err))
 	}
@@ -94,6 +97,9 @@ func getMessageFromBrandsRevenue(config util.PostgresqlConfig) (string, error) {
 
 	tempCurrencyCode := ""
 	for _, brand := range brands {
+		log.LogInfo(fmt.Sprintf("Brand CurrencyCode: %v", brand.CurrencyCode))
+		log.LogInfo(fmt.Sprintf("Brand CurrencyCode mapped: %v", curMap[brand.CurrencyCode]))
+
 		if tempCurrencyCode != brand.CurrencyCode {
 			message += "<br><b>[" + curMap[brand.CurrencyCode] + "]</b>"
 			tempCurrencyCode = brand.CurrencyCode
@@ -105,31 +111,31 @@ func getMessageFromBrandsRevenue(config util.PostgresqlConfig) (string, error) {
 			"當月營收：$ " + brand.CumulativeRevenueUSD + "<br>"
 	}
 	log.LogInfo(message)
-	return message, nil
+	return "", nil
 }
 
+// loadCurrencyConfig loads a currency configuration from a JSON file
 func loadCurrencyConfig(filePath string) (map[string]string, error) {
+	// Open the file
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open file: %v", err)
 	}
 	defer file.Close()
 
-	currencyMap := make(map[string]string)
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		parts := strings.SplitN(line, ":", 2)
-		if len(parts) != 2 {
-			continue
-		}
-		key := strings.TrimSpace(parts[0])
-		value := strings.TrimSpace(parts[1])
-		currencyMap[key] = value
+	// Read the file content
+	byteValue, err := ioutil.ReadAll(file)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file: %v", err)
 	}
 
-	if err := scanner.Err(); err != nil {
-		return nil, err
+	// Initialize a map to hold the currency configuration
+	currencyMap := make(map[string]string)
+
+	// Parse the JSON content into the map
+	err = json.Unmarshal(byteValue, &currencyMap)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal JSON: %v", err)
 	}
 
 	return currencyMap, nil
