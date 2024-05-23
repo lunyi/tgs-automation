@@ -97,9 +97,6 @@ func getMessageFromBrandsRevenue(config util.PostgresqlConfig) (string, error) {
 
 	tempCurrencyCode := ""
 	for _, brand := range brands {
-		log.LogInfo(fmt.Sprintf("Brand CurrencyCode: %v", brand.CurrencyCode))
-		log.LogInfo(fmt.Sprintf("Brand CurrencyCode mapped: %v", curMap[brand.CurrencyCode]))
-
 		if tempCurrencyCode != brand.CurrencyCode {
 			message += "<br><b>[" + curMap[brand.CurrencyCode] + "]</b>"
 			tempCurrencyCode = brand.CurrencyCode
