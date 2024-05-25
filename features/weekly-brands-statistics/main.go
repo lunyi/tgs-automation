@@ -10,7 +10,6 @@ import (
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/postgresql"
-	"tgs-automation/pkg/telegram"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -46,8 +45,8 @@ func Run(ctx context.Context) {
 	//startDate := now.AddDate(0, 0, -7).Format("20060102+8")
 	//endDate := now.AddDate(0, 0, 0).Format("20060102+8")
 
-	startDate := "202405010000+8"
-	endDate := "202405250200+8"
+	startDate := "20240501+8"
+	endDate := "20240525+8"
 	log.LogInfo(fmt.Sprintf("startDate: %s, endDate: %s", startDate, endDate))
 
 	brands := getBrandTelegramChannels(config)
@@ -81,7 +80,7 @@ func createBrandReport(brand BrandTelegramChannel, startDate string, endDate str
 	}
 
 	log.LogInfo(fmt.Sprintf("Sending file %s to telegram", filename))
-	telegram.SendFile(config.MomoTelegram.Token, fmt.Sprintf("%d", brand.ChatID), filename)
+	//telegram.SendFile(config.MomoTelegram.Token, fmt.Sprintf("%d", brand.ChatID), filename)
 
 	if err != nil {
 		return fmt.Errorf("telegram sending file failed: %s", err)
