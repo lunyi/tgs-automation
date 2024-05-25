@@ -10,6 +10,7 @@ import (
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/postgresql"
+	"tgs-automation/pkg/telegram"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -41,12 +42,9 @@ func getBrandTelegramChannels(config util.TgsConfig) []BrandTelegramChannel {
 
 func Run(ctx context.Context) {
 	config := util.GetConfig()
-	//now := time.Now()
-	//startDate := now.AddDate(0, 0, -7).Format("20060102+8")
-	//endDate := now.AddDate(0, 0, 0).Format("20060102+8")
-
-	startDate := "20240501+8"
-	endDate := "20240525+8"
+	now := time.Now()
+	startDate := now.AddDate(0, 0, -7).Format("20060102+8")
+	endDate := now.AddDate(0, 0, 0).Format("20060102+8")
 	log.LogInfo(fmt.Sprintf("startDate: %s, endDate: %s", startDate, endDate))
 
 	brands := getBrandTelegramChannels(config)
@@ -60,10 +58,10 @@ func Run(ctx context.Context) {
 		}
 	}
 
-	//err := deleteFiles()
-	//if err != nil {
-	//log.LogError(fmt.Sprintf("Failed to delete files: %v", err))
-	//}
+	err := deleteFiles()
+	if err != nil {
+		log.LogError(fmt.Sprintf("Failed to delete files: %v", err))
+	}
 }
 
 func createBrandReport(brand BrandTelegramChannel, startDate string, endDate string, services BrandStatSvc, config util.TgsConfig) error {
@@ -80,7 +78,7 @@ func createBrandReport(brand BrandTelegramChannel, startDate string, endDate str
 	}
 
 	log.LogInfo(fmt.Sprintf("Sending file %s to telegram", filename))
-	//telegram.SendFile(config.MomoTelegram.Token, fmt.Sprintf("%d", brand.ChatID), filename)
+	telegram.SendFile(config.MomoTelegram.Token, fmt.Sprintf("%d", brand.ChatID), filename)
 
 	if err != nil {
 		return fmt.Errorf("telegram sending file failed: %s", err)
@@ -100,7 +98,6 @@ func processReport(file *xlsx.File, brand string, startDate string, endDate stri
 		if err != nil {
 			return "", err
 		}
-		log.LogInfo("領取紅利人數 成功")
 		err = exportPromotionDistributes(services.PromotionSvc, params)
 		if err != nil {
 			return "", err
@@ -110,9 +107,6 @@ func processReport(file *xlsx.File, brand string, startDate string, endDate stri
 	if err != nil {
 		return "", err
 	}
-
-	log.LogInfo("提款人數 成功")
-
 	err = exportPlayerAdjustFile(services.PlayersAdjustSvc, params)
 	if err != nil {
 		return "", err
@@ -149,7 +143,7 @@ type BrandStatParams struct {
 
 func CreateBrandStatParams(file *xlsx.File, brand string, startDate string, endDate string) BrandStatParams {
 	now := time.Now()
-	filenameStart := ""
+	filenameStart := now.AddDate(0, 0, -7).Format("060102")
 	filenameEnd := now.AddDate(0, 0, -1).Format("0102")
 	filename := fmt.Sprintf("%s-%s_%s.xlsx", filenameStart, filenameEnd, brand)
 	return BrandStatParams{
