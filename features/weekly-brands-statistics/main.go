@@ -60,10 +60,10 @@ func Run(ctx context.Context) {
 		}
 	}
 
-	err := deleteFiles()
-	if err != nil {
-		log.LogError(fmt.Sprintf("Failed to delete files: %v", err))
-	}
+	//err := deleteFiles()
+	//if err != nil {
+	//log.LogError(fmt.Sprintf("Failed to delete files: %v", err))
+	//}
 }
 
 func createBrandReport(brand BrandTelegramChannel, startDate string, endDate string, services BrandStatSvc, config util.TgsConfig) error {
