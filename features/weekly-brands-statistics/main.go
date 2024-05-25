@@ -42,9 +42,12 @@ func getBrandTelegramChannels(config util.TgsConfig) []BrandTelegramChannel {
 
 func Run(ctx context.Context) {
 	config := util.GetConfig()
-	now := time.Now()
-	startDate := now.AddDate(0, 0, -7).Format("20060102+8")
-	endDate := now.AddDate(0, 0, 0).Format("20060102+8")
+	//now := time.Now()
+	//startDate := now.AddDate(0, 0, -7).Format("20060102+8")
+	//endDate := now.AddDate(0, 0, 0).Format("20060102+8")
+
+	startDate := "202405010000+8"
+	endDate := "202405250200+8"
 	log.LogInfo(fmt.Sprintf("startDate: %s, endDate: %s", startDate, endDate))
 
 	brands := getBrandTelegramChannels(config)
@@ -98,6 +101,7 @@ func processReport(file *xlsx.File, brand string, startDate string, endDate stri
 		if err != nil {
 			return "", err
 		}
+		log.LogInfo("領取紅利人數 成功")
 		err = exportPromotionDistributes(services.PromotionSvc, params)
 		if err != nil {
 			return "", err
@@ -107,6 +111,9 @@ func processReport(file *xlsx.File, brand string, startDate string, endDate stri
 	if err != nil {
 		return "", err
 	}
+
+	log.LogInfo("提款人數 成功")
+
 	err = exportPlayerAdjustFile(services.PlayersAdjustSvc, params)
 	if err != nil {
 		return "", err
@@ -143,7 +150,7 @@ type BrandStatParams struct {
 
 func CreateBrandStatParams(file *xlsx.File, brand string, startDate string, endDate string) BrandStatParams {
 	now := time.Now()
-	filenameStart := now.AddDate(0, 0, -7).Format("060102")
+	filenameStart := ""
 	filenameEnd := now.AddDate(0, 0, -1).Format("0102")
 	filename := fmt.Sprintf("%s-%s_%s.xlsx", filenameStart, filenameEnd, brand)
 	return BrandStatParams{
