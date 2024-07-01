@@ -55,27 +55,27 @@ BEGIN
         CAST('Total' AS text) AS platform,
         CAST('' AS text) AS currency_code,
         (CURRENT_DATE - INTERVAL '1 day')::date AS date,
-        SUM(sq.active_users_count) AS active_users_count,
-        TO_CHAR(SUM(sq.daily_order_count_raw), 'FM999,999,999,999') AS daily_order_count,
-        TO_CHAR(SUM(sq.daily_revenue_usd_raw), 'FM999,999,999,999.99') AS daily_revenue_usd,
-        TO_CHAR(SUM(sq.monthly_cumulative_revenue_usd), 'FM999,999,999,999.99') AS monthly_cumulative_revenue_usd
+	    COALESCE(SUM(sq.active_users_count), 0) AS active_users_count,
+		TO_CHAR(COALESCE(SUM(sq.daily_order_count_raw), 0), 'FM999,999,999,999') AS daily_order_count,
+		TO_CHAR(COALESCE(SUM(sq.daily_revenue_usd_raw), 0), 'FM999,999,999,999.99') AS daily_revenue_usd,
+		TO_CHAR(COALESCE(SUM(sq.monthly_cumulative_revenue_usd), 0), 'FM999,999,999,999.99') AS monthly_cumulative_revenue_usd
     FROM 
         SubQuery sq
-    WHERE 
-        sq.date = (CURRENT_DATE - INTERVAL '1 day')::date
+    --WHERE 
+      --  sq.date = (CURRENT_DATE - INTERVAL '1 day')::date
     UNION ALL
     SELECT 
         sq.platform,
         sq.currency_code,
-        sq.date,
-        sq.active_users_count,
-        TO_CHAR(sq.daily_order_count_raw, 'FM999,999,999,999') AS daily_order_count,
-        TO_CHAR(sq.daily_revenue_usd_raw, 'FM999,999,999,999.99') AS daily_revenue_usd,
-        TO_CHAR(sq.monthly_cumulative_revenue_usd, 'FM999,999,999,999.99') AS monthly_cumulative_revenue_usd
+		(sq.date - INTERVAL '1 day')::date AS date,
+		COALESCE(sq.active_users_count, 0)  AS active_users_count,
+		TO_CHAR(COALESCE(sq.daily_order_count_raw, 0), 'FM999,999,999,999') AS daily_order_count,
+		TO_CHAR(COALESCE(sq.daily_revenue_usd_raw, 0), 'FM999,999,999,999.99') AS daily_revenue_usd,
+		TO_CHAR(COALESCE(sq.monthly_cumulative_revenue_usd, 0), 'FM999,999,999,999.99') AS monthly_cumulative_revenue_usd
     FROM 
         SubQuery sq
-    WHERE 
-        sq.date = (CURRENT_DATE - INTERVAL '1 day')::date
+    --WHERE 
+      --  sq.date = (CURRENT_DATE - INTERVAL '1 day')::date
     ORDER BY 
         2;
 END; 
