@@ -43,8 +43,15 @@ func getBrandTelegramChannels(config util.TgsConfig) []BrandTelegramChannel {
 func Run(ctx context.Context) {
 	config := util.GetConfig()
 	now := time.Now()
-	startDate := now.AddDate(0, 0, -7).Format("20060102+8")
-	endDate := now.AddDate(0, 0, 0).Format("20060102+8")
+
+	//for month
+	firstDayOfLastMonth := time.Date(now.Year(), now.Month()-1, 1, 0, 0, 0, 0, time.UTC)
+	firstDayOfThisMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+	startDate := firstDayOfLastMonth.Format("20060102") + "+8"
+	endDate := firstDayOfThisMonth.Format("20060102") + "+8"
+	//for week
+	//startDate := now.AddDate(0, 0, -7).Format("20060102+8")
+	//endDate := now.AddDate(0, 0, 0).Format("20060102+8")
 	log.LogInfo(fmt.Sprintf("startDate: %s, endDate: %s", startDate, endDate))
 
 	brands := getBrandTelegramChannels(config)
@@ -143,8 +150,16 @@ type BrandStatParams struct {
 
 func CreateBrandStatParams(file *xlsx.File, brand string, startDate string, endDate string) BrandStatParams {
 	now := time.Now()
-	filenameStart := now.AddDate(0, 0, -7).Format("060102")
-	filenameEnd := now.AddDate(0, 0, -1).Format("0102")
+
+	//for month
+	firstDayOfLastMonth := time.Date(now.Year(), now.Month()-1, 1, 0, 0, 0, 0, time.UTC)
+	lastDayOfLastMonth := firstDayOfLastMonth.AddDate(0, 1, -1)
+	filenameStart := firstDayOfLastMonth.Format("060102")
+	filenameEnd := lastDayOfLastMonth.Format("0102")
+
+	//for week
+	// filenameStart := now.AddDate(0, 0, -7).Format("060102")
+	// filenameEnd := now.AddDate(0, 0, -1).Format("0102")
 	filename := fmt.Sprintf("%s-%s_%s.xlsx", filenameStart, filenameEnd, brand)
 	return BrandStatParams{
 		File:      file,
