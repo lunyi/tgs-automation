@@ -38,7 +38,7 @@ func (s *GetDailyBrandsRevenueService) Close() {
 
 func (s *GetDailyBrandsRevenueService) GetDailyBrandsRevenue() ([]BrandsRevenueModel, error) {
 	defer s.Db.Close()
-	query := "select * from report.get_daily_brands_revenue();"
+	query := "select * from report.get_daily_brands_revenue(CURRENT_DATE);"
 
 	// Execute the query
 	rows, err := s.Db.Query(query)
