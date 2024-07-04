@@ -21,7 +21,7 @@ func main() {
 	go Run(ctx)
 
 	<-ctx.Done() // Wait for signal
-	log.LogInfo("Shutting down...")
+	log.LogInfoAndSendTelegram("Shutting down...")
 }
 
 func Run(ctx context.Context) {
@@ -29,32 +29,32 @@ func Run(ctx context.Context) {
 
 	message, err := getMessageFromBrandsRevenue(config.Postgresql)
 	if err != nil {
-		log.LogError("getMessageFromBrandsRevenue Error;" + err.Error())
+		log.LogErrorAndSendTelegram("getMessageFromBrandsRevenue Error;" + err.Error())
 	}
 
-	log.LogInfo("Message:" + message)
+	log.LogInfoAndSendTelegram("Message:" + message)
 	err = sendMessageToLetsTalk(config.LetsTalk, message)
 
 	if err != nil {
-		log.LogError("sendMessageToLetsTalk Error;" + err.Error())
+		log.LogErrorAndSendTelegram("sendMessageToLetsTalk Error;" + err.Error())
 	}
 }
 
 func sendMessageToLetsTalk(config util.LetsTalkConfig, message string) error {
 	token, err := letstalk.GetToken(config)
 	if err != nil {
-		log.LogError("Get Token Error:" + token)
+		log.LogInfoAndSendTelegram("Get Token Error:" + token)
 		return err
 	}
 	var rooms []letstalk.Room
 	rooms, err = letstalk.GetRooms(token)
 	if err != nil {
-		log.LogError("Get Room Error:" + err.Error())
+		log.LogInfoAndSendTelegram("Get Room Error:" + err.Error())
 		return err
 	}
 
 	for _, room := range rooms {
-		log.LogInfo("Room:" + room.Title + " Token:" + room.Token)
+		log.LogInfoAndSendTelegram("Room:" + room.Title + " Token:" + room.Token)
 	}
 
 	letstalkChatGroupTitles := []string{"PG Daily Report"}
@@ -73,7 +73,7 @@ func sendMessageToLetsTalk(config util.LetsTalkConfig, message string) error {
 		return err
 	}
 
-	log.LogInfo("SendMessage to letstalk successfully")
+	log.LogInfoAndSendTelegram("SendMessage to letstalk successfully")
 
 	return nil
 }
@@ -83,14 +83,14 @@ func getMessageFromBrandsRevenue(config util.PostgresqlConfig) (string, error) {
 
 	brands, err := app.GetDailyBrandsRevenue()
 	if err != nil {
-		log.LogError("GetDailyBrandsRevenue Error:" + err.Error())
+		log.LogErrorAndSendTelegram("GetDailyBrandsRevenue Error:" + err.Error())
 		return "", err
 
 	}
-	log.LogInfo(fmt.Sprintf("Brands: %v", brands))
+	log.LogInfoAndSendTelegram(fmt.Sprintf("Brands: %v", brands))
 	configFilePath := "/etc/config/currency.json" // Path to the mounted ConfigMap file
 	curMap, err := loadCurrencyConfig(configFilePath)
-	log.LogInfo(fmt.Sprintf("Currency HKD Map: %v", curMap["HKD"]))
+	log.LogInfoAndSendTelegram(fmt.Sprintf("Currency HKD Map: %v", curMap["HKD"]))
 
 	if err != nil {
 		log.LogFatal(fmt.Sprintf("Error loading config file: %v", err))
