@@ -30,7 +30,7 @@ func setupTracer() (*trace.TracerProvider, error) {
 	}
 	tp := trace.NewTracerProvider(
 		trace.WithBatcher(exporter),
-		trace.WithResource(resource.NewWithAttributes(semconv.SchemaURL, semconv.ServiceNameKey.String("YourServiceName"))),
+		trace.WithResource(resource.NewWithAttributes(semconv.SchemaURL, semconv.ServiceNameKey.String("daily-first-deposit"))),
 	)
 	otel.SetTracerProvider(tp)
 	return tp, nil
@@ -72,7 +72,6 @@ func Run(ctx context.Context) {
 		Code   string
 		ChatID int64
 	}{
-		{"MOVN2", config.MomoTelegram.Movn2ChatId},
 		{"MOPH", config.MomoTelegram.MophChatId},
 	}
 
