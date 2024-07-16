@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
+	jwttoken "tgs-automation/internal/jwt_token"
 	"tgs-automation/internal/log"
+	middleware "tgs-automation/internal/middleware"
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/postgresql"
 
@@ -19,8 +21,8 @@ func main() {
 	router := gin.Default()
 	router.GET("/healthz", healthCheckHandler)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	router.GET("/token", tokenHandler)
-	router.POST("/player_adjust", AuthMiddleware(), getPlayersAdjustAmount)
+	router.GET("/token", jwttoken.TokenHandler)
+	router.POST("/player_adjust", middleware.AuthMiddleware(), getPlayersAdjustAmount)
 
 	err := router.Run(":8080")
 	if err != nil {
@@ -30,16 +32,6 @@ func main() {
 
 func healthCheckHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "up"})
-}
-
-// tokenHandler creates and sends a new JWT token
-func tokenHandler(c *gin.Context) {
-	tokenString, err := GenerateToken()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"token": tokenString})
 }
 
 // albumHandler sends a protected resource
