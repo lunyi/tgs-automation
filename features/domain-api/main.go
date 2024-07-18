@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	_ "github.com/go-programming-tour-book/blog-service/docs"
 	jwttoken "tgs-automation/internal/jwt_token"
 	middleware "tgs-automation/internal/middleware"
 

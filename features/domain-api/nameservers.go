@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
@@ -10,6 +9,7 @@ import (
 	"strings"
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
+	"tgs-automation/pkg/cloudflare"
 	"tgs-automation/pkg/telegram"
 
 	"github.com/gin-gonic/gin"
@@ -110,7 +110,7 @@ func GetNameServer(c *gin.Context) {
 
 	log.LogInfo(fmt.Sprintf("Request data: %+v", request))
 
-	targetNameServer, err := getTargetNameServers(request.Domain)
+	targetNameServer, err := cloudflare.GetTargetNameServers(request.Domain)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get target nameserver", "details": err.Error()})
@@ -157,38 +157,4 @@ func getOriginalNameServer(domain string) (string, error) {
 	}
 
 	return strings.Join(nsRecords, " "), nil
-}
-
-func getTargetNameServers(domain string) (string, error) {
-	config := util.GetConfig()
-	// Get Cloudflare name servers
-	url := fmt.Sprintf("https://api.cloudflare.com/client/v4/zones?per_page=1000&name=%s", domain)
-	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.CloudflareToken))
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Println("Error fetching Cloudflare data:", err)
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	body, _ := ioutil.ReadAll(resp.Body)
-	var result map[string]interface{}
-	json.Unmarshal(body, &result)
-
-	nameServers := ""
-	if res, ok := result["result"].([]interface{}); ok && len(res) > 0 {
-		if ns, ok := res[0].(map[string]interface{})["name_servers"].([]interface{}); ok {
-			var nsList []string
-			for _, v := range ns {
-				nsList = append(nsList, v.(string))
-			}
-			nameServers = strings.Join(nsList, " ")
-		}
-	}
-
-	return nameServers, nil
 }
