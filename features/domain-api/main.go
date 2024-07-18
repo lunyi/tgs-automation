@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
-	_ "github.com/go-programming-tour-book/blog-service/docs"
+	_ "tgs-automation/features/domain-api/docs"
 	jwttoken "tgs-automation/internal/jwt_token"
 	middleware "tgs-automation/internal/middleware"
 
@@ -17,10 +17,10 @@ func main() {
 	router.GET("/healthz", healthCheckHandler)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.GET("/token", jwttoken.TokenHandler)
-	router.GET("/checknameserver", middleware.AuthMiddleware(), GetNameServer)
-	router.PUT("/changenameserver", middleware.AuthMiddleware(), ChangeNameServer)
-	router.GET("/domainprice", middleware.AuthMiddleware(), CheckDomainPrice)
-	router.POST("/createdomain", middleware.AuthMiddleware(), CreateDomain)
+	router.GET("/nameserver", middleware.AuthMiddleware(), GetNameServer)
+	router.PUT("/nameserver", middleware.AuthMiddleware(), ChangeNameServer)
+	router.GET("/domain/price", middleware.AuthMiddleware(), CheckDomainPrice)
+	router.POST("/domain", middleware.AuthMiddleware(), CreateDomain)
 
 	err := router.Run(":8080")
 	if err != nil {

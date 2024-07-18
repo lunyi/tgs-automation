@@ -15,6 +15,17 @@ type GetDomainPriceRequest struct {
 	ChatId string `form:"chatid" json:"chatid" binding:"required"`
 }
 
+// Get the price of the domain
+// @Summary      Get the price of the domain
+// @Tags         domain
+// @Description  Get the price of the domain
+// @Accept       json
+// @Produce      json
+// @Param        domain  query  string  true  "domain"
+// @Param        chatid  query  string  true  "chatid"
+// @Success      200     {object}  map[string]interface{}
+// @Failure      400     {object}  map[string]interface{}
+// @Router       /domain/price [get]
 func CheckDomainPrice(c *gin.Context) {
 	var request GetDomainPriceRequest
 	if err := c.BindJSON(&request); err != nil {

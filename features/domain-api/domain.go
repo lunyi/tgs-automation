@@ -25,6 +25,17 @@ type CreateDomainRequest struct {
 	ChatId string
 }
 
+// CreateDomain
+// @Summary create new domain on namecheap
+// @Tags domain
+// @Description create new domain on namecheap
+// @Accept json
+// @Produce json
+// @Param domain query string true "domain"
+// @Param chatid query string true "chatid"
+// @Success 200 {object} map[string]interface{} "success"
+// @Failure 400 {object} map[string]interface{} "error"
+// @Router /domain [post]
 func CreateDomain(c *gin.Context) {
 	var request CreateDomainRequest
 	if err := c.BindJSON(&request); err != nil {

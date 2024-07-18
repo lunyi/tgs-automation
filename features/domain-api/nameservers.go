@@ -34,6 +34,17 @@ type ApiResponse struct {
 	} `xml:"Errors"`
 }
 
+// ChangeNameServer changes the name server information
+// @Summary Change name server information
+// @Tags NameServer
+// @Description Change the name server information for a given domain
+// @Accept json
+// @Produce json
+// @Param changeNameServerRequest body ChangeNameServerRequest true "Change name server request"
+// @Success 200 {object} ApiResponse "Success"
+// @Failure 400 {object} ApiResponse "Bad Request"
+// @Security ApiKeyAuth
+// @Router /nameservers [put]
 func ChangeNameServer(c *gin.Context) {
 	var request ChangeNameServerRequest
 	if err := c.BindJSON(&request); err != nil {
@@ -101,6 +112,18 @@ func ChangeNameServer(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": message})
 }
 
+// GetNameServer retrieves the name server information
+// @Summary Retrieve name server information
+// @Tags NameServer
+// @Description Retrieve the name server information for a given domain
+// @Accept json
+// @Produce json
+// @Param domain query string true "Domain name"
+// @Param chatid query string true "Chat ID"
+// @Success 200 {object} ApiResponse "Success"
+// @Failure 400 {object} ApiResponse "Bad Request"
+// @Security ApiKeyAuth
+// @Router /nameservers [get]
 func GetNameServer(c *gin.Context) {
 	var request GetNameServerRequest
 	if err := c.ShouldBindQuery(&request); err != nil {

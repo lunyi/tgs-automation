@@ -1,4 +1,151 @@
+definitions:
+  main.ApiResponse:
+    properties:
+      errors:
+        properties:
+          error:
+            type: string
+        type: object
+      status:
+        type: string
+    type: object
+  main.ChangeNameServerRequest:
+    properties:
+      chatid:
+        type: string
+      domain:
+        type: string
+      nameservers:
+        type: string
+    required:
+    - chatid
+    - domain
+    - nameservers
+    type: object
 info:
   contact: {}
-paths: {}
+paths:
+  /domain:
+    post:
+      consumes:
+      - application/json
+      description: create new domain on namecheap
+      parameters:
+      - description: domain
+        in: query
+        name: domain
+        required: true
+        type: string
+      - description: chatid
+        in: query
+        name: chatid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: create new domain on namecheap
+      tags:
+      - domain
+  /domain/price:
+    get:
+      consumes:
+      - application/json
+      description: Get the price of the domain
+      parameters:
+      - description: domain
+        in: query
+        name: domain
+        required: true
+        type: string
+      - description: chatid
+        in: query
+        name: chatid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get the price of the domain
+      tags:
+      - domain
+  /nameservers:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the name server information for a given domain
+      parameters:
+      - description: Domain name
+        in: query
+        name: domain
+        required: true
+        type: string
+      - description: Chat ID
+        in: query
+        name: chatid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/main.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.ApiResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Retrieve name server information
+      tags:
+      - NameServer
+    put:
+      consumes:
+      - application/json
+      description: Change the name server information for a given domain
+      parameters:
+      - description: Change name server request
+        in: body
+        name: changeNameServerRequest
+        required: true
+        schema:
+          $ref: '#/definitions/main.ChangeNameServerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/main.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.ApiResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Change name server information
+      tags:
+      - NameServer
 swagger: "2.0"
