@@ -18,6 +18,7 @@ func main() {
 	router.GET("/token", jwttoken.TokenHandler)
 	router.GET("/checknameserver", middleware.AuthMiddleware(), GetNameServer)
 	router.PUT("/changenameserver", middleware.AuthMiddleware(), ChangeNameServer)
+	router.GET("/domainprice", middleware.AuthMiddleware(), CheckDomainPrice)
 
 	err := router.Run(":8080")
 	if err != nil {
