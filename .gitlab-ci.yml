@@ -26,6 +26,8 @@ build_job:
 
 .docker_build_template: &docker_defaults  # Define a reusable template
   stage: docker-build-push
+  before_script:
+    - export TAG=$(date +'%Y%m%d%H%M%S') 
   script:
     - echo "Building $FEATURE_NAME"
     - echo "Building $IMAGE_NAME"
@@ -92,16 +94,21 @@ build_weekly_brands_statistics:
 
 build_create_site:
   extends: .docker_build_template
-  before_script:
-    - export TAG=$(date +'%Y%m%d%H%M%S') 
-  script: 
-    - echo $TAG > tag.txt
   variables:
     FEATURE_NAME: "create-site"
     IMAGE_NAME: "$Registry/$FEATURE_NAME:$TAG"
   only:
     changes:
       - features/create-site/**/*
+
+build_domain_api:
+  extends: .docker_build_template
+  variables:
+    FEATURE_NAME: "domain-api"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME:$TAG"
+  only:
+    changes:
+      - features/domain-api/**/*
 
 deploy_create_site:
   stage: deploy
