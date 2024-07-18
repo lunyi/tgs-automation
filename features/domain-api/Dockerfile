@@ -2,6 +2,7 @@ FROM golang:1.22.3 as builder
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
+COPY go.mod go.sum ./
 COPY . .
 RUN go mod download
 # Build the Go app
