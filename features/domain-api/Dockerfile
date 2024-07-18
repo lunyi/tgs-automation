@@ -2,16 +2,8 @@ FROM golang:1.22.3 as builder
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
-
-# Optionally clear modcache
-RUN go clean -modcache
-
-# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
-RUN go mod download
-
-# Copy the source code into the container
 COPY . .
-
+RUN go mod download
 # Build the Go app
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o main ./features/domain-api
 
