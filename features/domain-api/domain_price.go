@@ -45,11 +45,6 @@ type CheckDomainApiResponse struct {
 	} `xml:"CommandResponse"`
 }
 
-var (
-	Address      = "Sec4WenxinRdBeitunDist"
-	NameCheapUrl = "https://api.namecheap.com/xml.response?"
-)
-
 func CheckDomainPrice(c *gin.Context) {
 	var request GetDomainPriceRequest
 	if err := c.BindJSON(&request); err != nil {

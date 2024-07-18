@@ -19,6 +19,7 @@ func main() {
 	router.GET("/checknameserver", middleware.AuthMiddleware(), GetNameServer)
 	router.PUT("/changenameserver", middleware.AuthMiddleware(), ChangeNameServer)
 	router.GET("/domainprice", middleware.AuthMiddleware(), CheckDomainPrice)
+	router.POST("/createdomain", middleware.AuthMiddleware(), CreateDomain)
 
 	err := router.Run(":8080")
 	if err != nil {
