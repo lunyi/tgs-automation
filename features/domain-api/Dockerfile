@@ -1,11 +1,13 @@
-# Use the official Golang image to build the Go application
-FROM golang:1.23-alpine AS build
+FROM golang:1.22.3 as builder
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
-# Copy the go.mod and go.sum files
+# Copy go mod and sum files
 COPY go.mod go.sum ./
+
+# Optionally clear modcache
+RUN go clean -modcache
 
 # Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
 RUN go mod download
@@ -14,19 +16,18 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN go build -o main .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o main ./features/domain-api
 
-# Use a minimal image to run the Go application
+# Start a new stage from scratch
 FROM alpine:latest
 
-# Install dig utility
-RUN apk --no-cache add bind-tools
-
-# Set the Current Working Directory inside the container
 WORKDIR /root/
 
 # Copy the Pre-built binary file from the previous stage
-COPY --from=build /app/main .
+COPY --from=builder /app/main .
+
+# Expose port 8080 to the outside world
+EXPOSE 8080
 
 # Command to run the executable
 CMD ["./main"]
