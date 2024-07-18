@@ -3,9 +3,6 @@ FROM golang:1.22.3 as builder
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
-# Copy go mod and sum files
-COPY go.mod go.sum ./
-
 # Optionally clear modcache
 RUN go clean -modcache
 
