@@ -133,9 +133,7 @@ func GetNameServer(c *gin.Context) {
 	}
 
 	log.LogInfo(fmt.Sprintf("Request data: %+v", request))
-
 	targetNameServer, err := cloudflare.GetTargetNameServers(request.Domain)
-
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get target nameserver", "details": err.Error()})
 		return
