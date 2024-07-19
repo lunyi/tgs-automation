@@ -12,7 +12,7 @@ const (
 	Email        = "ly.lester@rayprosoft.com"
 	NameServers  = "micah.ns.cloudflare.com,ulla.ns.cloudflare.com"
 	Address      = "Sec4WenxinRdBeitunDist"
-	NameCheapUrl = "https://sandbox.namecheap.com/xml.response?"
+	NameCheapUrl = "https://api.namecheap.com/xml.response?"
 )
 
 func CheckDomainAvailable(domain string, config util.NamecheapConfig) (bool, error) {
