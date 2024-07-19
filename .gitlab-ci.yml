@@ -125,7 +125,7 @@ deploy_create_site:
     changes:
       - features/create-site/**/*
 
-deploy_create_site:
+deploy_domain_api:
   stage: deploy
   needs: ["build_domain_api"]
   before_script:
