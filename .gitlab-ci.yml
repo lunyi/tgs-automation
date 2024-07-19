@@ -5,7 +5,6 @@ stages:
 
 variables:
   Registry: "pgtgs"
-  TAG: "latest"
 
 before_script:
   - docker info
@@ -31,8 +30,10 @@ build_job:
   script:
     - echo "Building $FEATURE_NAME"
     - echo "Building $IMAGE_NAME"
-    - docker build -t $IMAGE_NAME -f features/$FEATURE_NAME/Dockerfile . 
-    - docker push $IMAGE_NAME
+    - docker build -t "$IMAGE_NAME:$TAG" -f features/$FEATURE_NAME/Dockerfile . 
+    - docker tag "$IMAGE_NAME:$TAG" "$IMAGE_NAME:latest"
+    - docker push $IMAGE_NAME:$TAG
+    - docker push $IMAGE_NAME:latest
     - echo $TAG > tag.txt
   only:
     - main
@@ -60,7 +61,7 @@ build_monthly_expired_domains:
   extends: .docker_build_template
   variables:
     FEATURE_NAME: "monthly-expired-domains"
-    IMAGE_NAME: "$Registry/$FEATURE_NAME:$TAG"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME"
   only:
     changes:
       - features/monthly-expired-domains/**/*
@@ -69,7 +70,7 @@ build_daily_brands_revenue:
   extends: .docker_build_template
   variables:
     FEATURE_NAME: "daily-brands-revenue"
-    IMAGE_NAME: "$Registry/$FEATURE_NAME:$TAG"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME"
   only:
     changes:
       - features/daily-brands-revenue/**/*
@@ -78,7 +79,7 @@ build_daily_first_deposit:
   extends: .docker_build_template
   variables:
     FEATURE_NAME: "daily-first-deposit"
-    IMAGE_NAME: "$Registry/$FEATURE_NAME:$TAG"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME"
   only:
     changes:
       - features/daily-first-deposit/**/*
@@ -87,7 +88,7 @@ build_weekly_brands_statistics:
   extends: .docker_build_template
   variables:
     FEATURE_NAME: "weekly-brands-statistics"
-    IMAGE_NAME: "$Registry/$FEATURE_NAME:$TAG"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME"
   only:
     changes:
       - features/weekly-brands-statistics/**/*
@@ -96,7 +97,7 @@ build_create_site:
   extends: .docker_build_template
   variables:
     FEATURE_NAME: "create-site"
-    IMAGE_NAME: "$Registry/$FEATURE_NAME:$TAG"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME"
   only:
     changes:
       - features/create-site/**/*
@@ -105,8 +106,7 @@ build_domain_api:
   extends: .docker_build_template
   variables:
     FEATURE_NAME: "domain-api"
-    TAG: $(date +'%Y%m%d%H%M%S') 
-    IMAGE_NAME: "$Registry/$FEATURE_NAME:$TAG"
+    IMAGE_NAME: "$Registry/$FEATURE_NAME"
   only:
     changes:
       - features/domain-api/**/*
