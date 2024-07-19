@@ -49,12 +49,11 @@ func UpdateNameServer(c *gin.Context) {
 	printAllFields(c)
 	var request UpdateNameServerRequest
 	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data", "details": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid update nameserver request data", "details": err.Error()})
 		return
 	}
 
 	config := util.GetConfig()
-
 	apiUser := config.Namecheap.NamecheapUsername
 	userName := config.Namecheap.NamecheapUsername
 	apiKey := config.Namecheap.NamecheapApiKey
