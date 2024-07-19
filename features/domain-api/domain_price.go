@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"reflect"
 	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/namecheap"
@@ -14,6 +15,23 @@ import (
 type GetDomainPriceRequest struct {
 	Domain string `form:"domain" json:"domain" binding:"required"`
 	ChatId string `form:"chatid" json:"chatid" binding:"required"`
+}
+
+func printAllFields(c *gin.Context) {
+	val := reflect.ValueOf(c).Elem()
+	typ := val.Type()
+
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		fieldType := typ.Field(i)
+
+		// Check if the field is exported
+		if fieldType.PkgPath != "" {
+			continue
+		}
+
+		fmt.Printf("%s: %v\n", fieldType.Name, field.Interface())
+	}
 }
 
 // Get the price of the domain
@@ -28,6 +46,7 @@ type GetDomainPriceRequest struct {
 // @Failure      400     {object}  map[string]interface{}
 // @Router       /domain/price [get]
 func CheckDomainPrice(c *gin.Context) {
+	printAllFields(c)
 	var request GetDomainPriceRequest
 	if err := c.ShouldBindQuery(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data", "details": err.Error()})
