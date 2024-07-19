@@ -114,6 +114,8 @@ build_domain_api:
 deploy_create_site:
   stage: deploy
   needs: ["build_create_site"]
+  variables:
+    FEATURE_NAME: "create-site"
   before_script:
     - export KUBECONFIG="$kubeconfig_prod"
     - kubectl config view
@@ -128,6 +130,8 @@ deploy_create_site:
 deploy_domain_api:
   stage: deploy
   needs: ["build_domain_api"]
+  variables:
+    FEATURE_NAME: "domain-api"
   before_script:
     - export KUBECONFIG="$kubeconfig_prod"
     - kubectl config view
