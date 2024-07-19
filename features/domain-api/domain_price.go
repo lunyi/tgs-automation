@@ -24,12 +24,10 @@ func printAllFields(c *gin.Context) {
 	for i := 0; i < val.NumField(); i++ {
 		field := val.Field(i)
 		fieldType := typ.Field(i)
-
 		// Check if the field is exported
 		if fieldType.PkgPath != "" {
 			continue
 		}
-
 		fmt.Printf("%s: %v\n", fieldType.Name, field.Interface())
 	}
 }
