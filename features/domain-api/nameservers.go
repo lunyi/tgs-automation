@@ -141,14 +141,12 @@ func GetNameServer(c *gin.Context) {
 	}
 
 	originNameServer, err := getOriginalNameServer(request.Domain)
-
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get original nameserver", "details": err.Error()})
 		return
 	}
 
 	message := fmt.Sprintf("Domain: %s\nNameServers: %s\nOriginal Nameservers: %s", request.Domain, targetNameServer, originNameServer)
-
 	err = telegram.SendMessageWithChatId(message, request.ChatId)
 	if err != nil {
 		fmt.Println("Failed to send Telegram message:", err)
