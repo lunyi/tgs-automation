@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"tgs-automation/internal/log"
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/namecheap"
 	"tgs-automation/pkg/telegram"
@@ -28,10 +29,12 @@ type GetDomainPriceRequest struct {
 // @Router       /domain/price [get]
 func CheckDomainPrice(c *gin.Context) {
 	var request GetDomainPriceRequest
-	if err := c.BindJSON(&request); err != nil {
+	if err := c.ShouldBindQuery(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data", "details": err.Error()})
 		return
 	}
+
+	log.LogInfo(fmt.Sprintf("Request data: %+v", request))
 
 	config := util.GetConfig()
 	isAvailable, err := namecheap.CheckDomainAvailable(request.Domain, config.Namecheap)
