@@ -13,7 +13,16 @@ import (
 )
 
 func main() {
-	router := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: router,
+	}
+
+	router.ForwardedByClientIP = true
+	router.SetTrustedProxies([]string{"127.0.0.1", "10.139.0.0/16"})
 	router.GET("/healthz", healthCheckHandler)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.GET("/token", jwttoken.TokenHandler)
@@ -21,8 +30,8 @@ func main() {
 	router.PUT("/nameserver", middleware.AuthMiddleware(), ChangeNameServer)
 	router.GET("/domain/price", middleware.AuthMiddleware(), CheckDomainPrice)
 	router.POST("/domain", middleware.AuthMiddleware(), CreateDomain)
+	err := server.ListenAndServe()
 
-	err := router.Run(":8080")
 	if err != nil {
 		fmt.Println("Failed to start server:", err)
 	}
