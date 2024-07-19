@@ -105,6 +105,7 @@ build_domain_api:
   extends: .docker_build_template
   variables:
     FEATURE_NAME: "domain-api"
+    TAG: $(date +'%Y%m%d%H%M%S') 
     IMAGE_NAME: "$Registry/$FEATURE_NAME:$TAG"
   only:
     changes:
@@ -123,3 +124,17 @@ deploy_create_site:
   only:
     changes:
       - features/create-site/**/*
+
+deploy_create_site:
+  stage: deploy
+  needs: ["build_domain_api"]
+  before_script:
+    - export KUBECONFIG="kubeconfig_devops"
+    - kubectl config view
+  script:
+    - export TAG=$(cat tag.txt) # 讀取之前保存的 TAG
+    - echo "Deploying image with tag:$TAG"
+    - kubectl -n devops set image deployment/domain-api domain-api="$Registry/$FEATURE_NAME:$TAG" # 更新 Kubernetes 部署
+  only:
+    changes:
+      - features/domain-api/**/*
