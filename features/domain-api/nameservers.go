@@ -21,7 +21,7 @@ type GetNameServerRequest struct {
 	ChatId string `form:"chatid" json:"chatid" binding:"required"`
 }
 
-type ChangeNameServerRequest struct {
+type UpdateNameServerRequest struct {
 	Domain      string `form:"domain" json:"domain" binding:"required"`
 	ChatId      string `form:"chatid" json:"chatid" binding:"required"`
 	NameServers string `form:"nameservers" json:"nameservers" binding:"required"`
@@ -34,19 +34,20 @@ type ApiResponse struct {
 	} `xml:"Errors"`
 }
 
-// ChangeNameServer changes the name server information
-// @Summary Change name server information
+// UpdateNameServer changes the name server information
+// @Summary Update name server information
 // @Tags NameServer
-// @Description Change the name server information for a given domain
+// @Description Update the name server information for a given domain
 // @Accept json
 // @Produce json
-// @Param changeNameServerRequest body ChangeNameServerRequest true "Change name server request"
+// @Param updateNameServerRequest body UpdateNameServerRequest true "Update name server request"
 // @Success 200 {object} ApiResponse "Success"
 // @Failure 400 {object} ApiResponse "Bad Request"
 // @Security ApiKeyAuth
 // @Router /nameservers [put]
-func ChangeNameServer(c *gin.Context) {
-	var request ChangeNameServerRequest
+func UpdateNameServer(c *gin.Context) {
+	printAllFields(c)
+	var request UpdateNameServerRequest
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data", "details": err.Error()})
 		return

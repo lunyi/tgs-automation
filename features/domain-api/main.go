@@ -27,8 +27,8 @@ func main() {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.GET("/token", jwttoken.TokenHandler)
 	router.GET("/nameserver", middleware.AuthMiddleware(), GetNameServer)
-	router.PUT("/nameserver", middleware.AuthMiddleware(), ChangeNameServer)
-	router.GET("/domain/price", middleware.AuthMiddleware(), CheckDomainPrice)
+	router.PUT("/nameserver", middleware.AuthMiddleware(), UpdateNameServer)
+	router.GET("/domain/price", middleware.AuthMiddleware(), GetDomainPrice)
 	router.POST("/domain", middleware.AuthMiddleware(), CreateDomain)
 	err := server.ListenAndServe()
 

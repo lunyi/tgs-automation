@@ -45,7 +45,7 @@ func printAllFields(c *gin.Context) {
 // @Success      200     {object}  map[string]interface{}
 // @Failure      400     {object}  map[string]interface{}
 // @Router       /domain/price [get]
-func CheckDomainPrice(c *gin.Context) {
+func GetDomainPrice(c *gin.Context) {
 	printAllFields(c)
 	var request GetDomainPriceRequest
 	if err := c.ShouldBindQuery(&request); err != nil {
