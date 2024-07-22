@@ -81,6 +81,6 @@ func GetDomainPrice(c *gin.Context) {
 	}
 
 	message := fmt.Sprintf("[Get Domain Price]\ndomain: %s\nRegular Price: %s\nPromotion Price: %s", request.Domain, domainPriceResponse.RegularPrice, domainPriceResponse.Price)
-	c.JSON(http.StatusBadRequest, gin.H{"info": message})
 	telegram.SendMessageWithChatId(message, request.ChatId)
+	c.JSON(http.StatusBadRequest, gin.H{"info": message})
 }

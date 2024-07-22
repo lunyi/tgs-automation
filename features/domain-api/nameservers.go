@@ -109,6 +109,12 @@ func UpdateNameServer(c *gin.Context) {
 	} else {
 		message = fmt.Sprintf("修改nameserver: %s 失敗\n原因: %s\nNameServers: %s", request.Domain, apiResponse.Errors.Error, request.NameServers)
 	}
+
+	err = telegram.SendMessageWithChatId(message, request.ChatId)
+	if err != nil {
+		fmt.Println("Failed to send Telegram message:", err)
+	}
+
 	c.JSON(http.StatusOK, gin.H{"data": message})
 }
 

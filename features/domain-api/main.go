@@ -37,5 +37,5 @@ func main() {
 }
 
 func healthCheckHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"status": "up 01"})
+	c.JSON(http.StatusOK, gin.H{"status": "up"})
 }
