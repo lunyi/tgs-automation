@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"context"
 	"strconv"
 	"sync"
 	"tgs-automation/internal/util"
@@ -63,6 +64,26 @@ func SendMessage(msg string) error {
 }
 
 func SendMessageWithChatId(msg string, chatid string) error {
+	config := util.GetConfig()
+	bot, err := getTelegramBotInstance(config.Telegram.TelegramBotToken)
+	if err != nil {
+		return err
+	}
+
+	bot.Bot.Debug = true
+
+	//log.Info(fmt.Sprintf("Authorized on account %s", bot.Bot.Self.UserName))
+
+	intChatid, _ := strconv.Atoi(chatid)
+	chatID := int64(intChatid)
+
+	if err := bot.SendMessage(chatID, msg); err != nil {
+		return err
+	}
+	return nil
+}
+
+func SendMessageWithChatIdAndContext(ctx context.Context, msg string, chatid string) error {
 	config := util.GetConfig()
 	bot, err := getTelegramBotInstance(config.Telegram.TelegramBotToken)
 	if err != nil {

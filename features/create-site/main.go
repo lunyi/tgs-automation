@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"tgs-automation/features/create-site/controllers/sites"
-	"tgs-automation/features/create-site/middleware"
 	"tgs-automation/internal/log"
+	"tgs-automation/internal/middleware"
 
 	_ "tgs-automation/features/data-retrieve-api/docs"
 

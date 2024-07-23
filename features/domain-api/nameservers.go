@@ -11,9 +11,13 @@ import (
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/cloudflare"
 	"tgs-automation/pkg/telegram"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/miekg/dns"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type GetNameServerRequest struct {
@@ -46,9 +50,17 @@ type ApiResponse struct {
 // @Security ApiKeyAuth
 // @Router /nameservers [put]
 func UpdateNameServer(c *gin.Context) {
+	tracer := otel.Tracer("domain-api")
+	ctx, span := tracer.Start(c.Request.Context(), "UpdateNameServer")
+	defer func() {
+		span.End()
+		ctx.Done()
+	}()
+
 	printAllFields(c)
 	var request UpdateNameServerRequest
 	if err := c.BindJSON(&request); err != nil {
+		span.RecordError(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid update nameserver request data", "details": err.Error()})
 		return
 	}
@@ -63,6 +75,7 @@ func UpdateNameServer(c *gin.Context) {
 	domainParts := strings.Split(request.Domain, ".")
 	if len(domainParts) != 2 {
 		fmt.Println("Invalid domain name format")
+		span.RecordError(fmt.Errorf("Invalid domain name format"))
 		return
 	}
 	sld := domainParts[0]
@@ -82,9 +95,12 @@ func UpdateNameServer(c *gin.Context) {
 	apiUrl := nameCheapUrl + urlParams.Encode()
 	fmt.Println("Url=", apiUrl)
 
+	span.AddEvent("Generated promotion code")
+
 	resp, err := http.Get(apiUrl)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error making API request:", "details": err.Error()})
+		span.RecordError(fmt.Errorf("Error making API request: %v", err))
 		return
 	}
 
@@ -94,27 +110,34 @@ func UpdateNameServer(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error reading response", "details": err.Error()})
+		span.RecordError(fmt.Errorf("Error reading response: %v", err))
 		return
 	}
 
 	var apiResponse ApiResponse
 	if err := xml.Unmarshal(body, &apiResponse); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error parsing XML:", "details": err.Error()})
+		span.RecordError(fmt.Errorf("Error parsing XML: %v", err))
 		return
 	}
 
 	var message string
 	if strings.Contains(apiResponse.Status, "OK") {
 		message = fmt.Sprintf("修改nameserver: %s 成功\nNameServers: %s", request.Domain, request.NameServers)
+		span.AddEvent("Update nameserver successfully")
 	} else {
 		message = fmt.Sprintf("修改nameserver: %s 失敗\n原因: %s\nNameServers: %s", request.Domain, apiResponse.Errors.Error, request.NameServers)
+		span.AddEvent("Update nameserver failed")
 	}
 
+	span.AddEvent("start to send message to telegram", trace.WithTimestamp(time.Now()))
 	err = telegram.SendMessageWithChatId(message, request.ChatId)
 	if err != nil {
 		fmt.Println("Failed to send Telegram message:", err)
+		recordError(span, "Failed to send Telegram message", err)
 	}
-
+	span.AddEvent("end to send message to telegram", trace.WithTimestamp(time.Now()))
+	span.SetStatus(codes.Ok, "")
 	c.JSON(http.StatusOK, gin.H{"data": message})
 }
 
@@ -131,9 +154,17 @@ func UpdateNameServer(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /nameservers [get]
 func GetNameServer(c *gin.Context) {
+	tracer := otel.Tracer("domain-api")
+	ctx, span := tracer.Start(c.Request.Context(), "GetNameServer")
+	defer func() {
+		span.End()
+		ctx.Done()
+	}()
+
 	var request GetNameServerRequest
 	if err := c.ShouldBindQuery(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data", "details": err.Error()})
+		recordError(span, "invalid request data", err)
 		return
 	}
 
@@ -141,22 +172,33 @@ func GetNameServer(c *gin.Context) {
 	targetNameServer, err := cloudflare.GetTargetNameServers(request.Domain)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get target nameserver", "details": err.Error()})
+		recordError(span, "could not get target nameserver", err)
 		return
 	}
 
 	originNameServer, err := getOriginalNameServer(request.Domain)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get original nameserver", "details": err.Error()})
+		recordError(span, "could not get original nameserver", err)
 		return
 	}
 
 	message := fmt.Sprintf("Domain: %s\nNameServers: %s\nOriginal Nameservers: %s", request.Domain, targetNameServer, originNameServer)
-	err = telegram.SendMessageWithChatId(message, request.ChatId)
+	subCtx, subSpan := tracer.Start(ctx, "Send message to telegram")
+
+	err = telegram.SendMessageWithChatIdAndContext(subCtx, message, request.ChatId)
 	if err != nil {
 		fmt.Println("Failed to send Telegram message:", err)
 	}
 
+	subSpan.End()
+
 	c.JSON(http.StatusOK, gin.H{"data": message})
+}
+
+func recordError(span trace.Span, message string, err error) {
+	span.RecordError(fmt.Errorf("%v: %w", message, err))
+	span.SetStatus(codes.Error, message)
 }
 
 func getOriginalNameServer(domain string) (string, error) {
