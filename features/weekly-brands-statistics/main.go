@@ -35,7 +35,6 @@ type BrandTelegramChannel struct {
 
 func getBrandTelegramChannels(config util.TgsConfig) []BrandTelegramChannel {
 	return []BrandTelegramChannel{
-		{"MOVN2", config.MomoTelegram.Movn2ChatId, false},
 		{"MOPH", config.MomoTelegram.MophChatId, true},
 	}
 }

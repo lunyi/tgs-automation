@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
@@ -15,6 +16,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/miekg/dns"
+	"github.com/nats-io/nats.go"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
@@ -184,16 +186,52 @@ func GetNameServer(c *gin.Context) {
 	}
 
 	message := fmt.Sprintf("Domain: %s\nNameServers: %s\nOriginal Nameservers: %s", request.Domain, targetNameServer, originNameServer)
-	subCtx, subSpan := tracer.Start(ctx, "Send message to telegram")
 
-	err = telegram.SendMessageWithChatIdAndContext(subCtx, message, request.ChatId)
-	if err != nil {
-		fmt.Println("Failed to send Telegram message:", err)
-	}
+	config := util.GetConfig()
+	publish(request.ChatId, message, config.NatsUrl)
 
-	subSpan.End()
+	// subCtx, subSpan := tracer.Start(ctx, "Send message to telegram")
+	// err = telegram.SendMessageWithChatIdAndContext(subCtx, message, request.ChatId)
+	// if err != nil {
+	// 	fmt.Println("Failed to send Telegram message:", err)
+	// }
+	// subSpan.End()
 
 	c.JSON(http.StatusOK, gin.H{"data": message})
+}
+
+type MessageData struct {
+	ChatId  string `json:"chatid"`
+	Message string `json:"message"`
+}
+
+func publish(chatId string, message string, natsUrl string) {
+	msgContent := MessageData{
+		ChatId:  chatId,
+		Message: message,
+	}
+
+	msgBytes, err := json.Marshal(msgContent)
+	if err != nil {
+		log.LogError(fmt.Sprintln("error marshalling message: %v", err))
+	}
+
+	nc, err := nats.Connect(natsUrl)
+	if err != nil {
+		log.LogError(fmt.Sprintln("error connecting to NATS server: %v", err))
+	}
+	defer nc.Close()
+
+	js, err := nc.JetStream()
+	if err != nil {
+		log.LogError(fmt.Sprintln("error creating JetStream context: %v", err))
+	}
+
+	_, err = js.Publish("telegram", msgBytes)
+	if err != nil {
+		log.LogError(fmt.Sprintln("error publishing message: %v", err))
+	}
+	fmt.Println("Message published: %w", msgContent)
 }
 
 func recordError(span trace.Span, message string, err error) {

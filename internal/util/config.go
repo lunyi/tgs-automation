@@ -9,19 +9,21 @@ import (
 )
 
 type TgsConfig struct {
-	CloudflareToken  string             `yaml:"cloudflare_token"`
-	ChromeDriverPath string             `yaml:"chrome_driver_path"`
-	GoogleSheet      GoogleSheetConfig  `yaml:"google_sheet"`
-	CdnNetwork       CdnConfig          `yaml:"cdn_network`
-	Namecheap        NamecheapConfig    `yaml:"namecheap"`
-	Postgresql       PostgresqlConfig   `yaml:"postgresql"`
-	CreateSiteDb     PostgresqlConfig   `yaml:"create_site_db"`
-	Telegram         TelegramConfig     `yaml:"telegram"`
-	AwsS3            AwsS3Config        `yaml:"aws_s3"`
-	MomoTelegram     MomoTelegramConfig `yaml:"momo_telegram"`
-	LetsTalk         LetsTalkConfig     `yaml:"letstalk"`
-	Dockerhub        DockerhubConfig    `yaml:"dockerhub"`
-	ApiUrl           ApiUrl             `yaml:"api_url"`
+	CloudflareToken    string             `yaml:"cloudflare_token"`
+	ChromeDriverPath   string             `yaml:"chrome_driver_path"`
+	NatsUrl            string             `yaml:"nats_url"`
+	JaegerCollectorUrl string             `yaml:"jaeger_collector_url`
+	GoogleSheet        GoogleSheetConfig  `yaml:"google_sheet"`
+	CdnNetwork         CdnConfig          `yaml:"cdn_network`
+	Namecheap          NamecheapConfig    `yaml:"namecheap"`
+	Postgresql         PostgresqlConfig   `yaml:"postgresql"`
+	CreateSiteDb       PostgresqlConfig   `yaml:"create_site_db"`
+	Telegram           TelegramConfig     `yaml:"telegram"`
+	AwsS3              AwsS3Config        `yaml:"aws_s3"`
+	MomoTelegram       MomoTelegramConfig `yaml:"momo_telegram"`
+	LetsTalk           LetsTalkConfig     `yaml:"letstalk"`
+	Dockerhub          DockerhubConfig    `yaml:"dockerhub"`
+	ApiUrl             ApiUrl             `yaml:"api_url"`
 }
 
 type ApiUrl struct {
@@ -92,7 +94,7 @@ func GetConfig() TgsConfig {
 	data, err := os.ReadFile(os.Getenv("CONFIGPATH"))
 
 	if err != nil {
-		log.Fatal(fmt.Sprintf("Fail to load config: %s  %v", os.Getenv("CONFIGPATH"), err))
+		log.Fatal(fmt.Sprintf("fail to load config: %s  %v", os.Getenv("CONFIGPATH"), err))
 		panic(err)
 	}
 
@@ -100,7 +102,7 @@ func GetConfig() TgsConfig {
 	var config TgsConfig
 
 	if err := yaml.Unmarshal(data, &config); err != nil {
-		log.Fatal(fmt.Sprintf("Fail to parse config: %v", err))
+		log.Fatal(fmt.Sprintf("fail to parse config: %v", err))
 		panic(err)
 	}
 	return config
