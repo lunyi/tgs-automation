@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"strings"
 	"tgs-automation/internal/log"
-	"tgs-automation/internal/util"
 )
 
 type DNSRecord struct {
@@ -21,12 +20,10 @@ type DNSRecordsResponse struct {
 	Result []DNSRecord `json:"result"`
 }
 
-func GetDnsInfo(dnsName string) error {
-	// Define your Cloudflare API token or key
-	config := util.GetConfig()
-	zoneName := extractDomain(dnsName)
+func (svc *CloudflareService) GetDnsInfo(domain string) error {
+	zoneName := extractDomain(domain)
 
-	zoneId, err := GetZoneId(zoneName)
+	zoneId, err := getZoneId(svc.Config.CloudflareToken, zoneName)
 	if err != nil {
 		return err
 	}
@@ -34,7 +31,7 @@ func GetDnsInfo(dnsName string) error {
 	log.LogInfo(fmt.Sprintf("zoneId: %s", zoneId))
 
 	// Get DNS info for the specified DNS record
-	dnsRecords, err := getDNSInfo(config.CloudflareToken, zoneId, dnsName)
+	dnsRecords, err := getDNSInfo(svc.Config.CloudflareToken, zoneId, domain)
 
 	if err != nil {
 		log.LogError(fmt.Sprintln("Error getting DNS info:", err))

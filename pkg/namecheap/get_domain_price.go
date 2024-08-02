@@ -1,12 +1,12 @@
 package namecheap
 
 import (
+	"context"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"tgs-automation/internal/util"
 )
 
 type CheckDomainPriceResponse struct {
@@ -37,12 +37,12 @@ type CheckDomainApiResponse struct {
 	} `xml:"CommandResponse"`
 }
 
-func CheckDomainPrice(domain string, config util.NamecheapConfig) (*CheckDomainPriceResponse, error) {
+func (n *NamecheapService) GetDomainPrice(ctx context.Context, domain string) (*CheckDomainPriceResponse, error) {
 	array := strings.Split(domain, ".")
 	TLD := array[1]
 
 	checkDomainPriceUrl := fmt.Sprintf("%s&ApiUser=%s&ApiKey=%s&UserName=%s&Command=namecheap.users.getPricing&ClientIp=%s&ProductCategory=register&ProductName=%s&ProductType=DOMAIN",
-		NameCheapUrl, config.NamecheapUsername, config.NamecheapApiKey, config.NamecheapUsername, config.NamecheapClientIp, TLD)
+		n.Config.Namecheap.NamecheapBaseUrl, n.Config.Namecheap.NamecheapUsername, n.Config.Namecheap.NamecheapApiKey, n.Config.Namecheap.NamecheapUsername, n.Config.Namecheap.NamecheapClientIp, TLD)
 
 	fmt.Println("checkDomainPriceUrl=", checkDomainPriceUrl)
 

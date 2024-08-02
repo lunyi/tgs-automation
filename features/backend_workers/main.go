@@ -1,89 +1,105 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"log"
-	"tgs-automation/internal/opentelemetry"
+	"os"
+	"os/signal"
 	"tgs-automation/internal/util"
 	"tgs-automation/pkg/telegram"
-	"time"
 
 	"github.com/nats-io/nats.go"
 )
 
-type MessageData struct {
+type TelegramMessage struct {
 	ChatId  string `json:"chatid"`
 	Message string `json:"message"`
 }
 
 func main() {
 	config := util.GetConfig()
-	ctx := context.Background()
-	tp := opentelemetry.InitTracerProvider(ctx, config.JaegerCollectorUrl, "domain-api", "0.1.0", "prod")
-	defer tp.Shutdown(ctx)
+	// cleanup := initTracer(config.NatsUrl)
+	// defer cleanup()
 
+	fmt.Println("config.NatsUrl:", config.NatsUrl)
+	// 连接 NATS
 	nc, err := nats.Connect(config.NatsUrl)
 
 	if err != nil {
-		fmt.Println("nats connect error: %w", err)
+		log.Fatalf("Error connecting to NATS: %v", err)
 	}
 	defer nc.Close()
+	fmt.Println("nats connected")
 
+	// 創建 JetStream 上下文
 	js, err := nc.JetStream()
 	if err != nil {
 		log.Fatalf("Error creating JetStream context: %v", err)
 	}
 
-	// 定義一個 Stream
-	streamName := "telegram"
+	log.Println("creating JetStream context OK")
+	// 確保 Stream 存在
 	_, err = js.AddStream(&nats.StreamConfig{
-		Name:     streamName,
-		Subjects: []string{"telegram.*"},
+		Name:     "TELEGRAM",
+		Subjects: []string{"telegram.messages"},
 	})
+
 	if err != nil {
 		log.Fatalf("Error adding stream: %v", err)
 	}
 
-	// 訂閱消息並啟用手動確認模式
-	sub, err := js.SubscribeSync("telegram.*", nats.AckExplicit())
+	log.Println("Add JetStream OK")
+
+	// 訂閱消息
+	sub, err := js.Subscribe("telegram.messages",
+		func(m *nats.Msg) {
+			log.Printf("Received a message: %s", string(m.Data))
+			err := handleTelegramMessages(m)
+			if err != nil {
+				log.Printf("Error handling message: %v", err)
+				// 可以在這裡添加重試邏輯
+			}
+			// 確認消息
+			if err := m.Ack(); err != nil {
+				log.Printf("Error acknowledging message: %v", err)
+			}
+		},
+		nats.Durable("telegram-durable"),
+	)
 	if err != nil {
-		log.Fatalf("Error subscribing to subject: %v", err)
+		log.Fatalf("Error subscribing: %v", err)
 	}
+	defer sub.Unsubscribe()
 
-	// 接收消息
-	msg, err := sub.NextMsg(5 * time.Second)
+	// 設置信號處理
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt)
+
+	fmt.Println("Subscriber is running. Press Ctrl+C to stop.")
+
+	// 等待終止信號
+	<-stop
+
+	fmt.Println("Shutting down...")
+}
+
+func handleTelegramMessages(m *nats.Msg) error {
+	// tracer := otel.Tracer("example.com/trace")
+	// ctx, span := tracer.Start(ctx, "handleTelegramMessages")
+	// defer span.End()
+	fmt.Println("handleTelegramMessages entered")
+	var msg TelegramMessage
+	err := json.Unmarshal(m.Data, &msg)
 	if err != nil {
-		log.Fatalf("Error receiving message: %v", err)
+		log.Printf("Error unmarshaling message: %v", err)
+		return err
 	}
-	fmt.Printf("Received message: %s\n", msg.Data)
 
-	// 確認消息
-	if err := msg.Ack(); err != nil {
-		log.Fatalf("Error acknowledging message: %v", err)
-	}
-	fmt.Println("Message acknowledged")
-
-	traceID := msg.Header.Get("trace-id")
-	log.Printf("Received message with Trace ID: %s", traceID)
-
-	// 解析 JSON 数据
-	var receivedData MessageData
-	if err := json.Unmarshal(msg.Data, &receivedData); err != nil {
-		log.Fatalf("Error unmarshalling JSON data: %v", err)
-	}
-	fmt.Printf("Parsed message data: %+v\n", receivedData)
-
-	// 檢查未確認的消息
-	pending, bytes, err := sub.Pending()
+	telegram.SendMessageWithChatId(msg.Message, msg.ChatId)
 	if err != nil {
-		log.Fatalf("Error checking pending messages: %v", err)
+		log.Printf("Error sending Telegram message: %v", err)
+		return err
 	}
-	fmt.Printf("Pending messages: %d, Pending bytes: %d\n", pending, bytes)
-
-	err = telegram.SendMessageWithChatIdAndContext(ctx, receivedData.Message, receivedData.ChatId)
-	if err != nil {
-		fmt.Println("Failed to send Telegram message:", err)
-	}
+	return nil
 }

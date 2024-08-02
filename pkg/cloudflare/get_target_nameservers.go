@@ -9,7 +9,7 @@ import (
 	"tgs-automation/internal/util"
 )
 
-func GetTargetNameServers(domain string) (string, error) {
+func (svc *CloudflareService) GetTargetNameServers(domain string) (string, error) {
 	config := util.GetConfig()
 	// Get Cloudflare name servers
 	url := fmt.Sprintf("https://api.cloudflare.com/client/v4/zones?per_page=1000&name=%s", domain)

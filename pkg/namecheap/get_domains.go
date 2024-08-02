@@ -4,9 +4,8 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"strconv"
-	"tgs-automation/internal/httpclient"
-	"tgs-automation/internal/util"
 	"time"
 )
 
@@ -60,26 +59,10 @@ type FilteredDomain struct {
 	Expires string `xml:"Expires,attr"`
 }
 
-type NamecheapAPI interface {
-	GetExpiredDomains() ([]FilteredDomain, error)
-}
-
-type NamecheapClient struct {
-	Config     util.NamecheapConfig
-	HTTPClient httpclient.HttpClient
-}
-
-func New(config util.NamecheapConfig, httpClient httpclient.HttpClient) NamecheapAPI {
-	return &NamecheapClient{
-		Config:     config,
-		HTTPClient: httpClient,
-	}
-}
-
-func (nc *NamecheapClient) GetExpiredDomains() ([]FilteredDomain, error) {
-	userName := nc.Config.NamecheapUsername
-	apiKey := nc.Config.NamecheapApiKey
-	clinetIp := nc.Config.NamecheapClientIp
+func (nc *NamecheapService) GetExpiredDomains() ([]FilteredDomain, error) {
+	userName := nc.Config.Namecheap.NamecheapUsername
+	apiKey := nc.Config.Namecheap.NamecheapApiKey
+	clinetIp := nc.Config.Namecheap.NamecheapClientIp
 
 	url := fmt.Sprintf("%s?ApiUser=%s&ApiKey=%s&UserName=%s&Command=%s&ClientIp=%s&PageSize=%d&Page=", apiUrl, userName, apiKey, userName, command, clinetIp, pageSize)
 
@@ -87,7 +70,7 @@ func (nc *NamecheapClient) GetExpiredDomains() ([]FilteredDomain, error) {
 	index := 1
 	for index < maxPages {
 		fmt.Println(index)
-		_domains, totolCount, shouldReturn, err := getDomains(nc.HTTPClient, url, index)
+		_domains, totolCount, shouldReturn, err := getDomains(url, index)
 
 		if err != nil {
 			return filterDomainsWithExpired(domains), nil
@@ -135,11 +118,11 @@ func filterDomainsWithExpired(domains []Domain) []FilteredDomain {
 	return result
 }
 
-func getDomains(httpclient httpclient.HttpClient, url string, index int) ([]Domain, int, bool, error) {
+func getDomains(url string, index int) ([]Domain, int, bool, error) {
 	url = url + strconv.Itoa(index)
 	fmt.Println("url:", url)
 
-	response, err := httpclient.Get(url)
+	response, err := http.Get(url)
 	if err != nil {
 		fmt.Println("Error fetching domain list:", err)
 		return []Domain{}, -1, true, err

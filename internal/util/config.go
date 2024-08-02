@@ -1,6 +1,7 @@
 package util
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -65,10 +66,14 @@ type CdnConfig struct {
 }
 
 type NamecheapConfig struct {
-	NamecheapApiKey   string `yaml:"namecheap_api_key"`
-	NamecheapUsername string `yaml:"namecheap_username"`
-	NamecheapPassword string `yaml:"namecheap_password"`
-	NamecheapClientIp string `yaml:"namecheap_client_ip"`
+	NamecheapApiKey      string `yaml:"namecheap_api_key"`
+	NamecheapUsername    string `yaml:"namecheap_username"`
+	NamecheapPassword    string `yaml:"namecheap_password"`
+	NamecheapClientIp    string `yaml:"namecheap_client_ip"`
+	NamecheapBaseUrl     string `yaml:"namecheap_baseurl"`
+	NamecheapEmail       string `yaml:"namecheap_email"`
+	NamecheapAddress     string `yaml:"namecheap_address"`
+	NamecheapNameServers string `yaml:"namecheap_nameservers"`
 }
 
 type PostgresqlConfig struct {
@@ -90,11 +95,15 @@ type LetsTalkConfig struct {
 	ApiKey    string `yaml:"api_key"`
 }
 
+func NewConfig() TgsConfig {
+	return GetConfig()
+}
+
 func GetConfig() TgsConfig {
 	data, err := os.ReadFile(os.Getenv("CONFIGPATH"))
 
 	if err != nil {
-		log.Fatal(fmt.Sprintf("fail to load config: %s  %v", os.Getenv("CONFIGPATH"), err))
+		log.Fatalf(fmt.Sprintf("fail to load config: %s  %v", os.Getenv("CONFIGPATH"), err))
 		panic(err)
 	}
 
@@ -102,7 +111,25 @@ func GetConfig() TgsConfig {
 	var config TgsConfig
 
 	if err := yaml.Unmarshal(data, &config); err != nil {
-		log.Fatal(fmt.Sprintf("fail to parse config: %v", err))
+		log.Fatalf(fmt.Sprintf("fail to parse config: %v", err))
+		panic(err)
+	}
+	return config
+}
+
+func GetConfigWithContext(ctx context.Context) TgsConfig {
+	data, err := os.ReadFile(os.Getenv("CONFIGPATH"))
+
+	if err != nil {
+		log.Fatalf(fmt.Sprintf("fail to load config: %s  %v", os.Getenv("CONFIGPATH"), err))
+		panic(err)
+	}
+
+	// create a person struct and deserialize the data into that struct
+	var config TgsConfig
+
+	if err := yaml.Unmarshal(data, &config); err != nil {
+		log.Fatalf(fmt.Sprintf("fail to parse config: %v", err))
 		panic(err)
 	}
 	return config

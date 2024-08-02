@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"tgs-automation/internal/log"
-	"tgs-automation/internal/util"
 )
 
 type ZoneResponse struct {
@@ -15,13 +14,9 @@ type ZoneResponse struct {
 	} `json:"result"`
 }
 
-func GetZoneId(domain string) (string, error) {
-	// Define your Cloudflare API token or key
-	config := util.GetConfig()
-
-	apiToken := config.CloudflareToken
+func getZoneId(token string, domain string) (string, error) {
 	// Get Zone ID for the domain
-	zoneID, err := getZoneID(apiToken, domain)
+	zoneID, err := getZoneID(token, domain)
 	if err != nil {
 		log.LogError(fmt.Sprintln("Error getting Zone ID:", err))
 		return "", err

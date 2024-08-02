@@ -9,6 +9,8 @@ import (
 	middleware "tgs-automation/internal/middleware"
 	"tgs-automation/internal/opentelemetry"
 	"tgs-automation/internal/util"
+	"tgs-automation/pkg/cloudflare"
+	"tgs-automation/pkg/namecheap"
 
 	"github.com/gin-gonic/gin"
 	"github.com/iris-contrib/swagger/swaggerFiles"
@@ -25,6 +27,8 @@ func main() {
 	config := util.GetConfig()
 	opentelemetry.InitTracerProvider(ctx, config.JaegerCollectorUrl, "domain-api", "0.1.0", "prod")
 	router.Use(middleware.TraceMiddleware("domain-api"))
+	namecheapSvc := namecheap.New(config)
+	cloudflareSvc := cloudflare.NewClloudflare(config)
 
 	server := &http.Server{
 		Addr:    ":8080",
@@ -36,10 +40,10 @@ func main() {
 	router.GET("/healthz", healthCheckHandler)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.GET("/token", jwttoken.TokenHandler)
-	router.GET("/nameserver", middleware.AuthMiddleware(), GetNameServer)
-	router.PUT("/nameserver", middleware.AuthMiddleware(), UpdateNameServer)
-	router.GET("/domain/price", middleware.AuthMiddleware(), GetDomainPrice)
-	router.POST("/domain", middleware.AuthMiddleware(), CreateDomain)
+	router.GET("/nameserver", middleware.AuthMiddleware(), GetNameServer(cloudflareSvc))
+	router.PUT("/nameserver", middleware.AuthMiddleware(), UpdateNameServer(namecheapSvc))
+	router.GET("/domain/price", middleware.AuthMiddleware(), GetDomainPrice(namecheapSvc))
+	router.POST("/domain", middleware.AuthMiddleware(), CreateDomainHandler(namecheapSvc))
 	err := server.ListenAndServe()
 
 	if err != nil {

@@ -1,23 +1,16 @@
 package namecheap
 
 import (
+	"context"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"tgs-automation/internal/util"
 )
 
-const (
-	Email        = "ly.lester@rayprosoft.com"
-	NameServers  = "micah.ns.cloudflare.com,ulla.ns.cloudflare.com"
-	Address      = "Sec4WenxinRdBeitunDist"
-	NameCheapUrl = "https://api.namecheap.com/xml.response?"
-)
-
-func CheckDomainAvailable(domain string, config util.NamecheapConfig) (bool, error) {
+func (n *NamecheapService) CheckDomainAvailable(ctx context.Context, domain string) (bool, error) {
 	checkDomainAvailableUrl := fmt.Sprintf("%s&ApiUser=%s&ApiKey=%s&UserName=%s&Command=namecheap.domains.check&ClientIp=%s&DomainList=%s",
-		NameCheapUrl, config.NamecheapUsername, config.NamecheapApiKey, config.NamecheapUsername, config.NamecheapClientIp, domain)
+		n.Config.Namecheap.NamecheapBaseUrl, n.Config.Namecheap.NamecheapUsername, n.Config.Namecheap.NamecheapApiKey, n.Config.Namecheap.NamecheapUsername, n.Config.Namecheap.NamecheapClientIp, domain)
 
 	// Check if domain is available
 	responseDomainCheck, err := http.Get(checkDomainAvailableUrl)

@@ -18,12 +18,12 @@ func NewExpiredDomainsService(config util.TgsConfig) *ExpiredDomainsService {
 		googlesheetInterface: providerGoogleSheetInterface(config.GoogleSheet),
 		googlesheetSvc:       providerGoogleSheetSvc(config.GoogleSheet),
 		postgresqlInterface:  providerPostgresql(config.Postgresql),
-		namecheapInterface:   providerNameCheap(config.Namecheap, client),
+		namecheapInterface:   providerNameCheap(config, client),
 	}
 }
 
-func providerNameCheap(cfg util.NamecheapConfig, client *httpclient.StandardHTTPClient) namecheap.NamecheapAPI {
-	return namecheap.New(cfg, client)
+func providerNameCheap(cfg util.TgsConfig, client *httpclient.StandardHTTPClient) namecheap.NamecheapApi {
+	return namecheap.New(cfg)
 }
 
 func providerPostgresql(cfg util.PostgresqlConfig) postgresql.GetAgentServiceInterface {

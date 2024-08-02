@@ -26,7 +26,7 @@ type ExpiredDomainsService struct {
 	googlesheetInterface googlesheet.GoogleSheetServiceInterface
 	googlesheetSvc       *googlesheet.GoogleSheetService
 	postgresqlInterface  postgresql.GetAgentServiceInterface
-	namecheapInterface   namecheap.NamecheapAPI
+	namecheapInterface   namecheap.NamecheapApi
 	httpClient           *httpclient.StandardHTTPClient
 }
 

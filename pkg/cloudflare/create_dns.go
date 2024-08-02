@@ -7,23 +7,20 @@ import (
 	"net/http"
 	"strings"
 	"tgs-automation/internal/log"
-	"tgs-automation/internal/util"
 )
 
-func CreateDNS(domain string) error {
-	config := util.GetConfig()
-
-	apiToken := config.CloudflareToken
+func (svc *CloudflareService) CreateDNS(domain string) error {
+	apiToken := svc.Config.CloudflareToken
 	zoneName := extractDomain(domain)
-	zoneID, err := GetZoneId(zoneName)
+	zoneID, err := getZoneId(apiToken, domain)
 	if err != nil {
 		return err
 	}
 
 	record := DNSRecord{
 		Type:    "CNAME",
-		Name:    domain,                       // Name of the record
-		Content: config.CdnNetwork.DnsContent, // IP address or content of the record
+		Name:    zoneName,                         // Name of the record
+		Content: svc.Config.CdnNetwork.DnsContent, // IP address or content of the record
 		TTL:     1,
 		Proxied: false, // Whether the record is proxied through Cloudflare
 	}
