@@ -81,7 +81,6 @@ func parseXml(xmlStr string, xpathExpr string) (string, error) {
 	if value, ok := path.String(root); ok {
 		return value, nil
 	}
-
 	return "", fmt.Errorf("no match found")
 }
 
