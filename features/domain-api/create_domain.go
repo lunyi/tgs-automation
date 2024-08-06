@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"tgs-automation/internal/util"
 	"tgs-automation/pkg/namecheap"
-	"tgs-automation/pkg/telegram"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -29,7 +29,10 @@ type CreateDomainRequest struct {
 // @Success 200 {object} map[string]interface{} "success"
 // @Failure 400 {object} map[string]interface{} "error"
 // @Router /domain [post]
-func CreateDomainHandler(api namecheap.NamecheapApi) gin.HandlerFunc {
+func CreateDomainHandler(
+	api namecheap.NamecheapApi,
+	natsSvc util.NatsPublisherService,
+) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request CreateDomainRequest
 		if err := c.BindJSON(&request); err != nil {
@@ -65,7 +68,7 @@ func CreateDomainHandler(api namecheap.NamecheapApi) gin.HandlerFunc {
 		balance, _ := parseXml(balanceResponse, "//ApiResponse/CommandResponse/UserGetBalancesResult/@AvailableBalance")
 
 		message := formatDomainMessage(status, request.Domain, promotionCode, chargeAmount, errorMsg, balance, currency)
-		telegram.SendMessageWithChatId(message, request.ChatId)
+		natsSvc.Publish(request.ChatId, message)
 
 		c.JSON(http.StatusOK, gin.H{"status": status, "message": message})
 	}

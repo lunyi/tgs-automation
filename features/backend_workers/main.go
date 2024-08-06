@@ -13,12 +13,16 @@ import (
 )
 
 type TelegramMessage struct {
-	ChatId  string `json:"chatid"`
+	ChatId  string `json:"chat_id"`
 	Message string `json:"message"`
 }
 
 func main() {
 	config := util.GetConfig()
+	bot, err := telegram.GetTelegramBotInstance(config.Telegram.TelegramBotToken)
+	if err != nil {
+		log.Fatalln("Error not getting telegram token")
+	}
 	// cleanup := initTracer(config.NatsUrl)
 	// defer cleanup()
 
@@ -55,7 +59,7 @@ func main() {
 	sub, err := js.Subscribe("telegram.messages",
 		func(m *nats.Msg) {
 			log.Printf("Received a message: %s", string(m.Data))
-			err := handleTelegramMessages(m)
+			err := handleTelegramMessages(bot, m)
 			if err != nil {
 				log.Printf("Error handling message: %v", err)
 				// 可以在這裡添加重試邏輯
@@ -84,7 +88,7 @@ func main() {
 	fmt.Println("Shutting down...")
 }
 
-func handleTelegramMessages(m *nats.Msg) error {
+func handleTelegramMessages(bot *telegram.TelegramBot, m *nats.Msg) error {
 	// tracer := otel.Tracer("example.com/trace")
 	// ctx, span := tracer.Start(ctx, "handleTelegramMessages")
 	// defer span.End()
@@ -96,7 +100,8 @@ func handleTelegramMessages(m *nats.Msg) error {
 		return err
 	}
 
-	telegram.SendMessageWithChatId(msg.Message, msg.ChatId)
+	err = bot.SendMessage(msg.ChatId, msg.Message)
+
 	if err != nil {
 		log.Printf("Error sending Telegram message: %v", err)
 		return err

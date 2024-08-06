@@ -13,9 +13,9 @@ type TgsConfig struct {
 	CloudflareToken    string             `yaml:"cloudflare_token"`
 	ChromeDriverPath   string             `yaml:"chrome_driver_path"`
 	NatsUrl            string             `yaml:"nats_url"`
-	JaegerCollectorUrl string             `yaml:"jaeger_collector_url`
+	JaegerCollectorUrl string             `yaml:"jaeger_collector_url"`
 	GoogleSheet        GoogleSheetConfig  `yaml:"google_sheet"`
-	CdnNetwork         CdnConfig          `yaml:"cdn_network`
+	CdnNetwork         CdnConfig          `yaml:"cdn_network"`
 	Namecheap          NamecheapConfig    `yaml:"namecheap"`
 	Postgresql         PostgresqlConfig   `yaml:"postgresql"`
 	CreateSiteDb       PostgresqlConfig   `yaml:"create_site_db"`
@@ -101,7 +101,6 @@ func NewConfig() TgsConfig {
 
 func GetConfig() TgsConfig {
 	data, err := os.ReadFile(os.Getenv("CONFIGPATH"))
-
 	if err != nil {
 		log.Fatalf(fmt.Sprintf("fail to load config: %s  %v", os.Getenv("CONFIGPATH"), err))
 		panic(err)

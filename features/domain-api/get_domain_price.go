@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"reflect"
 	"tgs-automation/internal/log"
+	"tgs-automation/internal/util"
 	"tgs-automation/pkg/namecheap"
 	"tgs-automation/pkg/telegram"
 	"time"
@@ -44,7 +45,10 @@ func printAllFields(c *gin.Context) {
 // @Success      200     {object}  map[string]interface{}
 // @Failure      400     {object}  map[string]interface{}
 // @Router       /domain/price [get]
-func GetDomainPrice(api namecheap.NamecheapApi) gin.HandlerFunc {
+func GetDomainPriceHandler(
+	api namecheap.NamecheapApi,
+	natsSvc util.NatsPublisherService,
+) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		printAllFields(c)
 		var request GetDomainPriceRequest
@@ -85,7 +89,8 @@ func GetDomainPrice(api namecheap.NamecheapApi) gin.HandlerFunc {
 		}
 
 		message := fmt.Sprintf("[Get Domain Price]\ndomain: %s\nRegular Price: %s\nPromotion Price: %s", request.Domain, domainPriceResponse.RegularPrice, domainPriceResponse.Price)
-		telegram.SendMessageWithChatId(message, request.ChatId)
+
+		natsSvc.Publish(request.ChatId, message)
 		c.JSON(http.StatusBadRequest, gin.H{"info": message})
 	}
 }

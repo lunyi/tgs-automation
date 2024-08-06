@@ -1,19 +1,17 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 	"tgs-automation/internal/log"
+	"tgs-automation/internal/util"
 	"tgs-automation/pkg/cloudflare"
 	"tgs-automation/pkg/namecheap"
-	"tgs-automation/pkg/telegram"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/miekg/dns"
-	"github.com/nats-io/nats.go"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
@@ -41,7 +39,10 @@ type UpdateNameServerRequest struct {
 // @Failure 400 {object} ApiResponse "Bad Request"
 // @Security ApiKeyAuth
 // @Router /nameservers [put]
-func UpdateNameServer(svc namecheap.NamecheapApi) gin.HandlerFunc {
+func UpdateNameServerHandler(
+	svc namecheap.NamecheapApi,
+	natsSvc util.NatsPublisherService,
+) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tracer := otel.Tracer("domain-api")
 		ctx, span := tracer.Start(c.Request.Context(), "UpdateNameServer")
@@ -75,11 +76,9 @@ func UpdateNameServer(svc namecheap.NamecheapApi) gin.HandlerFunc {
 		}
 
 		span.AddEvent("start to send message to telegram", trace.WithTimestamp(time.Now()))
-		err = telegram.SendMessageWithChatId(message, request.ChatId)
-		if err != nil {
-			fmt.Println("Failed to send Telegram message:", err)
-			recordError(span, "Failed to send Telegram message", err)
-		}
+
+		natsSvc.Publish(request.ChatId, message)
+
 		span.AddEvent("end to send message to telegram", trace.WithTimestamp(time.Now()))
 		span.SetStatus(codes.Ok, "")
 		c.JSON(http.StatusOK, gin.H{"data": message})
@@ -98,7 +97,10 @@ func UpdateNameServer(svc namecheap.NamecheapApi) gin.HandlerFunc {
 // @Failure 400 {object} ApiResponse "Bad Request"
 // @Security ApiKeyAuth
 // @Router /nameservers [get]
-func GetNameServer(cloudflareApi cloudflare.CloudflareApi) gin.HandlerFunc {
+func GetNameServerHandler(
+	cloudflareApi cloudflare.CloudflareApi,
+	natsSvc util.NatsPublisherService,
+) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//tracer := otel.Tracer("domain-api")
 		// ctx, span := tracer.Start(c.Request.Context(), "GetNameServer")
@@ -131,13 +133,7 @@ func GetNameServer(cloudflareApi cloudflare.CloudflareApi) gin.HandlerFunc {
 
 		message := fmt.Sprintf("Domain: %s\nNameServers: %s\nOriginal Nameservers: %s", request.Domain, targetNameServer, originNameServer)
 
-		err = telegram.SendMessageWithChatId(message, request.ChatId)
-		if err != nil {
-			fmt.Println("Failed to send Telegram message:", err)
-			//recordError(span, "Failed to send Telegram message", err)
-		}
-
-		//publish(request.ChatId, message, config.NatsUrl)
+		natsSvc.Publish(request.ChatId, message)
 
 		// subCtx, subSpan := tracer.Start(ctx, "Send message to telegram")
 		// err = telegram.SendMessageWithChatIdAndContext(subCtx, message, request.ChatId)
@@ -145,43 +141,8 @@ func GetNameServer(cloudflareApi cloudflare.CloudflareApi) gin.HandlerFunc {
 		// 	fmt.Println("Failed to send Telegram message:", err)
 		// }
 		// subSpan.End()
-
 		c.JSON(http.StatusOK, gin.H{"data": message})
 	}
-}
-
-type MessageData struct {
-	ChatId  string `json:"chatid"`
-	Message string `json:"message"`
-}
-
-func publish(chatId string, message string, natsUrl string) {
-	msgContent := MessageData{
-		ChatId:  chatId,
-		Message: message,
-	}
-
-	msgBytes, err := json.Marshal(msgContent)
-	if err != nil {
-		log.LogError(fmt.Sprintln("error marshalling message: %w", err))
-	}
-
-	nc, err := nats.Connect(natsUrl)
-	if err != nil {
-		log.LogError(fmt.Sprintln("error connecting to NATS server: %w", err))
-	}
-	defer nc.Close()
-
-	js, err := nc.JetStream()
-	if err != nil {
-		log.LogError(fmt.Sprintln("error creating JetStream context: %w", err))
-	}
-
-	_, err = js.Publish("telegram", msgBytes)
-	if err != nil {
-		log.LogError(fmt.Sprintln("error publishing message: %w", err))
-	}
-	fmt.Println("Message published: %w", msgContent)
 }
 
 func recordError(span trace.Span, message string, err error) {

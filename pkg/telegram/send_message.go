@@ -2,40 +2,13 @@ package telegram
 
 import (
 	"context"
-	"strconv"
-	"sync"
 	"tgs-automation/internal/util"
-
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
-
-var (
-	telegramBotInstance *TelegramBot
-	once                sync.Once
-)
-
-type TelegramBot struct {
-	Bot *tgbotapi.BotAPI
-}
-
-func NewTelegramBot(token string) (*TelegramBot, error) {
-	bot, err := tgbotapi.NewBotAPI(token)
-	if err != nil {
-		return nil, err
-	}
-	return &TelegramBot{Bot: bot}, nil
-}
-
-func (tb *TelegramBot) SendMessage(chatID int64, text string) error {
-	msg := tgbotapi.NewMessage(chatID, text)
-	_, err := tb.Bot.Send(msg)
-	return err
-}
 
 func getTelegramBotInstance(token string) (*TelegramBot, error) {
 	var err error
 	once.Do(func() {
-		telegramBotInstance, err = NewTelegramBot(token)
+		telegramBotInstance, err = newTelegramBot(token)
 	})
 	if err != nil {
 		return nil, err
@@ -49,15 +22,8 @@ func SendMessage(msg string) error {
 	if err != nil {
 		return err
 	}
-
 	bot.Bot.Debug = true
-
-	//log.Info(fmt.Sprintf("Authorized on account %s", bot.Bot.Self.UserName))
-
-	chatid, _ := strconv.Atoi(config.Telegram.TelegramChatId)
-	chatID := int64(chatid)
-
-	if err := bot.SendMessage(chatID, msg); err != nil {
+	if err := bot.SendMessage(config.Telegram.TelegramChatId, msg); err != nil {
 		return err
 	}
 	return nil
@@ -71,13 +37,7 @@ func SendMessageWithChatId(msg string, chatid string) error {
 	}
 
 	bot.Bot.Debug = true
-
-	//log.Info(fmt.Sprintf("Authorized on account %s", bot.Bot.Self.UserName))
-
-	intChatid, _ := strconv.Atoi(chatid)
-	chatID := int64(intChatid)
-
-	if err := bot.SendMessage(chatID, msg); err != nil {
+	if err := bot.SendMessage(chatid, msg); err != nil {
 		return err
 	}
 	return nil
@@ -91,13 +51,7 @@ func SendMessageWithChatIdAndContext(ctx context.Context, msg string, chatid str
 	}
 
 	bot.Bot.Debug = true
-
-	//log.Info(fmt.Sprintf("Authorized on account %s", bot.Bot.Self.UserName))
-
-	intChatid, _ := strconv.Atoi(chatid)
-	chatID := int64(intChatid)
-
-	if err := bot.SendMessage(chatID, msg); err != nil {
+	if err := bot.SendMessage(chatid, msg); err != nil {
 		return err
 	}
 	return nil

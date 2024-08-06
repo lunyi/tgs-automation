@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	mockNatsPublish "tgs-automation/internal/util/mocks"
 	mockNamecheap "tgs-automation/pkg/namecheap/mocks"
 
 	"github.com/gin-gonic/gin"
@@ -18,25 +19,29 @@ func TestCreateDomainHandler(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockApi := mockNamecheap.NewMockNamecheapApi(ctrl)
+	mockNamecheapApi := mockNamecheap.NewMockNamecheapApi(ctrl)
+	mockNats := mockNatsPublish.NewMockNatsPublisherService(ctrl)
 
-	// Define the expected behavior of the mock
-	mockApi.EXPECT().
+	mockNats.EXPECT().
+		Publish(gomock.Any(), gomock.Any()).
+		Return(nil)
+
+	mockNamecheapApi.EXPECT().
 		GetCouponCode(gomock.Any()).
 		Return("PROMOCODE", nil)
 
-	mockApi.EXPECT().
+	mockNamecheapApi.EXPECT().
 		CreateDomain(gomock.Any(), "example.com", "PROMOCODE").
 		Return(`<ApiResponse Status="OK"><CommandResponse><DomainCreateResult ChargedAmount="8.88"/></CommandResponse></ApiResponse>`, nil)
 
-	mockApi.EXPECT().
+	mockNamecheapApi.EXPECT().
 		GetBalance(gomock.Any()).
 		Return(`<ApiResponse><CommandResponse><UserGetBalancesResult Currency="USD" AvailableBalance="100.00"/></CommandResponse></ApiResponse>`, nil)
 
 	// Setup the router
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
-	router.POST("/domain", CreateDomainHandler(mockApi))
+	router.POST("/domain", CreateDomainHandler(mockNamecheapApi, mockNats))
 
 	// Create a request body
 	requestBody, _ := json.Marshal(map[string]interface{}{
